@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SubmissionStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -70,7 +71,7 @@ class Submission extends Model
     protected function casts(): array
     {
         return [
-            'status' => \App\Enums\SubmissionStatus::class,
+            'status' => SubmissionStatus::class,
             'metadata' => 'array',
             'submitted_at' => 'datetime',
         ];

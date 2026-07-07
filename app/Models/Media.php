@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MediaType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -86,7 +87,7 @@ class Media extends Model
     protected function casts(): array
     {
         return [
-            'type' => \App\Enums\MediaType::class,
+            'type' => MediaType::class,
             'meta' => 'array',
             'optimized' => 'boolean',
             'size' => 'integer',

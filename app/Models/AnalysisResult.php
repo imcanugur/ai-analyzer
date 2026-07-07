@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\AnalysisStage;
+use App\Enums\AnalysisStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -76,8 +78,8 @@ class AnalysisResult extends Model
     protected function casts(): array
     {
         return [
-            'stage' => \App\Enums\AnalysisStage::class,
-            'status' => \App\Enums\AnalysisStatus::class,
+            'stage' => AnalysisStage::class,
+            'status' => AnalysisStatus::class,
             'score' => 'float',
             'payload' => 'array',
             'metadata' => 'array',
