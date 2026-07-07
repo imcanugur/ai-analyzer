@@ -88,6 +88,7 @@ class Analysis extends Model
     protected function casts(): array
     {
         return [
+            'status' => \App\Enums\AnalysisStatus::class,
             'config' => 'array',
             'metadata' => 'array',
             'started_at' => 'datetime',

@@ -76,6 +76,8 @@ class AnalysisResult extends Model
     protected function casts(): array
     {
         return [
+            'stage' => \App\Enums\AnalysisStage::class,
+            'status' => \App\Enums\AnalysisStatus::class,
             'score' => 'float',
             'payload' => 'array',
             'metadata' => 'array',

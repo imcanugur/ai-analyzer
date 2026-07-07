@@ -86,6 +86,7 @@ class Media extends Model
     protected function casts(): array
     {
         return [
+            'type' => \App\Enums\MediaType::class,
             'meta' => 'array',
             'optimized' => 'boolean',
             'size' => 'integer',

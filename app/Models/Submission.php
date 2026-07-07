@@ -70,6 +70,7 @@ class Submission extends Model
     protected function casts(): array
     {
         return [
+            'status' => \App\Enums\SubmissionStatus::class,
             'metadata' => 'array',
             'submitted_at' => 'datetime',
         ];
