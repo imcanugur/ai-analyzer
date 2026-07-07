@@ -67,8 +67,14 @@ return [
             'region' => env('R2_REGION', 'auto'),
             'bucket' => env('R2_BUCKET', 'storage'),
             'endpoint' => env('R2_ENDPOINT', 'https://<accountid>.r2.cloudflarestorage.com'),
+            'url' => env('R2_CDN_URL', ''),
             'cdn_url' => env('R2_CDN_URL', ''),
             'use_path_style_endpoint' => env('R2_PATH_STYLE', true),
+            'http' => [
+                'headers' => [
+                    'Referer' => env('R2_CDN_URL', '')
+                ],
+            ],
         ],
     ],
 

@@ -15,6 +15,11 @@ class DefaultMediaTypeResolver implements MediaTypeResolver
     {
         $extension = strtolower($extension);
 
+        $restrictedExtensions = ['exe', 'dll', 'msi', 'dmg', 'iso', 'so', 'bin', 'jar'];
+        if (in_array($extension, $restrictedExtensions)) {
+            throw new \InvalidArgumentException("Security Alert: Executable files and binary installers are not allowed: .{$extension}");
+        }
+
         $sourceCodeExtensions = [
             'php', 'py', 'js', 'jsx', 'ts', 'tsx', 'go', 'java', 'c', 'cpp',
             'h', 'cs', 'rb', 'rs', 'swift', 'sh', 'bat', 'html', 'css', 'sql',

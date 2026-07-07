@@ -26,7 +26,12 @@ class CreateSubmissionAction
 
             // 2. Upload file and create media polymorphic link
             $disk = config('filesystems.default', 'r2');
-            $this->mediaService->createMedia($submission, $dto->file, $disk);
+            $this->mediaService->createMedia(
+                model: $submission,
+                file: $dto->file,
+                disk: $disk,
+                sourceDisk: 'local'
+            );
 
             return $submission;
         });
