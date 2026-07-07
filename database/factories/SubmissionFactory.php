@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\SubmissionStatus;
 use App\Models\Submission;
 use App\Models\User;
-use App\Enums\SubmissionStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SubmissionFactory extends Factory

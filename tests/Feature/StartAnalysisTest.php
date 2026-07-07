@@ -8,6 +8,7 @@ use App\Enums\AnalysisStatus;
 use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class StartAnalysisTest extends TestCase
@@ -19,7 +20,7 @@ class StartAnalysisTest extends TestCase
      */
     public function test_analysis_can_be_started_with_pending_status(): void
     {
-        \Illuminate\Support\Facades\Queue::fake();
+        Queue::fake();
 
         // 1. Create a user and a submission
         $user = User::factory()->create();
