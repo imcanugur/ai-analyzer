@@ -4,12 +4,15 @@ namespace Tests\Feature;
 
 use App\Actions\StartAnalysisAction;
 use App\DTO\StartAnalysisDTO;
+use App\Enums\AnalysisStage;
+use App\Enums\AnalysisStatus;
+use App\Enums\MediaType;
+use App\Jobs\StartAnalysisJob;
+use App\Models\Media;
 use App\Models\Submission;
 use App\Models\User;
-use App\Models\Media;
-use App\Enums\AnalysisStatus;
-use App\Enums\AnalysisStage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -35,7 +38,7 @@ class QueueAnalysisTest extends TestCase
 
         app(StartAnalysisAction::class)->execute($dto);
 
-        Queue::assertDispatched(\App\Jobs\StartAnalysisJob::class);
+        Queue::assertDispatched(StartAnalysisJob::class);
     }
 
     /**
@@ -53,7 +56,7 @@ class QueueAnalysisTest extends TestCase
         // Create dummy media file
         $fileName = 'test_document.txt';
         $fileContent = 'Hello World! This is a test file for extraction.';
-        $path = Storage::disk('local')->putFileAs('temp-uploads', \Illuminate\Http\UploadedFile::fake()->createWithContent($fileName, $fileContent), $fileName);
+        $path = Storage::disk('local')->putFileAs('temp-uploads', UploadedFile::fake()->createWithContent($fileName, $fileContent), $fileName);
 
         $media = Media::create([
             'mediable_type' => Submission::class,
@@ -65,7 +68,7 @@ class QueueAnalysisTest extends TestCase
             'size' => strlen($fileContent),
             'original_name' => $fileName,
             'extension' => 'txt',
-            'type' => \App\Enums\MediaType::DOCUMENT,
+            'type' => MediaType::DOCUMENT,
         ]);
 
         // 2. Trigger the action

@@ -2,10 +2,10 @@
 
 namespace App\Jobs;
 
-use App\Models\Analysis;
+use App\Contracts\AnalysisResultRepositoryInterface;
 use App\Enums\AnalysisStage;
 use App\Enums\AnalysisStatus;
-use App\Contracts\AnalysisResultRepositoryInterface;
+use App\Models\Analysis;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -55,6 +55,7 @@ class ExtractTextJob implements ShouldQueue
                     'error' => $e->getMessage(),
                     'completed_at' => now(),
                 ]);
+
                 return;
             }
         }

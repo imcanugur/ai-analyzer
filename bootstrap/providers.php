@@ -1,10 +1,11 @@
 <?php
 
+use App\Providers\AIServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\Filament\AppPanelProvider;
 
 return [
     AppServiceProvider::class,
     AppPanelProvider::class,
-    App\Providers\AIServiceProvider::class,
+    AIServiceProvider::class,
 ];

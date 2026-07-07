@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\AI\Contracts\AIProviderInterface;
-use App\AI\Providers\OllamaProvider;
 use App\AI\DTO\AIResponse;
+use App\AI\Providers\OllamaProvider;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 

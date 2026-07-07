@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\DTO\StartAnalysisDTO;
+use App\Jobs\StartAnalysisJob;
 use App\Models\Analysis;
 use App\Services\AnalysisService;
 
@@ -14,9 +15,6 @@ class StartAnalysisAction
 
     /**
      * Start an analysis by creating the analysis record with Pending status.
-     *
-     * @param StartAnalysisDTO $dto
-     * @return Analysis
      */
     public function execute(StartAnalysisDTO $dto): Analysis
     {
@@ -35,7 +33,7 @@ class StartAnalysisAction
         );
 
         // Dispatch the queue pipeline to start analysis asynchronously
-        \App\Jobs\StartAnalysisJob::dispatch($analysis);
+        StartAnalysisJob::dispatch($analysis);
 
         return $analysis;
     }

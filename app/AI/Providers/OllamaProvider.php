@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Log;
 class OllamaProvider implements AIProviderInterface
 {
     protected string $endpoint;
+
     protected string $defaultModel;
+
     protected int $timeout;
 
     public function __construct()
@@ -26,11 +28,11 @@ class OllamaProvider implements AIProviderInterface
     public function generate(string $prompt, array $options = []): AIResponse
     {
         $model = $options['model'] ?? $this->defaultModel;
-        
+
         // Remove 'model' from options so it is not passed twice in the Ollama body options block
         unset($options['model']);
 
-        $url = rtrim($this->endpoint, '/') . '/api/generate';
+        $url = rtrim($this->endpoint, '/').'/api/generate';
 
         $startTime = microtime(true);
 
@@ -44,15 +46,15 @@ class OllamaProvider implements AIProviderInterface
                 ]);
 
             if ($response->failed()) {
-                throw new \RuntimeException("Ollama request failed: " . $response->body());
+                throw new \RuntimeException('Ollama request failed: '.$response->body());
             }
 
             $data = $response->json();
             $text = $data['response'] ?? '';
-            
+
             // Calculate total tokens processed (prompt eval tokens + generation response tokens)
             $tokens = ($data['prompt_eval_count'] ?? 0) + ($data['eval_count'] ?? 0);
-            
+
             $executionTime = (int) ((microtime(true) - $startTime) * 1000);
 
             return new AIResponse(
@@ -63,7 +65,7 @@ class OllamaProvider implements AIProviderInterface
             );
 
         } catch (\Exception $e) {
-            Log::error("Ollama API Error: " . $e->getMessage());
+            Log::error('Ollama API Error: '.$e->getMessage());
             throw $e;
         }
     }

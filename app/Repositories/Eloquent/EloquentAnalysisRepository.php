@@ -20,18 +20,20 @@ class EloquentAnalysisRepository implements AnalysisRepositoryInterface
     public function update(string $id, array $attributes): bool
     {
         $analysis = $this->find($id);
-        if (!$analysis) {
+        if (! $analysis) {
             return false;
         }
+
         return $analysis->update($attributes);
     }
 
     public function delete(string $id): bool
     {
         $analysis = $this->find($id);
-        if (!$analysis) {
+        if (! $analysis) {
             return false;
         }
+
         return $analysis->delete();
     }
 }

@@ -17,7 +17,7 @@ class AIServiceProvider extends ServiceProvider
             $driver = config('ai.default', 'ollama');
 
             return match ($driver) {
-                'ollama' => new OllamaProvider(),
+                'ollama' => new OllamaProvider,
                 default => throw new \InvalidArgumentException("Unsupported AI provider driver: {$driver}"),
             };
         });

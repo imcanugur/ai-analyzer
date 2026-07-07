@@ -20,18 +20,20 @@ class EloquentAnalysisResultRepository implements AnalysisResultRepositoryInterf
     public function update(string $id, array $attributes): bool
     {
         $result = $this->find($id);
-        if (!$result) {
+        if (! $result) {
             return false;
         }
+
         return $result->update($attributes);
     }
 
     public function delete(string $id): bool
     {
         $result = $this->find($id);
-        if (!$result) {
+        if (! $result) {
             return false;
         }
+
         return $result->delete();
     }
 }

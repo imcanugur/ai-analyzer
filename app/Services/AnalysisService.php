@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Contracts\AnalysisRepositoryInterface;
+use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
 use App\Models\Submission;
-use App\Enums\AnalysisStatus;
 
 class AnalysisService
 {
@@ -15,11 +15,6 @@ class AnalysisService
 
     /**
      * Create a new analysis record for a submission with Pending status.
-     *
-     * @param Submission $submission
-     * @param string $type
-     * @param array $options
-     * @return Analysis
      */
     public function createAnalysis(Submission $submission, string $type, array $options = []): Analysis
     {

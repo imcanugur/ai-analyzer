@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use App\Actions\StartAnalysisAction;
 use App\DTO\StartAnalysisDTO;
+use App\Enums\AnalysisStatus;
 use App\Models\Submission;
 use App\Models\User;
-use App\Enums\AnalysisStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\SubmissionResource\Pages;
 
+use App\Actions\StartAnalysisAction;
+use App\DTO\StartAnalysisDTO;
 use App\Filament\Resources\SubmissionResource;
 use App\Services\MediaService;
 use Filament\Actions;
@@ -43,7 +45,7 @@ class EditSubmission extends EditRecord
                 }
 
                 // If a new file is uploaded, create the new media record
-                if (!empty($data['file'])) {
+                if (! empty($data['file'])) {
                     $disk = config('filesystems.default', 'r2');
                     $media = $mediaService->createMedia(
                         model: $record,
@@ -53,7 +55,7 @@ class EditSubmission extends EditRecord
                     );
 
                     // Automatically start a new analysis for the updated file
-                    app(\App\Actions\StartAnalysisAction::class)->execute(new \App\DTO\StartAnalysisDTO(
+                    app(StartAnalysisAction::class)->execute(new StartAnalysisDTO(
                         submission: $record,
                         type: $media->type->value
                     ));
