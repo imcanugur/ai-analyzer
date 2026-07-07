@@ -43,14 +43,14 @@ class MediaService
         $mime = $file->getMimeType();
         $size = $file->getSize();
         $checksum = hash_file('sha256', $file->getRealPath());
-        
-        $fileName = Str::uuid() . '.' . $extension;
+
+        $fileName = Str::uuid().'.'.$extension;
         $path = $this->pathGenerator->getPath($model, $fileName);
 
         // Store file
         Storage::disk($disk)->putFileAs(
-            dirname($path), 
-            $file, 
+            dirname($path),
+            $file,
             basename($path)
         );
 
@@ -91,7 +91,7 @@ class MediaService
     {
         $storage = Storage::disk($disk);
 
-        if (!$storage->exists($path)) {
+        if (! $storage->exists($path)) {
             throw new \InvalidArgumentException("File does not exist at path: {$path} on disk: {$disk}");
         }
 
@@ -99,7 +99,7 @@ class MediaService
         $mime = $storage->mimeType($path);
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         $originalName = $originalName ?? basename($path);
-        
+
         // Compute SHA256 checksum safely using streams for files to prevent memory issues
         $checksum = null;
         if ($size < 10 * 1024 * 1024) { // 10MB limit for in-memory hashing
@@ -109,7 +109,7 @@ class MediaService
             $stream = $storage->readStream($path);
             if ($stream) {
                 $context = hash_init('sha256');
-                while (!feof($stream)) {
+                while (! feof($stream)) {
                     hash_update($context, fread($stream, 8192));
                 }
                 $checksum = hash_final($context);

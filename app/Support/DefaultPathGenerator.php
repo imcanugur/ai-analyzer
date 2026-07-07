@@ -12,7 +12,7 @@ class DefaultPathGenerator implements PathGenerator
      */
     public function getPath(Model $model, string $fileName): string
     {
-        return $this->getDirectory($model) . '/' . $fileName;
+        return $this->getDirectory($model).'/'.$fileName;
     }
 
     /**
@@ -20,6 +20,6 @@ class DefaultPathGenerator implements PathGenerator
      */
     public function getDirectory(Model $model): string
     {
-        return $model->getTable() . '/' . $model->getKey();
+        return $model->getTable().'/'.$model->getKey();
     }
 }

@@ -2,6 +2,14 @@
 
 namespace App\Providers;
 
+use App\Contracts\MediaRepositoryInterface;
+use App\Contracts\MediaTypeResolver;
+use App\Contracts\PathGenerator;
+use App\Contracts\SubmissionRepositoryInterface;
+use App\Repositories\Eloquent\EloquentMediaRepository;
+use App\Repositories\Eloquent\EloquentSubmissionRepository;
+use App\Support\DefaultMediaTypeResolver;
+use App\Support\DefaultPathGenerator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -12,23 +20,23 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(
-            \App\Contracts\PathGenerator::class,
-            \App\Support\DefaultPathGenerator::class
+            PathGenerator::class,
+            DefaultPathGenerator::class
         );
 
         $this->app->bind(
-            \App\Contracts\MediaTypeResolver::class,
-            \App\Support\DefaultMediaTypeResolver::class
+            MediaTypeResolver::class,
+            DefaultMediaTypeResolver::class
         );
 
         $this->app->bind(
-            \App\Contracts\SubmissionRepositoryInterface::class,
-            \App\Repositories\Eloquent\EloquentSubmissionRepository::class
+            SubmissionRepositoryInterface::class,
+            EloquentSubmissionRepository::class
         );
 
         $this->app->bind(
-            \App\Contracts\MediaRepositoryInterface::class,
-            \App\Repositories\Eloquent\EloquentMediaRepository::class
+            MediaRepositoryInterface::class,
+            EloquentMediaRepository::class
         );
     }
 

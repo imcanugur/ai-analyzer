@@ -14,11 +14,11 @@ class DefaultMediaTypeResolver implements MediaTypeResolver
     public function resolve(string $mime, string $extension): MediaType
     {
         $extension = strtolower($extension);
-        
+
         $sourceCodeExtensions = [
-            'php', 'py', 'js', 'jsx', 'ts', 'tsx', 'go', 'java', 'c', 'cpp', 
+            'php', 'py', 'js', 'jsx', 'ts', 'tsx', 'go', 'java', 'c', 'cpp',
             'h', 'cs', 'rb', 'rs', 'swift', 'sh', 'bat', 'html', 'css', 'sql',
-            'json', 'yaml', 'yml', 'xml', 'md'
+            'json', 'yaml', 'yml', 'xml', 'md',
         ];
         if (in_array($extension, $sourceCodeExtensions)) {
             return MediaType::SOURCE_CODE;
@@ -46,7 +46,7 @@ class DefaultMediaTypeResolver implements MediaTypeResolver
             'application/vnd.openxmlformats-officedocument.presentationml.presentation',
             'text/plain',
             'text/csv',
-            'application/rtf'
+            'application/rtf',
         ];
         if (in_array($mime, $documentMimes) || in_array($extension, ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'rtf'])) {
             return MediaType::DOCUMENT;

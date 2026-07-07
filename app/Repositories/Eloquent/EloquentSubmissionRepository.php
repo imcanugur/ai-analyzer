@@ -29,7 +29,7 @@ class EloquentSubmissionRepository implements SubmissionRepositoryInterface
     public function update(string $id, array $attributes): bool
     {
         $submission = $this->find($id);
-        if (!$submission) {
+        if (! $submission) {
             return false;
         }
 
@@ -42,7 +42,7 @@ class EloquentSubmissionRepository implements SubmissionRepositoryInterface
     public function delete(string $id): bool
     {
         $submission = $this->find($id);
-        if (!$submission) {
+        if (! $submission) {
             return false;
         }
 
