@@ -52,6 +52,10 @@ class AppServiceProvider extends ServiceProvider
             AnalysisResultRepositoryInterface::class,
             EloquentAnalysisResultRepository::class
         );
+
+        $this->app->singleton(
+            \App\Services\PromptService::class
+        );
     }
 
     /**
