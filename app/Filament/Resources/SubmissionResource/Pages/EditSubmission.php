@@ -43,14 +43,20 @@ class EditSubmission extends EditRecord
                 }
 
                 // If a new file is uploaded, create the new media record
-                if (! empty($data['file'])) {
+                if (!empty($data['file'])) {
                     $disk = config('filesystems.default', 'r2');
-                    $mediaService->createMedia(
+                    $media = $mediaService->createMedia(
                         model: $record,
                         file: $data['file'],
                         disk: $disk,
                         sourceDisk: 'local'
                     );
+
+                    // Automatically start a new analysis for the updated file
+                    app(\App\Actions\StartAnalysisAction::class)->execute(new \App\DTO\StartAnalysisDTO(
+                        submission: $record,
+                        type: $media->type->value
+                    ));
                 }
             }
 

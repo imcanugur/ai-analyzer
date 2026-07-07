@@ -6,4 +6,5 @@ use App\Providers\Filament\AppPanelProvider;
 return [
     AppServiceProvider::class,
     AppPanelProvider::class,
+    App\Providers\AIServiceProvider::class,
 ];

@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Contracts\AnalysisRepositoryInterface;
+use App\Contracts\AnalysisResultRepositoryInterface;
 use App\Contracts\MediaRepositoryInterface;
 use App\Contracts\MediaTypeResolver;
 use App\Contracts\PathGenerator;
 use App\Contracts\SubmissionRepositoryInterface;
+use App\Repositories\Eloquent\EloquentAnalysisRepository;
+use App\Repositories\Eloquent\EloquentAnalysisResultRepository;
 use App\Repositories\Eloquent\EloquentMediaRepository;
 use App\Repositories\Eloquent\EloquentSubmissionRepository;
 use App\Support\DefaultMediaTypeResolver;
@@ -37,6 +41,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             MediaRepositoryInterface::class,
             EloquentMediaRepository::class
+        );
+
+        $this->app->bind(
+            AnalysisRepositoryInterface::class,
+            EloquentAnalysisRepository::class
+        );
+
+        $this->app->bind(
+            AnalysisResultRepositoryInterface::class,
+            EloquentAnalysisResultRepository::class
         );
     }
 

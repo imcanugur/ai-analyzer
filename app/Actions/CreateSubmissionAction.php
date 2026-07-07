@@ -2,7 +2,9 @@
 
 namespace App\Actions;
 
+use App\Actions\StartAnalysisAction;
 use App\DTO\CreateSubmissionDTO;
+use App\DTO\StartAnalysisDTO;
 use App\Models\Submission;
 use App\Services\MediaService;
 use App\Services\SubmissionService;
@@ -12,7 +14,8 @@ class CreateSubmissionAction
 {
     public function __construct(
         protected SubmissionService $submissionService,
-        protected MediaService $mediaService
+        protected MediaService $mediaService,
+        protected StartAnalysisAction $startAnalysisAction
     ) {}
 
     /**
@@ -26,12 +29,18 @@ class CreateSubmissionAction
 
             // 2. Upload file and create media polymorphic link
             $disk = config('filesystems.default', 'r2');
-            $this->mediaService->createMedia(
+            $media = $this->mediaService->createMedia(
                 model: $submission,
                 file: $dto->file,
                 disk: $disk,
                 sourceDisk: 'local'
             );
+
+            // 3. Automatically start analysis based on the media type
+            $this->startAnalysisAction->execute(new StartAnalysisDTO(
+                submission: $submission,
+                type: $media->type->value
+            ));
 
             return $submission;
         });
