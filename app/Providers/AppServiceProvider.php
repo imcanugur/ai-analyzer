@@ -11,7 +11,25 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \App\Contracts\PathGenerator::class,
+            \App\Support\DefaultPathGenerator::class
+        );
+
+        $this->app->bind(
+            \App\Contracts\MediaTypeResolver::class,
+            \App\Support\DefaultMediaTypeResolver::class
+        );
+
+        $this->app->bind(
+            \App\Contracts\SubmissionRepositoryInterface::class,
+            \App\Repositories\Eloquent\EloquentSubmissionRepository::class
+        );
+
+        $this->app->bind(
+            \App\Contracts\MediaRepositoryInterface::class,
+            \App\Repositories\Eloquent\EloquentMediaRepository::class
+        );
     }
 
     /**
