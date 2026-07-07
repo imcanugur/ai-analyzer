@@ -19,6 +19,8 @@ class StartAnalysisTest extends TestCase
      */
     public function test_analysis_can_be_started_with_pending_status(): void
     {
+        \Illuminate\Support\Facades\Queue::fake();
+
         // 1. Create a user and a submission
         $user = User::factory()->create();
         $submission = Submission::factory()->create([

@@ -38,7 +38,7 @@ class QueueAnalysisTest extends TestCase
 
         app(StartAnalysisAction::class)->execute($dto);
 
-        Queue::assertDispatched(StartAnalysisJob::class);
+        Queue::assertPushed(\App\Jobs\StartAnalysisJob::class);
     }
 
     /**

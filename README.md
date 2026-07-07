@@ -54,7 +54,6 @@ An enterprise-ready, production-quality content analysis and media processing sy
 Ensure your environment meets the following requirements:
 
 - **PHP**: `^8.3` (with `json`, `dom`, `curl`, `libxml`, `mbstring`, `gd`, `exif`, `pcntl`, `bcmath`, `zip`, and `redis` extensions)
-- **Node.js**: `^20.x` or later (for compiling front-end assets via Vite)
 - **Database**: PostgreSQL `15+` (or SQLite for development/testing)
 - **Queue/Cache**: Redis Server `7.x+`
 - **System Utilities (Required for media processing)**: FFMPEG, Ghostscript, ImageMagick
