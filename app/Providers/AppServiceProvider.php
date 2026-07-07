@@ -12,6 +12,7 @@ use App\Repositories\Eloquent\EloquentAnalysisRepository;
 use App\Repositories\Eloquent\EloquentAnalysisResultRepository;
 use App\Repositories\Eloquent\EloquentMediaRepository;
 use App\Repositories\Eloquent\EloquentSubmissionRepository;
+use App\Services\PromptService;
 use App\Support\DefaultMediaTypeResolver;
 use App\Support\DefaultPathGenerator;
 use Illuminate\Support\ServiceProvider;
@@ -54,7 +55,7 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(
-            \App\Services\PromptService::class
+            PromptService::class
         );
     }
 
