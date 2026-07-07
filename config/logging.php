@@ -4,6 +4,7 @@ use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
+use App\Logging\CreateRedisLogger;
 
 return [
 
@@ -127,6 +128,12 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'redis' => [
+            'driver' => 'custom',
+            'via' => CreateRedisLogger::class,
+            'key' => env('LOG_REDIS_KEY', 'logs'),
+            'ttl' => env('LOG_REDIS_TTL', 14),
+        ],
     ],
 
 ];
