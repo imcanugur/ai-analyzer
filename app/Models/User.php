@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,18 +13,16 @@ use Illuminate\Notifications\Notifiable;
 /**
  * Class User
  *
- * @package App\Models
  *
  * @property string $id
  * @property string $name
  * @property string $email
- * @property \Carbon\Carbon|null $email_verified_at
+ * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- *
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Submission[] $submissions
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection|Submission[] $submissions
  */
 class User extends Authenticatable
 {
@@ -78,8 +78,6 @@ class User extends Authenticatable
 
     /**
      * Get the submissions for the user.
-     *
-     * @return HasMany
      */
     public function submissions(): HasMany
     {

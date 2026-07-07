@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Class Analysis
  *
- * @package App\Models
  *
  * @property string $id
  * @property string $submission_id
@@ -24,15 +25,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $status
  * @property array|null $config
  * @property array|null $metadata
- * @property \Carbon\Carbon|null $started_at
- * @property \Carbon\Carbon|null $completed_at
+ * @property Carbon|null $started_at
+ * @property Carbon|null $completed_at
  * @property string|null $error
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- *
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Submission $submission
- * @property-read \Illuminate\Database\Eloquent\Collection|AnalysisResult[] $results
- * @property-read \Illuminate\Database\Eloquent\Collection|Report[] $reports
+ * @property-read Collection|AnalysisResult[] $results
+ * @property-read Collection|Report[] $reports
  */
 class Analysis extends Model
 {
@@ -97,8 +97,6 @@ class Analysis extends Model
 
     /**
      * Get the submission that owns the analysis.
-     *
-     * @return BelongsTo
      */
     public function submission(): BelongsTo
     {
@@ -107,8 +105,6 @@ class Analysis extends Model
 
     /**
      * Get the results for the analysis.
-     *
-     * @return HasMany
      */
     public function results(): HasMany
     {
@@ -117,8 +113,6 @@ class Analysis extends Model
 
     /**
      * Get the reports for the analysis.
-     *
-     * @return HasMany
      */
     public function reports(): HasMany
     {

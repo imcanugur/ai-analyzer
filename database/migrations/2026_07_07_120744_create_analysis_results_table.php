@@ -30,7 +30,7 @@ return new class extends Migration
 
             $table->string('status')->default('completed');
 
-            $table->decimal('score',5,2)->nullable();
+            $table->decimal('score', 5, 2)->nullable();
 
             $table->json('payload')->nullable();
 
@@ -40,7 +40,7 @@ return new class extends Migration
 
             $table->unsignedInteger('tokens')->nullable();
 
-            $table->decimal('cost',12,6)->nullable();
+            $table->decimal('cost', 12, 6)->nullable();
 
             $table->timestamps();
 

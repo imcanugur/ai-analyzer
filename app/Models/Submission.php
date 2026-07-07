@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +15,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class Submission
  *
- * @package App\Models
  *
  * @property string $id
  * @property string $user_id
@@ -21,14 +22,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $description
  * @property string $status
  * @property array|null $metadata
- * @property \Carbon\Carbon|null $submitted_at
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- * @property \Carbon\Carbon|null $deleted_at
- *
+ * @property Carbon|null $submitted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property-read User $user
- * @property-read \Illuminate\Database\Eloquent\Collection|Analysis[] $analyses
- * @property-read \Illuminate\Database\Eloquent\Collection|Media[] $media
+ * @property-read Collection|Analysis[] $analyses
+ * @property-read Collection|Media[] $media
  */
 class Submission extends Model
 {
@@ -77,8 +77,6 @@ class Submission extends Model
 
     /**
      * Get the user that owns the submission.
-     *
-     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -87,8 +85,6 @@ class Submission extends Model
 
     /**
      * Get the analyses for the submission.
-     *
-     * @return HasMany
      */
     public function analyses(): HasMany
     {
@@ -97,8 +93,6 @@ class Submission extends Model
 
     /**
      * Get all of the submission's media.
-     *
-     * @return MorphMany
      */
     public function media(): MorphMany
     {

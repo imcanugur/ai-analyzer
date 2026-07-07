@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,15 +11,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Class Report
  *
- * @package App\Models
  *
  * @property string $id
  * @property string $analysis_id
  * @property string $type
  * @property array|null $metadata
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- *
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Analysis $analysis
  */
 class Report extends Model
@@ -64,8 +63,6 @@ class Report extends Model
 
     /**
      * Get the analysis that owns the report.
-     *
-     * @return BelongsTo
      */
     public function analysis(): BelongsTo
     {

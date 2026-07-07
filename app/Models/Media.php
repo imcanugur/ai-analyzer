@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class Media
  *
- * @package App\Models
  *
  * @property string $id
  * @property string|null $mediable_type
@@ -27,10 +27,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $type
  * @property array|null $meta
  * @property bool $optimized
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- * @property \Carbon\Carbon|null $deleted_at
- *
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property-read Model|\Eloquent $mediable
  */
 class Media extends Model
@@ -95,8 +94,6 @@ class Media extends Model
 
     /**
      * Get the parent mediable model.
-     *
-     * @return MorphTo
      */
     public function mediable(): MorphTo
     {
