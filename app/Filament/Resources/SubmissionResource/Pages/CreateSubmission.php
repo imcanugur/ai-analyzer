@@ -5,6 +5,7 @@ namespace App\Filament\Resources\SubmissionResource\Pages;
 use App\Actions\CreateSubmissionAction;
 use App\DTO\CreateSubmissionDTO;
 use App\Filament\Resources\SubmissionResource;
+use App\Models\User;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,7 +18,7 @@ class CreateSubmission extends CreateRecord
      */
     protected function handleRecordCreation(array $data): Model
     {
-        $data['user_id'] = auth()->id() ?? \App\Models\User::first()?->id;
+        $data['user_id'] = auth()->id() ?? User::first()?->id;
 
         $dto = CreateSubmissionDTO::fromArray($data);
 

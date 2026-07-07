@@ -72,7 +72,7 @@ return [
             'use_path_style_endpoint' => env('R2_PATH_STYLE', true),
             'http' => [
                 'headers' => [
-                    'Referer' => env('R2_CDN_URL', '')
+                    'Referer' => env('R2_CDN_URL', ''),
                 ],
             ],
         ],

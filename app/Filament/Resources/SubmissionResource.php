@@ -4,6 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SubmissionResource\Pages;
 use App\Models\Submission;
+use App\Support\FilamentUI;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -19,9 +25,9 @@ class SubmissionResource extends Resource
     {
         return $form
             ->schema([
-                \App\Support\FilamentUI::generalInfoSection(),
-                \App\Support\FilamentUI::attachmentSection(),
-                \App\Support\FilamentUI::metadataSection(),
+                FilamentUI::generalInfoSection(),
+                FilamentUI::attachmentSection(),
+                FilamentUI::metadataSection(),
             ]);
     }
 
@@ -33,23 +39,23 @@ class SubmissionResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                \App\Support\FilamentUI::statusColumn(),
-                \App\Support\FilamentUI::createdAtColumn(),
-                \App\Support\FilamentUI::submittedAtColumn(),
+                FilamentUI::statusColumn(),
+                FilamentUI::createdAtColumn(),
+                FilamentUI::submittedAtColumn(),
             ])
             ->filters([
-                \App\Support\FilamentUI::statusFilter(),
-                \App\Support\FilamentUI::mediaTypeFilter(),
-                \App\Support\FilamentUI::dateRangeFilter(),
+                FilamentUI::statusFilter(),
+                FilamentUI::mediaTypeFilter(),
+                FilamentUI::dateRangeFilter(),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\SubmissionResource\Pages;
 
 use App\Filament\Resources\SubmissionResource;
+use App\Services\MediaService;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class EditSubmission extends EditRecord
 {
@@ -21,9 +24,9 @@ class EditSubmission extends EditRecord
     /**
      * Handle the record update process and manage media replacement.
      */
-    protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
+    protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        return \Illuminate\Support\Facades\DB::transaction(function () use ($record, $data) {
+        return DB::transaction(function () use ($record, $data) {
             // 1. Update the title and description
             $record->update([
                 'title' => $data['title'],
@@ -31,16 +34,16 @@ class EditSubmission extends EditRecord
             ]);
 
             // 2. If the user requested to replace/change the file
-            if (!empty($data['replace_file'])) {
-                $mediaService = app(\App\Services\MediaService::class);
-                
+            if (! empty($data['replace_file'])) {
+                $mediaService = app(MediaService::class);
+
                 $oldMedia = $record->media()->first();
                 if ($oldMedia) {
                     $mediaService->delete($oldMedia);
                 }
 
                 // If a new file is uploaded, create the new media record
-                if (!empty($data['file'])) {
+                if (! empty($data['file'])) {
                     $disk = config('filesystems.default', 'r2');
                     $mediaService->createMedia(
                         model: $record,

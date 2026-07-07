@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\MediaRepositoryInterface;
 use App\Contracts\MediaTypeResolver;
 use App\Contracts\PathGenerator;
+use App\Enums\MediaType;
 use App\Events\MediaCreated;
 use App\Events\MediaCreating;
 use App\Models\Media;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
 
 class MediaService
 {
@@ -61,7 +63,7 @@ class MediaService
         ?string $type = null,
         bool $optimize = false
     ): Media {
-        if (!$file->isValid()) {
+        if (! $file->isValid()) {
             throw new \RuntimeException('Invalid file upload attempt.');
         }
 
@@ -97,21 +99,21 @@ class MediaService
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
 
         if ($forcePath) {
-            $path = $this->pathGenerator->getDirectory($mediable, $directory) . '/' . ltrim($forcePath, '/');
+            $path = $this->pathGenerator->getDirectory($mediable, $directory).'/'.ltrim($forcePath, '/');
         } else {
-            $unique = uniqid('', true) . '_' . Str::random(6) . ($extension ? '.' . $extension : '');
+            $unique = uniqid('', true).'_'.Str::random(6).($extension ? '.'.$extension : '');
             $path = $this->pathGenerator->getPath($mediable, $unique, $directory);
         }
 
         Storage::disk($this->disk)->put($path, $contents);
 
         $url = $this->getUrl($path);
-        
+
         $checksum = hash('sha256', $contents);
 
-        $resolvedType = $type instanceof \App\Enums\MediaType 
-            ? $type 
-            : ($type ? \App\Enums\MediaType::tryFrom($type) : $this->mediaTypeResolver->resolve($mime, $extension));
+        $resolvedType = $type instanceof MediaType
+            ? $type
+            : ($type ? MediaType::tryFrom($type) : $this->mediaTypeResolver->resolve($mime, $extension));
 
         $media = new Media([
             'disk' => $this->disk,
@@ -149,7 +151,7 @@ class MediaService
     {
         $cdn = config("filesystems.disks.{$this->disk}.cdn_url");
 
-        return $cdn ? rtrim($cdn, '/') . '/' . $path : Storage::disk($this->disk)->url($path);
+        return $cdn ? rtrim($cdn, '/').'/'.$path : Storage::disk($this->disk)->url($path);
     }
 
     /**
@@ -158,7 +160,7 @@ class MediaService
     public function generatePath(string $filename, string $directory = 'media'): string
     {
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
-        $unique = uniqid('', true) . '_' . Str::random(6) . ($extension ? '.' . $extension : '');
+        $unique = uniqid('', true).'_'.Str::random(6).($extension ? '.'.$extension : '');
 
         return $this->pathGenerator->getPath(null, $unique, $directory);
     }
@@ -171,9 +173,9 @@ class MediaService
         $mime = $file->getMimeType();
         $contents = file_get_contents($file->getRealPath());
 
-        if (str_starts_with($mime, 'image/') && class_exists(\Intervention\Image\ImageManager::class)) {
+        if (str_starts_with($mime, 'image/') && class_exists(ImageManager::class)) {
             try {
-                $manager = \Intervention\Image\ImageManager::gd();
+                $manager = ImageManager::gd();
                 $image = $manager->read($file->getRealPath())
                     ->resize(720)
                     ->toJpeg(75);
@@ -186,16 +188,17 @@ class MediaService
 
         if ($mime === 'application/pdf') {
             $tmpIn = $file->getRealPath();
-            $tmpOut = sys_get_temp_dir() . '/' . uniqid() . '.pdf';
+            $tmpOut = sys_get_temp_dir().'/'.uniqid().'.pdf';
 
             if (shell_exec('which gs')) {
-                $cmd = 'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook ' .
+                $cmd = 'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook '.
                     "-dNOPAUSE -dQUIET -dBATCH -sOutputFile={$tmpOut} {$tmpIn}";
                 exec($cmd);
 
                 if (file_exists($tmpOut)) {
                     $optContents = file_get_contents($tmpOut);
                     unlink($tmpOut);
+
                     return $optContents;
                 }
             }
@@ -203,7 +206,7 @@ class MediaService
 
         if (str_starts_with($mime, 'video/') || str_starts_with($mime, 'audio/')) {
             $tmpIn = $file->getRealPath();
-            $tmpOut = sys_get_temp_dir() . '/' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $tmpOut = sys_get_temp_dir().'/'.uniqid().'.'.$file->getClientOriginalExtension();
 
             if (shell_exec('which ffmpeg')) {
                 $cmd = "ffmpeg -i {$tmpIn} -b:v 1000k -b:a 128k -y {$tmpOut}";
@@ -212,6 +215,7 @@ class MediaService
                 if (file_exists($tmpOut)) {
                     $optContents = file_get_contents($tmpOut);
                     unlink($tmpOut);
+
                     return $optContents;
                 }
             }
@@ -285,7 +289,7 @@ class MediaService
         $sourceDisk = $sourceDisk ?? config('filesystems.default', 'local');
         $sourceStorage = Storage::disk($sourceDisk);
 
-        if (!$sourceStorage->exists($path)) {
+        if (! $sourceStorage->exists($path)) {
             throw new \InvalidArgumentException("File does not exist at path: {$path} on source disk: {$sourceDisk}");
         }
 
@@ -293,13 +297,13 @@ class MediaService
         $mime = $sourceStorage->mimeType($path);
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         $originalName = $originalName ?? basename($path);
-        
+
         // Compute SHA256 checksum safely using streams from the source disk
         $checksum = null;
         $stream = $sourceStorage->readStream($path);
         if ($stream) {
             $context = hash_init('sha256');
-            while (!feof($stream)) {
+            while (! feof($stream)) {
                 hash_update($context, fread($stream, 8192));
             }
             $checksum = hash_final($context);

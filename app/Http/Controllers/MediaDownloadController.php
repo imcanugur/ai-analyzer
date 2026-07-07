@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Media;
 use App\Actions\DownloadMediaAction;
+use App\Models\Media;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MediaDownloadController extends Controller
@@ -14,9 +14,6 @@ class MediaDownloadController extends Controller
 
     /**
      * Handle the download request securely.
-     *
-     * @param Media $media
-     * @return StreamedResponse
      */
     public function __invoke(Media $media): StreamedResponse
     {

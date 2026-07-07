@@ -11,14 +11,11 @@ class DownloadMediaAction
 {
     /**
      * Execute the action to download a media file securely.
-     *
-     * @param Media $media
-     * @return StreamedResponse
      */
     public function execute(Media $media): StreamedResponse
     {
         // 1. Authorization Control
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             abort(401, 'Unauthenticated.');
         }
 
@@ -34,7 +31,7 @@ class DownloadMediaAction
 
         // 2. Storage Check
         $disk = Storage::disk($media->disk);
-        if (!$disk->exists($media->path)) {
+        if (! $disk->exists($media->path)) {
             abort(404, 'The requested file does not exist on storage.');
         }
 
@@ -44,7 +41,7 @@ class DownloadMediaAction
             $media->original_name,
             [
                 'Content-Type' => $media->mime ?? 'application/octet-stream',
-                'Content-Disposition' => 'attachment; filename="' . basename($media->original_name) . '"',
+                'Content-Disposition' => 'attachment; filename="'.basename($media->original_name).'"',
             ]
         );
     }

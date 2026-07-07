@@ -13,7 +13,7 @@ class DefaultPathGenerator implements PathGenerator
      */
     public function getPath(?Model $model, string $fileName, string $directory = 'media'): string
     {
-        return $this->getDirectory($model, $directory) . '/' . $fileName;
+        return $this->getDirectory($model, $directory).'/'.$fileName;
     }
 
     /**
@@ -24,10 +24,10 @@ class DefaultPathGenerator implements PathGenerator
         $prefix = $this->getStoragePrefix();
 
         if ($model) {
-            return $prefix . '/' . $model->getTable() . '/' . $model->getKey();
+            return $prefix.'/'.$model->getTable().'/'.$model->getKey();
         }
 
-        return $prefix . '/' . trim($directory, '/');
+        return $prefix.'/'.trim($directory, '/');
     }
 
     /**
@@ -38,7 +38,7 @@ class DefaultPathGenerator implements PathGenerator
         $urlSlug = $this->getUrlSlug();
         $env = config('app.env', 'production');
 
-        return $urlSlug . '/' . $env;
+        return $urlSlug.'/'.$env;
     }
 
     /**
@@ -52,7 +52,7 @@ class DefaultPathGenerator implements PathGenerator
         }
 
         $host = parse_url($url, PHP_URL_HOST);
-        if (!$host) {
+        if (! $host) {
             return Str::slug(config('app.name', 'laravel'));
         }
 
