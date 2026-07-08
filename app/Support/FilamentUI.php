@@ -375,6 +375,7 @@ class FilamentUI
                         ->action(function ($record) {
                             if ($record && $record->media()->exists()) {
                                 $media = $record->media()->first();
+
                                 return Storage::disk($media->disk)->download($media->path, $media->original_name);
                             }
                         }),
