@@ -1,5 +1,12 @@
 <?php
 
+use App\Enums\AnalysisStage;
+use App\Jobs\GenerateGrammarJob;
+use App\Jobs\GenerateReferencesJob;
+use App\Jobs\GenerateReportJob;
+use App\Jobs\GenerateReviewerJob;
+use App\Jobs\GenerateSimilarityJob;
+
 return [
 
     /*
@@ -55,11 +62,11 @@ return [
     |
     */
     'pipeline' => [
-        \App\Enums\AnalysisStage::SUMMARY->value => \App\Jobs\GenerateGrammarJob::class,
-        \App\Enums\AnalysisStage::GRAMMAR->value => \App\Jobs\GenerateReferencesJob::class,
-        \App\Enums\AnalysisStage::REFERENCES->value => \App\Jobs\GenerateSimilarityJob::class,
-        \App\Enums\AnalysisStage::SIMILARITY->value => \App\Jobs\GenerateReviewerJob::class,
-        \App\Enums\AnalysisStage::REVIEWER->value => \App\Jobs\GenerateReportJob::class,
+        AnalysisStage::SUMMARY->value => GenerateGrammarJob::class,
+        AnalysisStage::GRAMMAR->value => GenerateReferencesJob::class,
+        AnalysisStage::REFERENCES->value => GenerateSimilarityJob::class,
+        AnalysisStage::SIMILARITY->value => GenerateReviewerJob::class,
+        AnalysisStage::REVIEWER->value => GenerateReportJob::class,
     ],
 
 ];

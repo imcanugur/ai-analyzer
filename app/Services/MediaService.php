@@ -203,7 +203,7 @@ class MediaService
                         '-dQUIET',
                         '-dBATCH',
                         "-sOutputFile={$tmpOut}",
-                        $tmpIn
+                        $tmpIn,
                     ]);
 
                     if ($result->successful() && file_exists($tmpOut)) {
@@ -230,7 +230,7 @@ class MediaService
                         '-i', $tmpIn,
                         '-b:v', '1000k',
                         '-b:a', '128k',
-                        '-y', $tmpOut
+                        '-y', $tmpOut,
                     ]);
 
                     if ($result->successful() && file_exists($tmpOut)) {
