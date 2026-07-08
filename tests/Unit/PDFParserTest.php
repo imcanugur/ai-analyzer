@@ -13,6 +13,7 @@ use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Smalot\PdfParser\Config as PdfConfig;
 use Smalot\PdfParser\Parser;
@@ -40,7 +41,7 @@ class PDFParserTest extends TestCase
         $fontSpaceLimit = -25;
         config(['pdf.font_space_limit' => $fontSpaceLimit]);
 
-        $config = new PdfConfig();
+        $config = new PdfConfig;
         $config->setFontSpaceLimit(config('pdf.font_space_limit'));
 
         $this->assertEquals($fontSpaceLimit, $config->getFontSpaceLimit());
@@ -62,9 +63,9 @@ class PDFParserTest extends TestCase
         // 1. Setup Models
         $user = User::factory()->create();
         $submission = Submission::factory()->create(['user_id' => $user->id]);
-        
+
         $path = Storage::disk('local')->put('temp-uploads/document.pdf', 'dummy pdf content');
-        
+
         $media = Media::create([
             'mediable_type' => Submission::class,
             'mediable_id' => $submission->id,
@@ -89,7 +90,7 @@ class PDFParserTest extends TestCase
         ]);
 
         // Prevent dispatching subsequent jobs
-        \Illuminate\Support\Facades\Queue::fake();
+        Queue::fake();
 
         // 2. Execute the Job
         $job = new ExtractTextJob($analysis);
@@ -98,10 +99,10 @@ class PDFParserTest extends TestCase
         // 3. Assertions
         $analysis->refresh();
         $result = $analysis->results()->where('stage', AnalysisStage::EXTRACT->value)->first();
-        
+
         $this->assertNotNull($result);
         $this->assertEquals('Mocked pdftotext output content.', $result->payload['text']);
-        
+
         // Assert pdftotext was invoked
         Process::assertRan(function ($process) {
             return str_contains($process->command()[0], 'pdftotext');
@@ -121,10 +122,10 @@ class PDFParserTest extends TestCase
 
         $user = User::factory()->create();
         $submission = Submission::factory()->create(['user_id' => $user->id]);
-        
+
         // Write invalid PDF content so that Smalot parser fails and throws, which we can catch
         $path = Storage::disk('local')->put('temp-uploads/document.pdf', 'invalid pdf');
-        
+
         $media = Media::create([
             'mediable_type' => Submission::class,
             'mediable_id' => $submission->id,
@@ -148,7 +149,7 @@ class PDFParserTest extends TestCase
             'status' => AnalysisStatus::PROCESSING,
         ]);
 
-        \Illuminate\Support\Facades\Queue::fake();
+        Queue::fake();
 
         // 2. Execute the Job (this should fallback to Smalot, fail on 'invalid pdf', and mark analysis as FAILED)
         $job = new ExtractTextJob($analysis);

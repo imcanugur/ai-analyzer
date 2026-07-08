@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Smalot\PdfParser\Config as PdfConfig;
 use Smalot\PdfParser\Parser;
@@ -53,7 +54,7 @@ class ExtractTextJob implements ShouldQueue
                         if ($tempFile !== false) {
                             file_put_contents($tempFile, $disk->get($media->path));
                             try {
-                                $result = \Illuminate\Support\Facades\Process::run(['pdftotext', '-enc', 'UTF-8', $tempFile, '-']);
+                                $result = Process::run(['pdftotext', '-enc', 'UTF-8', $tempFile, '-']);
                                 if ($result->successful()) {
                                     $extractedText = trim($result->output());
                                 }
@@ -69,7 +70,7 @@ class ExtractTextJob implements ShouldQueue
                         // 2. Fallback to Smalot PdfParser (PHP-based)
                         if (empty($extractedText)) {
                             if (class_exists(Parser::class)) {
-                                $config = new PdfConfig();
+                                $config = new PdfConfig;
                                 $config->setFontSpaceLimit(config('pdf.font_space_limit', -15));
 
                                 $parser = new Parser([], $config);
