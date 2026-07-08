@@ -3,6 +3,7 @@ FROM php:8.3-fpm
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     ghostscript \
+    poppler-utils \
     imagemagick \
     build-essential \
     libpng-dev libjpeg62-turbo-dev libfreetype6-dev \

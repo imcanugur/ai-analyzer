@@ -12,6 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
+use Smalot\PdfParser\Config as PdfConfig;
 use Smalot\PdfParser\Parser;
 
 class ExtractTextJob implements ShouldQueue
@@ -45,12 +46,38 @@ class ExtractTextJob implements ShouldQueue
                     if (str_starts_with($mime, 'text/') || in_array($extension, ['json', 'xml', 'sql', 'css', 'js', 'py', 'php'])) {
                         $extractedText = $disk->get($media->path);
                     } elseif ($extension === 'pdf') {
-                        if (class_exists(Parser::class)) {
-                            $parser = new Parser;
-                            $pdf = $parser->parseContent($disk->get($media->path));
-                            $extractedText = $pdf->getText();
-                        } else {
-                            $extractedText = "[Stubbed Extracted Content for binary file: {$media->original_name} - smalot/pdfparser library is missing. Run 'composer require smalot/pdfparser' to enable PDF parsing.]";
+                        $extractedText = null;
+
+                        // 1. Try pdftotext (Preferred: superior column/spacing handling)
+                        $tempFile = tempnam(sys_get_temp_dir(), 'pdf_');
+                        if ($tempFile !== false) {
+                            file_put_contents($tempFile, $disk->get($media->path));
+                            try {
+                                $result = \Illuminate\Support\Facades\Process::run(['pdftotext', '-enc', 'UTF-8', $tempFile, '-']);
+                                if ($result->successful()) {
+                                    $extractedText = trim($result->output());
+                                }
+                            } catch (\Throwable $e) {
+                                // pdftotext command not found or execution failed, fallback will be used
+                            } finally {
+                                if (file_exists($tempFile)) {
+                                    @unlink($tempFile);
+                                }
+                            }
+                        }
+
+                        // 2. Fallback to Smalot PdfParser (PHP-based)
+                        if (empty($extractedText)) {
+                            if (class_exists(Parser::class)) {
+                                $config = new PdfConfig();
+                                $config->setFontSpaceLimit(config('pdf.font_space_limit', -15));
+
+                                $parser = new Parser([], $config);
+                                $pdf = $parser->parseContent($disk->get($media->path));
+                                $extractedText = $pdf->getText();
+                            } else {
+                                $extractedText = "[Stubbed Extracted Content for binary file: {$media->original_name} - smalot/pdfparser library is missing. Run 'composer require smalot/pdfparser' to enable PDF parsing.]";
+                            }
                         }
                     } else {
                         // Stub for binary formats (to be integrated with AI extraction in Sprint 9)
