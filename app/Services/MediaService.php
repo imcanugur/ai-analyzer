@@ -116,33 +116,18 @@ class MediaService
             ? $type
             : ($type ? MediaType::tryFrom($type) : $this->mediaTypeResolver->resolve($mime, $extension));
 
-        $media = new Media([
-            'disk' => $this->disk,
-            'path' => $path,
-            'url' => $url,
-            'mime' => $mime,
-            'size' => strlen($contents),
-            'original_name' => $filename,
-            'extension' => $extension,
-            'checksum' => $checksum,
-            'type' => $resolvedType,
-            'meta' => null,
-            'optimized' => false,
-        ]);
-
-        if ($mediable) {
-            $media->mediable()->associate($mediable);
-        }
-
-        // Dispatch Creating Event
-        event(new MediaCreating($media));
-
-        $this->mediaRepository->save($media);
-
-        // Dispatch Created Event
-        event(new MediaCreated($media));
-
-        return $media;
+        return $this->buildAndSaveMedia(
+            mediable: $mediable,
+            disk: $this->disk,
+            path: $path,
+            url: $url,
+            mime: $mime,
+            size: strlen($contents),
+            originalName: $filename,
+            extension: $extension,
+            checksum: $checksum,
+            type: $resolvedType
+        );
     }
 
     /**
@@ -285,9 +270,7 @@ class MediaService
     {
         $count = 0;
         foreach ($mediaItems as $media) {
-            if ($media instanceof Media) {
-                Storage::disk($media->disk)->delete($media->path);
-                $media->delete();
+            if ($media instanceof Media && $this->delete($media)) {
                 $count++;
             }
         }
@@ -357,6 +340,35 @@ class MediaService
         $url = $this->getUrl($path);
         $type = $this->mediaTypeResolver->resolve($mime, $extension);
 
+        return $this->buildAndSaveMedia(
+            mediable: $model,
+            disk: $disk,
+            path: $path,
+            url: $url,
+            mime: $mime,
+            size: $size,
+            originalName: $originalName,
+            extension: $extension,
+            checksum: $checksum,
+            type: $type
+        );
+    }
+
+    /**
+     * Build and save a Media record, triggering appropriate events.
+     */
+    protected function buildAndSaveMedia(
+        ?Model $mediable,
+        string $disk,
+        string $path,
+        string $url,
+        string $mime,
+        int $size,
+        string $originalName,
+        string $extension,
+        ?string $checksum,
+        MediaType $type
+    ): Media {
         $media = new Media([
             'disk' => $disk,
             'path' => $path,
@@ -371,14 +383,12 @@ class MediaService
             'optimized' => false,
         ]);
 
-        $media->mediable()->associate($model);
+        if ($mediable) {
+            $media->mediable()->associate($mediable);
+        }
 
-        // Dispatch Creating Event
         event(new MediaCreating($media));
-
         $this->mediaRepository->save($media);
-
-        // Dispatch Created Event
         event(new MediaCreated($media));
 
         return $media;

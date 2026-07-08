@@ -23,60 +23,6 @@ use Illuminate\Support\HtmlString;
 class FilamentUI
 {
     /**
-     * Reusable Alpine.js state and helper methods for handling base64 files as Blob URLs.
-     */
-    protected static function alpineBlobData(): string
-    {
-        return 'x-data="{ '.
-            'open: false, '.
-            'blobUrl: \'\', '.
-            'initBlob(base64Data) { '.
-                'if (!base64Data) return; '.
-                'try { '.
-                    'const parts = base64Data.split(\',\'); '.
-                    'const mime = parts[0].split(\':\')[1].split(\';\')[0]; '.
-                    'const raw = window.atob(parts[1]); '.
-                    'const rawLength = raw.length; '.
-                    'const uInt8Array = new Uint8Array(rawLength); '.
-                    'for (let i = 0; i < rawLength; ++i) { '.
-                        'uInt8Array[i] = raw.charCodeAt(i); '.
-                    '} '.
-                    'const blob = new Blob([uInt8Array], { type: mime }); '.
-                    'this.blobUrl = URL.createObjectURL(blob); '.
-                '} catch (e) { console.error(e); } '.
-            '}, '.
-            'closeModal() { '.
-                'this.open = false; '.
-                'if (this.blobUrl) { '.
-                    'URL.revokeObjectURL(this.blobUrl); '.
-                    'this.blobUrl = \'\'; '.
-                '} '.
-            '} '.
-        '}"';
-    }
-
-    /**
-     * Reusable style tag for preview modal buttons and responsive layout adjustments.
-     */
-    protected static function cardStyle(): string
-    {
-        return '<style>'.
-            '.modal-btn-text { display: inline-block; }'.
-            '@media (max-width: 640px) {'.
-                '.modal-btn-text { display: none !important; }'.
-                '.modal-header-actions { gap: 6px !important; }'.
-                '.modal-header-title { font-size: 13px !important; max-width: 140px !important; }'.
-                '.modal-header-container { padding: 12px 16px !important; }'.
-                '.modal-body-container { padding: 12px !important; }'.
-                '.modal-header-icon { margin-right: 0 !important; }'.
-            '}'.
-        '</style>';
-    }
-
-    /**
-     * Render a consistent horizontal media card with inline styles.
-     */
-    /**
      * Get base64 Data URL for a media file.
      */
     public static function getBase64DataUrl(mixed $media): string
@@ -129,128 +75,11 @@ class FilamentUI
     }
 
     /**
-     * Render the reusable preview modal markup.
-     */
-    public static function renderPreviewModal(
-        string $title,
-        string $sizeLabel,
-        string $extension,
-        string $downloadFileName,
-        string $previewHtml
-    ): string {
-        $btnColor = (strtolower($extension) === 'pdf') ? '#10b981' : '#2563eb';
-
-        return sprintf(
-            '<template x-teleport="body">'.
-                '<div x-show="open" '.
-                     'x-transition:enter="transition ease-out duration-300" '.
-                     'x-transition:enter-start="opacity-0" '.
-                     'x-transition:enter-end="opacity-100" '.
-                     'x-transition:leave="transition ease-in duration-200" '.
-                     'x-transition:leave-start="opacity-100" '.
-                     'x-transition:leave-end="opacity-0" '.
-                     'style="position: fixed; inset: 0; z-index: 99999; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);" '.
-                     '@keydown.escape.window="closeModal()">'.
-                     '<div @click.away="closeModal()" '.
-                          'style="position: absolute; top: 50%%; left: 50%%; transform: translate(-50%%, -50%%); background-color: #ffffff; width: calc(100%% - 32px); max-width: 1000px; height: 85vh; border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); overflow: hidden;">'.
-                          '<div class="modal-header-container" style="padding: 16px 24px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; background-color: #ffffff; flex-shrink: 0; gap: 12px;">'.
-                              '<div style="min-width: 0; flex-grow: 1; text-align: left;">'.
-                                  '<h3 class="modal-header-title" style="font-size: 16px; font-weight: 600; color: #111827; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">%s</h3>'.
-                                  '<p style="font-size: 12px; color: #6b7280; margin: 2px 0 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">%s • %s</p>'.
-                              '</div>'.
-                              '<div class="modal-header-actions" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">'.
-                                  '<a :href="blobUrl" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 12px; font-weight: 600; color: #374151; background-color: #ffffff; text-decoration: none; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);" title="Open in New Tab">'.
-                                      '<svg class="modal-header-icon" style="width: 14px; height: 14px; margin-right: 6px; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>'.
-                                      '<span class="modal-btn-text">Open External</span>'.
-                                  '</a>'.
-                                  '<a :href="blobUrl" :download="blobUrl ? \'%s\' : \'\'" style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 1px solid '.$btnColor.'; border-radius: 8px; font-size: 12px; font-weight: 600; color: #ffffff; background-color: '.$btnColor.'; text-decoration: none; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);" title="Download File">'.
-                                      '<svg class="modal-header-icon" style="width: 14px; height: 14px; margin-right: 6px; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>'.
-                                      '<span class="modal-btn-text">Download</span>'.
-                                  '</a>'.
-                                  '<button @click="closeModal()" style="padding: 8px; border-radius: 8px; border: 1px solid #d1d5db; background-color: #f9fafb; color: #4b5563; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Close Modal">'.
-                                      '<svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>'.
-                                  '</button>'.
-                              '</div>'.
-                          '</div>'.
-                          '<div class="modal-body-container" style="flex-grow: 1; padding: 24px; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; overflow: auto; min-height: 0;">'.
-                              '%s'.
-                          '</div>'.
-                     '</div>'.
-                '</div>'.
-            '</template>',
-            e($title),
-            e($sizeLabel),
-            e(strtoupper($extension)),
-            e($downloadFileName),
-            $previewHtml
-        );
-    }
-
-    /**
-     * Render a consistent horizontal media card with inline styles.
+     * Render a consistent horizontal media card.
      */
     public static function mediaCard(mixed $media): HtmlString
     {
-        if (! $media) {
-            return new HtmlString('<div style="font-size: 14px; color: #6b7280; font-style: italic;">No file attached</div>');
-        }
-
-        $extension = strtolower($media->extension);
-        $previewHtml = '';
-
-        if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'])) {
-            $previewHtml = '<img :src="blobUrl" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);" />';
-        } elseif (in_array($extension, ['pdf', 'txt', 'html', 'json', 'xml', 'sql', 'css', 'js', 'py', 'php'])) {
-            $previewHtml = '<iframe :src="blobUrl" style="width: 100%; height: 100%; border: none; border-radius: 8px; background-color: #ffffff;"></iframe>';
-        } elseif (in_array($extension, ['mp4', 'webm', 'ogv'])) {
-            $previewHtml = '<video controls :src="blobUrl" style="max-width: 100%; max-height: 100%; border-radius: 8px;"></video>';
-        } elseif (in_array($extension, ['mp3', 'wav', 'ogg', 'm4a'])) {
-            $previewHtml = '<audio controls :src="blobUrl" style="width: 100%; max-width: 500px;"></audio>';
-        } else {
-            $previewHtml = '<div style="text-align: center;"><div style="font-size: 48px; margin-bottom: 12px;">📦</div><h4 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0;">Preview not available for this format</h4><p style="font-size: 12px; color: #6b7280; margin: 4px 0 0 0;">Please download the file or open it externally to view.</p></div>';
-        }
-
-        $sizeLabel = number_format($media->size / 1024, 2).' KB';
-        $base64Data = self::getBase64DataUrl($media);
-
-        return new HtmlString(
-            sprintf(
-                '<div '.self::alpineBlobData().'>'.
-                    self::cardStyle().
-                    '<div style="display: flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; background-color: #f9fafb; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); gap: 16px;">'.
-                        '<div style="width: 48px; height: 48px; border-radius: 8px; background-color: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">'.
-                            '<svg style="width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">'.
-                                '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />'.
-                            '</svg>'.
-                        '</div>'.
-                        '<div style="flex-grow: 1; text-align: left; min-width: 0;">'.
-                            '<h4 style="font-size: 14px; font-weight: 600; color: #111827; margin: 0 0 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="%s">%s</h4>'.
-                            '<p style="font-size: 12px; color: #6b7280; margin: 0;">%s • %s</p>'.
-                        '</div>'.
-                        '<button @click="open = true; initBlob(\'%s\'); $event.preventDefault();" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 12px; font-weight: 600; color: #2563eb; background-color: #ffffff; text-decoration: none; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); transition: background-color 0.2s; flex-shrink: 0;" onmouseover="this.style.backgroundColor=\'#f3f4f6\'" onmouseout="this.style.backgroundColor=\'#ffffff\'">'.
-                            '<svg style="width: 14px; height: 14px; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">'.
-                                '<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />'.
-                                '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />'.
-                            '</svg>'.
-                            'Preview'.
-                        '</button>'.
-                    '</div>'.
-                    '%s'.
-                '</div>',
-                e($media->original_name),
-                e($media->original_name),
-                e(strtoupper($media->extension)),
-                e($sizeLabel),
-                $base64Data,
-                self::renderPreviewModal(
-                    $media->original_name,
-                    $sizeLabel,
-                    $media->extension,
-                    $media->original_name,
-                    $previewHtml
-                )
-            )
-        );
+        return new HtmlString(view('filament.components.media-card', ['media' => $media])->render());
     }
 
     /**
@@ -258,60 +87,15 @@ class FilamentUI
      */
     public static function statusBadge(mixed $status): HtmlString
     {
-        if (! $status) {
-            return new HtmlString('-');
-        }
-
-        $value = is_object($status) && isset($status->value) ? $status->value : (string) $status;
-
-        // Match common status colors (works for SubmissionStatus, AnalysisStatus, etc.)
-        $styles = [
-            'pending' => ['bg' => '#f3f4f6', 'text' => '#1f2937', 'dot' => '#4b5563'],
-            'processing' => ['bg' => '#eff6ff', 'text' => '#1e40af', 'dot' => '#3b82f6'],
-            'completed' => ['bg' => '#ecfdf5', 'text' => '#065f46', 'dot' => '#10b981'],
-            'failed' => ['bg' => '#fef2f2', 'text' => '#991b1b', 'dot' => '#ef4444'],
-            'cancelled' => ['bg' => '#f3f4f6', 'text' => '#1f2937', 'dot' => '#4b5563'],
-        ];
-
-        $matched = $styles[strtolower($value)] ?? ['bg' => '#f3f4f6', 'text' => '#1f2937', 'dot' => '#4b5563'];
-
-        return new HtmlString(
-            sprintf(
-                '<span style="display: inline-flex; align-items: center; border-radius: 9999px; font-size: 12px; font-weight: 600; padding: 4px 10px; background-color: %s; color: %s; margin-top: 4px;">'.
-                    '<span style="width: 6px; height: 6px; border-radius: 50%%; background-color: %s; margin-right: 6px;"></span>'.
-                    '%s'.
-                '</span>',
-                $matched['bg'],
-                $matched['text'],
-                $matched['dot'],
-                e(ucfirst($value))
-            )
-        );
+        return new HtmlString(view('filament.components.status-badge', ['status' => $status])->render());
     }
 
     /**
-     * Render relative and absolute timestamps with a clock icon.
+     * Render relative and absolute timestamps.
      */
     public static function relativeTime(mixed $time): HtmlString
     {
-        if (! $time) {
-            return new HtmlString('-');
-        }
-
-        $date = $time instanceof Carbon ? $time : Carbon::parse($time);
-
-        return new HtmlString(
-            sprintf(
-                '<div style="display: flex; align-items: center; font-size: 13px; color: #4b5563; padding-top: 4px;">'.
-                    '<svg style="width: 16px; height: 16px; margin-right: 6px; color: #9ca3af; flex-shrink: 0;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">'.
-                        '<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0 Z" />'.
-                    '</svg>'.
-                    '<span>%s <span style="color: #9ca3af; font-size: 11px; margin-left: 4px;">(%s)</span></span>'.
-                '</div>',
-                e($date->diffForHumans()),
-                e($date->format('Y-m-d H:i'))
-            )
-        );
+        return new HtmlString(view('filament.components.relative-time', ['time' => $time])->render());
     }
 
     /**
@@ -538,157 +322,17 @@ class FilamentUI
             ->schema([
                 Placeholder::make('analysis_results')
                     ->label('')
-                    ->content(function ($record) {
-                        if (! $record) {
-                            return new HtmlString('<div style="font-size: 14px; color: #6b7280; font-style: italic;">No record loaded</div>');
-                        }
-
-                        $analyses = $record->analyses()->with(['results', 'reports'])->orderBy('created_at', 'desc')->get();
-
-                        if ($analyses->isEmpty()) {
-                            return new HtmlString('<div style="font-size: 14px; color: #6b7280; font-style: italic;">No analysis runs found for this submission. Once you save or upload a file, the background queue will process it automatically.</div>');
-                        }
-
-                        $html = '<div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">';
-
-                        foreach ($analyses as $analysis) {
-                            $statusBadgeHtml = self::statusBadge($analysis->status);
-
-                            $pdfReport = $analysis->reports()->where('type', 'pdf')->first();
-                            $pdfCardHtml = '';
-                            if ($pdfReport && isset($pdfReport->metadata['path'])) {
-                                $pdfCardHtml = self::reportCard($pdfReport)->toHtml();
-                            }
-
-                            $html .= sprintf(
-                                '<div style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; background-color: #ffffff; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05);">'.
-                                    '<div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f3f4f6; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">'.
-                                        '<div style="text-align: left;">'.
-                                            '<span style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">Analysis Run</span>'.
-                                            '<h4 style="font-size: 14px; font-weight: 700; color: #111827; margin: 2px 0 0 0;">ID: %s</h4>'.
-                                        '</div>'.
-                                        '<div style="display: flex; align-items: center; gap: 12px;">'.
-                                            '%s'.
-                                        '</div>'.
-                                    '</div>'.
-                                    '%s',
-                                e($analysis->id),
-                                $statusBadgeHtml,
-                                $pdfCardHtml
-                            );
-
-                            if ($analysis->status->value === 'failed') {
-                                $html .= sprintf(
-                                    '<div style="border-radius: 8px; background-color: #fef2f2; border: 1px solid #fee2e2; padding: 12px 16px; margin-top: 12px; text-align: left;">'.
-                                        '<span style="font-size: 12px; font-weight: 600; color: #991b1b; display: block;">Execution Error</span>'.
-                                        '<p style="font-size: 13px; color: #b91c1c; margin: 4px 0 0 0;">%s</p>'.
-                                    '</div>',
-                                    e($analysis->error)
-                                );
-                            }
-
-                            $results = $analysis->results;
-                            if ($results->isNotEmpty()) {
-                                $html .= '<div style="display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; text-align: left;">';
-
-                                foreach ($results as $res) {
-                                    if ($res->stage->value === 'extract') {
-                                        continue;
-                                    }
-
-                                    $html .= sprintf(
-                                        '<div style="border: 1px solid #f3f4f6; border-radius: 8px; padding: 16px; background-color: #fafafa;">'.
-                                            '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">'.
-                                                '<h5 style="font-size: 13px; font-weight: 700; color: #1e3a8a; text-transform: uppercase; margin: 0;">%s</h5>'.
-                                                '<span style="font-size: 11px; color: #9ca3af;">Tokens: %d • %dms</span>'.
-                                            '</div>'.
-                                            '<div style="font-size: 13px; color: #374151; white-space: pre-wrap; line-height: 1.6; max-height: 250px; overflow-y: auto; padding-right: 8px;">%s</div>'.
-                                        '</div>',
-                                        e($res->stage->value),
-                                        $res->tokens,
-                                        $res->execution_time,
-                                        e($res->payload['text'] ?? '')
-                                    );
-                                }
-
-                                $html .= '</div>';
-                            }
-
-                            $html .= '</div>';
-                        }
-
-                        $html .= '</div>';
-
-                        return new HtmlString($html);
-                    }),
+                    ->content(fn ($record) => new HtmlString(view('filament.components.analysis-results', ['record' => $record])->render())),
             ])
             ->visible(fn (string $operation) => $operation === 'view')
             ->columnSpanFull();
     }
 
     /**
-     * Render a consistent horizontal report card with inline styles and preview modal.
+     * Render a consistent horizontal report card.
      */
     public static function reportCard(mixed $report): HtmlString
     {
-        if (! $report || ! isset($report->metadata['path'])) {
-            return new HtmlString('<div style="font-size: 14px; color: #6b7280; font-style: italic;">No report available</div>');
-        }
-
-        $externalUrl = $report->metadata['url'] ?? Storage::disk(config('filesystems.default'))->url($report->metadata['path']);
-        $downloadUrl = $externalUrl;
-        $size = $report->metadata['size'] ?? 0;
-        $fileName = basename($report->metadata['path']);
-
-        // Iframe preview markup
-        $previewHtml = '<iframe :src="blobUrl" style="width: 100%; height: 100%; border: none; border-radius: 8px; background-color: #ffffff;"></iframe>';
-
-        $sizeLabel = number_format($size / 1024, 2).' KB';
-        $base64Data = self::getReportBase64DataUrl($report);
-
-        return new HtmlString(
-            sprintf(
-                '<div '.self::alpineBlobData().' style="margin-top: 8px;">'.
-                    self::cardStyle().
-                    '<div style="display: flex; align-items: center; border: 1px solid #10b981; border-radius: 12px; padding: 12px 16px; background-color: #ecfdf5; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); gap: 16px;">'.
-                        '<div style="width: 40px; height: 40px; border-radius: 8px; background-color: #d1fae5; color: #059669; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">'.
-                            '<svg style="width: 20px; height: 20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">'.
-                                '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />'.
-                            '</svg>'.
-                        '</div>'.
-                        '<div style="flex-grow: 1; text-align: left; min-width: 0;">'.
-                            '<h4 style="font-size: 13px; font-weight: 700; color: #065f46; margin: 0 0 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="%s">%s</h4>'.
-                            '<p style="font-size: 11px; color: #047857; margin: 0;">%s</p>'.
-                        '</div>'.
-                        '<div style="display: flex; gap: 8px; flex-shrink: 0;">'.
-                            '<button @click="open = true; initBlob(\'%s\'); $event.preventDefault();" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #68d391; border-radius: 8px; font-size: 12px; font-weight: 600; color: #047857; background-color: #ffffff; text-decoration: none; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#f0fff4\'" onmouseout="this.style.backgroundColor=\'#ffffff\'">'.
-                                '<svg style="width: 14px; height: 14px; margin-right: 6px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">'.
-                                    '<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />'.
-                                    '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />'.
-                                '</svg>'.
-                                'Preview'.
-                            '</button>'.
-                            '<a href="%s" download rel="noreferrer" style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #10b981; border-radius: 8px; font-size: 12px; font-weight: 600; color: #ffffff; background-color: #10b981; text-decoration: none; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#059669\'" onmouseout="this.style.backgroundColor=\'#10b981\'">'.
-                                '<svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>'.
-                                'Download'.
-                            '</a>'.
-                        '</div>'.
-                    '</div>'.
-                    '%s'.
-                '</div>',
-                e($fileName),
-                e($fileName),
-                e($sizeLabel),
-                $base64Data,
-                e($downloadUrl),
-                self::renderPreviewModal(
-                    $fileName,
-                    $sizeLabel,
-                    'pdf',
-                    $fileName,
-                    $previewHtml
-                )
-            )
-        );
+        return new HtmlString(view('filament.components.report-card', ['report' => $report])->render());
     }
 }
