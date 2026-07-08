@@ -28,7 +28,7 @@ class ClaudeProvider implements AIProviderInterface
     /**
      * Generate text completion using Anthropic Claude API.
      */
-    public function generate(string $prompt, array $options = []): AIResponse
+    public function generate(string $prompt, array $options = [], ?string $systemPrompt = null): AIResponse
     {
         $model = $options['model'] ?? $this->defaultModel;
         $maxTokens = $options['max_tokens'] ?? $this->maxTokens;
@@ -38,23 +38,29 @@ class ClaudeProvider implements AIProviderInterface
         $startTime = microtime(true);
 
         try {
+            $requestBody = [
+                'model' => $model,
+                'max_tokens' => $maxTokens,
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => $prompt,
+                    ],
+                ],
+                ...$options,
+            ];
+
+            if ($systemPrompt !== null && $systemPrompt !== '') {
+                $requestBody['system'] = $systemPrompt;
+            }
+
             $response = Http::timeout($this->timeout)
                 ->withHeaders([
                     'x-api-key' => $this->apiKey,
                     'anthropic-version' => '2023-06-01',
                     'content-type' => 'application/json',
                 ])
-                ->post('https://api.anthropic.com/v1/messages', [
-                    'model' => $model,
-                    'max_tokens' => $maxTokens,
-                    'messages' => [
-                        [
-                            'role' => 'user',
-                            'content' => $prompt,
-                        ],
-                    ],
-                    ...$options,
-                ]);
+                ->post('https://api.anthropic.com/v1/messages', $requestBody);
 
             if ($response->failed()) {
                 throw new \RuntimeException('Claude request failed: '.$response->body());

@@ -28,7 +28,7 @@ class OllamaProvider implements AIProviderInterface
     /**
      * Generate text completion using Ollama (local or cloud).
      */
-    public function generate(string $prompt, array $options = []): AIResponse
+    public function generate(string $prompt, array $options = [], ?string $systemPrompt = null): AIResponse
     {
         $model = $options['model'] ?? $this->defaultModel;
 
@@ -53,6 +53,10 @@ class OllamaProvider implements AIProviderInterface
                 'prompt' => $prompt,
                 'stream' => false,
             ];
+
+            if ($systemPrompt !== null && $systemPrompt !== '') {
+                $body['system'] = $systemPrompt;
+            }
 
             // Only include options if non-empty, cast to object for JSON {} serialization
             if (! empty($options)) {

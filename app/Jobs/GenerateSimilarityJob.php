@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\AnalysisStage;
+use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
 use App\Traits\RunsAIStage;
 use Illuminate\Bus\Queueable;
@@ -21,11 +22,23 @@ class GenerateSimilarityJob implements ShouldQueue
 
     public function handle(): void
     {
+        $extractResult = $this->analysis->results()
+            ->where('stage', AnalysisStage::EXTRACT)
+            ->first();
+
+        $sourceText = $extractResult?->payload['text'] ?? '';
+
+        $matches = '';
+
         $this->runStage(
             analysis: $this->analysis,
             stage: AnalysisStage::SIMILARITY,
             promptName: 'similarity',
-            nextJobClass: GenerateReviewerJob::class
+            nextJobClass: GenerateReviewerJob::class,
+            replacements: [
+                'source' => $sourceText,
+                'matches' => $matches,
+            ]
         );
     }
 }

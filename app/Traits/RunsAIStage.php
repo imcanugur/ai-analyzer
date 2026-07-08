@@ -19,13 +19,16 @@ trait RunsAIStage
     public $timeout = 0;
 
     /**
-     * Run an AI stage: load prompt, call provider, save result, dispatch next.
+     * Run an AI stage: load system + user prompts, call provider, save result, dispatch next.
+     *
+     * @param  array  $replacements  Custom placeholder replacements (default: ['text' => extracted_text])
      */
     protected function runStage(
         Analysis $analysis,
         AnalysisStage $stage,
         string $promptName,
-        ?string $nextJobClass = null
+        ?string $nextJobClass = null,
+        array $replacements = []
     ): void {
         $resultRepository = app(AnalysisResultRepositoryInterface::class);
         $promptService = app(PromptService::class);
@@ -43,13 +46,24 @@ trait RunsAIStage
                 throw new \RuntimeException("No extracted text found for analysis: {$analysis->id}");
             }
 
-            // 2. Load prompt template and fill placeholders
-            $prompt = $promptService->load($promptName, ['text' => $text]);
+            // 2. Load system prompt (shared across all stages)
+            $systemPrompt = $promptService->get('system');
 
-            // 3. Call AI provider
-            $aiResponse = $aiProvider->generate($prompt);
+            // 3. Build replacements — use custom if provided, otherwise default to text
+            if (empty($replacements)) {
+                $replacements = ['text' => $text];
+            }
 
-            // 4. Save the stage result
+            // 4. Render the user prompt template with placeholders
+            $userPrompt = $promptService->render($promptName, $replacements);
+
+            // 5. Call AI provider with system + user prompt separation
+            $aiResponse = $aiProvider->generate($userPrompt, [], $systemPrompt);
+
+
+            logger()->imfpr
+
+            // 6. Save the stage result
             $resultRepository->create([
                 'analysis_id' => $analysis->id,
                 'stage' => $stage,
@@ -65,7 +79,7 @@ trait RunsAIStage
                 'tokens' => $aiResponse->tokens,
             ]);
 
-            // 5. Dispatch next job or mark analysis as completed
+            // 7. Dispatch next job or mark analysis as completed
             if ($nextJobClass) {
                 $nextJobClass::dispatch($analysis);
             } else {
