@@ -13,6 +13,7 @@ use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -51,8 +52,8 @@ class QueueAnalysisTest extends TestCase
         Storage::fake('local');
 
         // Mock Ollama API responses for all AI stages
-        \Illuminate\Support\Facades\Http::fake([
-            '*/api/generate' => \Illuminate\Support\Facades\Http::response([
+        Http::fake([
+            '*/api/generate' => Http::response([
                 'model' => 'gemma2',
                 'response' => 'AI generated response for testing.',
                 'prompt_eval_count' => 10,

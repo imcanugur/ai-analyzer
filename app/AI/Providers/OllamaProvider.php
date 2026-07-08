@@ -55,7 +55,7 @@ class OllamaProvider implements AIProviderInterface
             ];
 
             // Only include options if non-empty, cast to object for JSON {} serialization
-            if (!empty($options)) {
+            if (! empty($options)) {
                 $body['options'] = (object) $options;
             }
 

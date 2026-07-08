@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Contracts\ReportRepositoryInterface;
 use App\Enums\AnalysisStage;
 use App\Enums\AnalysisStatus;
 use App\Jobs\GenerateReportJob;
@@ -29,7 +28,7 @@ class ReportGenerationTest extends TestCase
 
         $user = User::factory()->create();
         $submission = Submission::factory()->create(['user_id' => $user->id]);
-        
+
         $analysis = Analysis::create([
             'submission_id' => $submission->id,
             'type' => 'document',
@@ -70,7 +69,7 @@ class ReportGenerationTest extends TestCase
             'analysis_id' => $analysis->id,
             'type' => 'pdf',
         ]);
-        
+
         $pdfPath = $reports['pdf']->metadata['path'];
         Storage::disk('local')->assertExists($pdfPath);
     }

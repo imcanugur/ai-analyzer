@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\AI\Contracts\AIProviderInterface;
 use App\AI\DTO\AIResponse;
+use App\AI\Providers\ClaudeProvider;
 use App\AI\Providers\OllamaProvider;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -83,7 +84,7 @@ class AIProviderTest extends TestCase
 
         $provider = app(AIProviderInterface::class);
 
-        $this->assertInstanceOf(\App\AI\Providers\ClaudeProvider::class, $provider);
+        $this->assertInstanceOf(ClaudeProvider::class, $provider);
     }
 
     /**

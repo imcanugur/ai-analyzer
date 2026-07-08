@@ -78,7 +78,7 @@ trait RunsAIStage
         } catch (\Exception $e) {
             $analysis->update([
                 'status' => AnalysisStatus::FAILED,
-                'error' => "[{$stage->value}] " . $e->getMessage(),
+                'error' => "[{$stage->value}] ".$e->getMessage(),
                 'completed_at' => now(),
             ]);
         }
