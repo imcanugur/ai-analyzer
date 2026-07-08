@@ -30,7 +30,7 @@ class EloquentReportRepository implements ReportRepositoryInterface
     {
         $report = $this->find($id);
 
-        if (!$report) {
+        if (! $report) {
             return false;
         }
 
@@ -44,7 +44,7 @@ class EloquentReportRepository implements ReportRepositoryInterface
     {
         $report = $this->find($id);
 
-        if (!$report) {
+        if (! $report) {
             return false;
         }
 

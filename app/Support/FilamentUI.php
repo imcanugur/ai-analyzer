@@ -67,6 +67,7 @@ class FilamentUI
             $disk = Storage::disk(config('filesystems.default'));
             if ($disk->exists($report->metadata['path'])) {
                 $content = $disk->get($report->metadata['path']);
+
                 return 'data:text/html;charset=utf-8;base64,'.base64_encode($content);
             }
         } catch (\Exception $e) {
@@ -534,7 +535,7 @@ class FilamentUI
 
                         foreach ($analyses as $analysis) {
                             $statusBadgeHtml = self::statusBadge($analysis->status);
-                            
+
                             $pdfReport = $analysis->reports()->where('type', 'pdf')->first();
                             $pdfCardHtml = '';
                             if ($pdfReport && isset($pdfReport->metadata['path'])) {
@@ -553,10 +554,10 @@ class FilamentUI
                                         '</div>'.
                                     '</div>'.
                                     '%s',
-                                    e($analysis->id),
-                                    $statusBadgeHtml,
-                                    $pdfCardHtml
-                                );
+                                e($analysis->id),
+                                $statusBadgeHtml,
+                                $pdfCardHtml
+                            );
 
                             if ($analysis->status->value === 'failed') {
                                 $html .= sprintf(
@@ -571,7 +572,7 @@ class FilamentUI
                             $results = $analysis->results;
                             if ($results->isNotEmpty()) {
                                 $html .= '<div style="display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; text-align: left;">';
-                                
+
                                 foreach ($results as $res) {
                                     if ($res->stage->value === 'extract') {
                                         continue;
@@ -591,7 +592,7 @@ class FilamentUI
                                         e($res->payload['text'] ?? '')
                                     );
                                 }
-                                
+
                                 $html .= '</div>';
                             }
 
@@ -601,7 +602,7 @@ class FilamentUI
                         $html .= '</div>';
 
                         return new HtmlString($html);
-                    })
+                    }),
             ])
             ->visible(fn (string $operation) => $operation === 'view')
             ->columnSpanFull();
@@ -620,7 +621,7 @@ class FilamentUI
         $downloadUrl = $externalUrl;
         $size = $report->metadata['size'] ?? 0;
         $fileName = basename($report->metadata['path']);
-        
+
         // Iframe preview markup
         $previewHtml = '<iframe :src="blobUrl" style="width: 100%; height: 100%; border: none; border-radius: 8px; background-color: #ffffff;"></iframe>';
 

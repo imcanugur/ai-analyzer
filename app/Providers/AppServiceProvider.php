@@ -7,10 +7,12 @@ use App\Contracts\AnalysisResultRepositoryInterface;
 use App\Contracts\MediaRepositoryInterface;
 use App\Contracts\MediaTypeResolver;
 use App\Contracts\PathGenerator;
+use App\Contracts\ReportRepositoryInterface;
 use App\Contracts\SubmissionRepositoryInterface;
 use App\Repositories\Eloquent\EloquentAnalysisRepository;
 use App\Repositories\Eloquent\EloquentAnalysisResultRepository;
 use App\Repositories\Eloquent\EloquentMediaRepository;
+use App\Repositories\Eloquent\EloquentReportRepository;
 use App\Repositories\Eloquent\EloquentSubmissionRepository;
 use App\Services\PromptService;
 use App\Support\DefaultMediaTypeResolver;
@@ -55,8 +57,8 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            \App\Contracts\ReportRepositoryInterface::class,
-            \App\Repositories\Eloquent\EloquentReportRepository::class
+            ReportRepositoryInterface::class,
+            EloquentReportRepository::class
         );
 
         $this->app->singleton(

@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 
 class GenerateSimilarityJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, RunsAIStage;
+    use Dispatchable, InteractsWithQueue, Queueable, RunsAIStage, SerializesModels;
 
     public function __construct(
         public readonly Analysis $analysis

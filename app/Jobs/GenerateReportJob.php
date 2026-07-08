@@ -38,7 +38,7 @@ class GenerateReportJob implements ShouldQueue
         } catch (\Exception $e) {
             $this->analysis->update([
                 'status' => AnalysisStatus::FAILED,
-                'error' => '[report] ' . $e->getMessage(),
+                'error' => '[report] '.$e->getMessage(),
                 'completed_at' => now(),
             ]);
         }

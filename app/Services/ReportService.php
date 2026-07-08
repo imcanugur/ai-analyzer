@@ -18,14 +18,13 @@ class ReportService
     /**
      * Compile analysis results and generate both JSON and PDF reports.
      *
-     * @param Analysis $analysis
      * @return array{json: Report, pdf: Report}
      */
     public function generateReports(Analysis $analysis): array
     {
         // 1. Fetch analysis results
         $results = $analysis->results()->get();
-        
+
         $compiledData = [
             'analysis_id' => $analysis->id,
             'submission_id' => $analysis->submission_id,
@@ -56,7 +55,7 @@ class ReportService
         // 3. Generate PDF Report
         // Compile a clean HTML/printable string representing the report layout
         $htmlContent = $this->compileHtmlReport($analysis, $compiledData);
-        
+
         // Write the PDF file to default storage disk
         $fileName = $this->pathGenerator->getPath(null, "{$analysis->id}.pdf", 'reports');
         Storage::disk(config('filesystems.default'))->put($fileName, $htmlContent);
@@ -84,8 +83,8 @@ class ReportService
     {
         $stagesHtml = '';
         foreach ($data['stages'] as $stageName => $stageData) {
-            $stagesHtml .= "<h2>" . ucfirst($stageName) . "</h2>";
-            $stagesHtml .= "<p>" . nl2br(e($stageData['text'])) . "</p>";
+            $stagesHtml .= '<h2>'.ucfirst($stageName).'</h2>';
+            $stagesHtml .= '<p>'.nl2br(e($stageData['text'])).'</p>';
             $stagesHtml .= "<small>Tokens: {$stageData['tokens']} | Time: {$stageData['execution_time']}ms</small><hr>";
         }
 
