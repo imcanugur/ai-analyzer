@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\AI\Contracts\AIProviderInterface;
+use App\AI\Providers\ClaudeProvider;
 use App\AI\Providers\OllamaProvider;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,6 +19,7 @@ class AIServiceProvider extends ServiceProvider
 
             return match ($driver) {
                 'ollama' => new OllamaProvider,
+                'claude' => new ClaudeProvider,
                 default => throw new \InvalidArgumentException("Unsupported AI provider driver: {$driver}"),
             };
         });

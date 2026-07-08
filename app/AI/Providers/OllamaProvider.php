@@ -15,21 +15,23 @@ class OllamaProvider implements AIProviderInterface
 
     protected int $timeout;
 
+    protected ?string $apiKey;
+
     public function __construct()
     {
         $this->endpoint = config('ai.providers.ollama.endpoint', 'http://localhost:11434');
         $this->defaultModel = config('ai.providers.ollama.default_model', 'gemma2');
         $this->timeout = (int) config('ai.providers.ollama.timeout', 60);
+        $this->apiKey = config('ai.providers.ollama.api_key') ?: null;
     }
 
     /**
-     * Generate text completion using Ollama.
+     * Generate text completion using Ollama (local or cloud).
      */
     public function generate(string $prompt, array $options = []): AIResponse
     {
         $model = $options['model'] ?? $this->defaultModel;
 
-        // Remove 'model' from options so it is not passed twice in the Ollama body options block
         unset($options['model']);
 
         $url = rtrim($this->endpoint, '/').'/api/generate';
@@ -37,13 +39,27 @@ class OllamaProvider implements AIProviderInterface
         $startTime = microtime(true);
 
         try {
-            $response = Http::timeout($this->timeout)
-                ->post($url, [
-                    'model' => $model,
-                    'prompt' => $prompt,
-                    'stream' => false,
-                    'options' => $options,
+            $http = Http::timeout($this->timeout);
+
+            // If API key is set, add Bearer token auth (cloud mode)
+            if ($this->apiKey) {
+                $http = $http->withHeaders([
+                    'Authorization' => 'Bearer '.$this->apiKey,
                 ]);
+            }
+
+            $body = [
+                'model' => $model,
+                'prompt' => $prompt,
+                'stream' => false,
+            ];
+
+            // Only include options if non-empty, cast to object for JSON {} serialization
+            if (!empty($options)) {
+                $body['options'] = (object) $options;
+            }
+
+            $response = $http->post($url, $body);
 
             if ($response->failed()) {
                 throw new \RuntimeException('Ollama request failed: '.$response->body());

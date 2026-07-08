@@ -50,6 +50,16 @@ class QueueAnalysisTest extends TestCase
         config(['queue.default' => 'sync']);
         Storage::fake('local');
 
+        // Mock Ollama API responses for all AI stages
+        \Illuminate\Support\Facades\Http::fake([
+            '*/api/generate' => \Illuminate\Support\Facades\Http::response([
+                'model' => 'gemma2',
+                'response' => 'AI generated response for testing.',
+                'prompt_eval_count' => 10,
+                'eval_count' => 20,
+            ], 200),
+        ]);
+
         $user = User::factory()->create();
         $submission = Submission::factory()->create(['user_id' => $user->id]);
 
@@ -86,12 +96,29 @@ class QueueAnalysisTest extends TestCase
         $this->assertNotNull($analysis->completed_at);
         $this->assertNull($analysis->error);
 
-        // 4. Assertions on the AnalysisResult Model
-        $result = $analysis->results()->where('stage', AnalysisStage::EXTRACT->value)->first();
-        $this->assertNotNull($result);
-        $this->assertEquals(AnalysisStatus::COMPLETED, $result->status);
-        $this->assertEquals($fileContent, $result->payload['text']);
-        $this->assertEquals('default_parser', $result->metadata['extractor']);
-        $this->assertEquals('text/plain', $result->metadata['mime_type']);
+        // 4. Assertions on all 6 stage results
+        $stages = [
+            AnalysisStage::EXTRACT,
+            AnalysisStage::SUMMARY,
+            AnalysisStage::GRAMMAR,
+            AnalysisStage::REFERENCES,
+            AnalysisStage::SIMILARITY,
+            AnalysisStage::REVIEWER,
+        ];
+
+        foreach ($stages as $stage) {
+            $result = $analysis->results()->where('stage', $stage->value)->first();
+            $this->assertNotNull($result, "AnalysisResult for stage [{$stage->value}] should exist.");
+            $this->assertEquals(AnalysisStatus::COMPLETED, $result->status);
+        }
+
+        // 5. Verify extract stage has original text
+        $extractResult = $analysis->results()->where('stage', AnalysisStage::EXTRACT->value)->first();
+        $this->assertEquals($fileContent, $extractResult->payload['text']);
+
+        // 6. Verify AI stages have generated content
+        $summaryResult = $analysis->results()->where('stage', AnalysisStage::SUMMARY->value)->first();
+        $this->assertEquals('AI generated response for testing.', $summaryResult->payload['text']);
+        $this->assertEquals(30, $summaryResult->tokens); // 10 + 20
     }
 }
