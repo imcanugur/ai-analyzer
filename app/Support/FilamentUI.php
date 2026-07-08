@@ -2,7 +2,6 @@
 
 namespace App\Support;
 
-use App\Enums\MediaType;
 use App\Enums\SubmissionStatus;
 use Carbon\Carbon;
 use Filament\Actions\Action as FormAction;
@@ -10,8 +9,6 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\TextColumn;
@@ -98,7 +95,6 @@ class FilamentUI
         return new HtmlString(view('filament.components.relative-time', ['time' => $time])->render());
     }
 
-
     /**
      * Reusable Attachment Management Section.
      */
@@ -174,7 +170,6 @@ class FilamentUI
             ]);
     }
 
-
     /**
      * Reusable Status TextColumn for Tables.
      */
@@ -197,7 +192,6 @@ class FilamentUI
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
-
     /**
      * Reusable Multi-Select Status Filter for Tables.
      */
@@ -211,7 +205,6 @@ class FilamentUI
                     ->toArray()
             );
     }
-
 
     /**
      * Reusable Date Range Filter for Tables.
@@ -248,7 +241,6 @@ class FilamentUI
                 return $indicators;
             });
     }
-
 
     /**
      * Render a consistent horizontal report card.
