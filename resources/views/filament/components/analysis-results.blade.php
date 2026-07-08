@@ -4,7 +4,7 @@
     <div style="font-size: 14px; color: #6b7280; font-style: italic;">No record loaded</div>
 @else
     @php
-        $analyses = $record->analyses()->with(['results', 'reports'])->orderBy('created_at', 'desc')->get();
+        $analyses = $record->analyses()->with(['results', 'media'])->orderBy('created_at', 'desc')->get();
     @endphp
 
     @if($analyses->isEmpty())
@@ -24,7 +24,7 @@
                     </div>
 
                     @php
-                        $pdfReport = $analysis->reports()->where('type', 'pdf')->first();
+                        $pdfReport = $analysis->media->where('mime', 'application/pdf')->first();
                     @endphp
 
                     @if($pdfReport)

@@ -53,14 +53,15 @@ class FilamentUI
      */
     public static function getReportBase64DataUrl(mixed $report): string
     {
-        if (! $report || ! isset($report->metadata['path'])) {
+        $path = $report->path ?? $report->metadata['path'] ?? null;
+        if (! $report || ! $path) {
             return '';
         }
 
         try {
             $disk = Storage::disk(config('filesystems.default'));
-            if ($disk->exists($report->metadata['path'])) {
-                $content = $disk->get($report->metadata['path']);
+            if ($disk->exists($path)) {
+                $content = $disk->get($path);
 
                 return 'data:text/html;charset=utf-8;base64,'.base64_encode($content);
             }
@@ -68,7 +69,8 @@ class FilamentUI
             // Fallback
         }
 
-        return $report->metadata['url'] ?? Storage::disk(config('filesystems.default'))->url($report->metadata['path']);
+        $url = $report->url ?? $report->metadata['url'] ?? null;
+        return $url ?? Storage::disk(config('filesystems.default'))->url($path);
     }
 
     /**

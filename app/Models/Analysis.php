@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Class Analysis
@@ -33,7 +34,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Carbon|null $updated_at
  * @property-read Submission $submission
  * @property-read Collection|AnalysisResult[] $results
- * @property-read Collection|Report[] $reports
  */
 class Analysis extends Model
 {
@@ -114,10 +114,10 @@ class Analysis extends Model
     }
 
     /**
-     * Get the reports for the analysis.
+     * Get all of the analysis's media.
      */
-    public function reports(): HasMany
+    public function media(): MorphMany
     {
-        return $this->hasMany(Report::class);
+        return $this->morphMany(Media::class, 'mediable');
     }
 }

@@ -1,13 +1,17 @@
 @props(['report'])
 
-@if(!$report || !isset($report->metadata['path']))
+@php
+    $path = $report->path ?? $report->metadata['path'] ?? null;
+@endphp
+
+@if(!$report || !$path)
     <div style="font-size: 14px; color: #6b7280; font-style: italic;">No report available</div>
 @else
     @php
-        $externalUrl = $report->metadata['url'] ?? \Illuminate\Support\Facades\Storage::disk(config('filesystems.default'))->url($report->metadata['path']);
+        $externalUrl = $report->url ?? $report->metadata['url'] ?? \Illuminate\Support\Facades\Storage::disk(config('filesystems.default'))->url($path);
         $downloadUrl = $externalUrl;
-        $size = $report->metadata['size'] ?? 0;
-        $fileName = basename($report->metadata['path']);
+        $size = $report->size ?? $report->metadata['size'] ?? 0;
+        $fileName = basename($path);
         $previewHtml = '<iframe :src="blobUrl" style="width: 100%; height: 100%; border: none; border-radius: 8px; background-color: #ffffff;"></iframe>';
         $sizeLabel = number_format($size / 1024, 2).' KB';
         $base64Data = \App\Support\FilamentUI::getReportBase64DataUrl($report);

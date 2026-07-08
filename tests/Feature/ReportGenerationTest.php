@@ -58,19 +58,23 @@ class ReportGenerationTest extends TestCase
         $this->assertArrayHasKey('pdf', $reports);
 
         // Verify JSON report database entry and contents
-        $this->assertDatabaseHas('reports', [
-            'analysis_id' => $analysis->id,
-            'type' => 'json',
+        $this->assertDatabaseHas('media', [
+            'mediable_type' => Analysis::class,
+            'mediable_id' => $analysis->id,
+            'mime' => 'application/json',
         ]);
-        $this->assertEquals('This is a summary.', $reports['json']->metadata['data']['stages']['summary']['text']);
+        $jsonPath = $reports['json']->path;
+        $savedJson = json_decode(Storage::disk('local')->get($jsonPath), true);
+        $this->assertEquals('This is a summary.', $savedJson['stages']['summary']['text']);
 
         // Verify PDF report database entry and physical file
-        $this->assertDatabaseHas('reports', [
-            'analysis_id' => $analysis->id,
-            'type' => 'pdf',
+        $this->assertDatabaseHas('media', [
+            'mediable_type' => Analysis::class,
+            'mediable_id' => $analysis->id,
+            'mime' => 'application/pdf',
         ]);
 
-        $pdfPath = $reports['pdf']->metadata['path'];
+        $pdfPath = $reports['pdf']->path;
         Storage::disk('local')->assertExists($pdfPath);
     }
 
@@ -100,14 +104,16 @@ class ReportGenerationTest extends TestCase
         $this->assertNotNull($analysis->completed_at);
         $this->assertNull($analysis->error);
 
-        // Verify reports exist
-        $this->assertDatabaseHas('reports', [
-            'analysis_id' => $analysis->id,
-            'type' => 'json',
+        // Verify reports exist in media table
+        $this->assertDatabaseHas('media', [
+            'mediable_type' => Analysis::class,
+            'mediable_id' => $analysis->id,
+            'mime' => 'application/json',
         ]);
-        $this->assertDatabaseHas('reports', [
-            'analysis_id' => $analysis->id,
-            'type' => 'pdf',
+        $this->assertDatabaseHas('media', [
+            'mediable_type' => Analysis::class,
+            'mediable_id' => $analysis->id,
+            'mime' => 'application/pdf',
         ]);
     }
 }
