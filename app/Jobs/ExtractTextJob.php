@@ -12,6 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
+use Smalot\PdfParser\Parser;
 
 class ExtractTextJob implements ShouldQueue
 {
@@ -44,8 +45,8 @@ class ExtractTextJob implements ShouldQueue
                     if (str_starts_with($mime, 'text/') || in_array($extension, ['json', 'xml', 'sql', 'css', 'js', 'py', 'php'])) {
                         $extractedText = $disk->get($media->path);
                     } elseif ($extension === 'pdf') {
-                        if (class_exists(\Smalot\PdfParser\Parser::class)) {
-                            $parser = new \Smalot\PdfParser\Parser();
+                        if (class_exists(Parser::class)) {
+                            $parser = new Parser;
                             $pdf = $parser->parseContent($disk->get($media->path));
                             $extractedText = $pdf->getText();
                         } else {

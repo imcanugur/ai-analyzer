@@ -31,7 +31,7 @@ class OllamaProvider implements AIProviderInterface
     public function generate(string $prompt, array $options = [], ?string $systemPrompt = null): AIResponse
     {
 
-        Log::error("OllamaProvider::generate çalışıyor.", [
+        Log::error('OllamaProvider::generate çalışıyor.', [
             'prompt' => $prompt ?? 'prompt bulunamadı',
             'options' => $options ?? 'options bulunamadı',
             'systemPrompt' => $systemPrompt ?? 'systemPrompt bulunamadı',
@@ -83,7 +83,7 @@ class OllamaProvider implements AIProviderInterface
 
             $response = $http->post($url, $body);
 
-            Log::error("OllamaProvider::generate çalışıyor.", [
+            Log::error('OllamaProvider::generate çalışıyor.', [
                 'prompt' => $prompt ?? 'prompt bulunamadı',
                 'options' => $options ?? 'options bulunamadı',
                 'systemPrompt' => $systemPrompt ?? 'systemPrompt bulunamadı',
@@ -104,7 +104,7 @@ class OllamaProvider implements AIProviderInterface
             $data = $response->json();
             $text = $data['response'] ?? '';
 
-            Log::error("OllamaProvider::generate çalışıyor.", [
+            Log::error('OllamaProvider::generate çalışıyor.', [
                 'prompt' => $prompt ?? 'prompt bulunamadı',
                 'options' => $options ?? 'options bulunamadı',
                 'systemPrompt' => $systemPrompt ?? 'systemPrompt bulunamadı',

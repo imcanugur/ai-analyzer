@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Enums\AnalysisStage;
-use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
 use App\Traits\RunsAIStage;
 use Illuminate\Bus\Queueable;

@@ -42,9 +42,9 @@ trait RunsAIStage
             'analysis_id' => $analysis->id,
             'prompt_name' => $promptName,
             'next_job' => $nextJobClass,
-            'custom_replacements' => !empty($replacements),
+            'custom_replacements' => ! empty($replacements),
             'provider' => config('ai.default'),
-            'model' => config('ai.providers.' . config('ai.default') . '.default_model'),
+            'model' => config('ai.providers.'.config('ai.default').'.default_model'),
         ]);
 
         try {
@@ -68,12 +68,12 @@ trait RunsAIStage
                 Log::error("{$logPrefix} PDF/Binary dosya metin çıkarımı henüz yapılmamış, taslak (stub) veri tespit edildi. AI analizi iptal ediliyor.", [
                     'text' => $text,
                 ]);
-                throw new \RuntimeException("Text extraction is not yet implemented or failed for this file type (Stub detected). Please make sure PDF text extraction is active.");
+                throw new \RuntimeException('Text extraction is not yet implemented or failed for this file type (Stub detected). Please make sure PDF text extraction is active.');
             }
 
             Log::info("{$logPrefix} Metin alındı.", [
                 'text_length' => mb_strlen($text),
-                'text_preview' => mb_substr($text, 0, 200) . '...',
+                'text_preview' => mb_substr($text, 0, 200).'...',
             ]);
 
             // 2. Load system prompt (shared across all stages)
@@ -102,7 +102,7 @@ trait RunsAIStage
             Log::info("{$logPrefix} User prompt render edildi.", [
                 'prompt_name' => $promptName,
                 'user_prompt_length' => mb_strlen($userPrompt),
-                'user_prompt_preview' => mb_substr($userPrompt, 0, 500) . '...',
+                'user_prompt_preview' => mb_substr($userPrompt, 0, 500).'...',
                 'full_user_prompt' => $userPrompt,
                 'full_text' => $text,
             ]);
@@ -110,7 +110,7 @@ trait RunsAIStage
             // 5. Call AI provider with system + user prompt separation
             Log::info("{$logPrefix} AI provider'a istek gönderiliyor...", [
                 'provider' => config('ai.default'),
-                'model' => config('ai.providers.' . config('ai.default') . '.default_model'),
+                'model' => config('ai.providers.'.config('ai.default').'.default_model'),
                 'system_prompt_length' => mb_strlen($systemPrompt),
                 'user_prompt_length' => mb_strlen($userPrompt),
                 'total_input_length' => mb_strlen($systemPrompt) + mb_strlen($userPrompt),
@@ -124,7 +124,7 @@ trait RunsAIStage
                 'response_length' => mb_strlen($aiResponse->text),
                 'tokens' => $aiResponse->tokens,
                 'execution_time_ms' => $aiResponse->executionTime,
-                'response_preview' => mb_substr($aiResponse->text, 0, 500) . '...',
+                'response_preview' => mb_substr($aiResponse->text, 0, 500).'...',
             ]);
 
             // 6. JSON parse kontrolü (debug amaçlı)
@@ -150,7 +150,7 @@ trait RunsAIStage
                     'text' => $aiResponse->text,
                 ],
                 'metadata' => [
-                    'model' => config('ai.providers.' . config('ai.default') . '.default_model'),
+                    'model' => config('ai.providers.'.config('ai.default').'.default_model'),
                     'provider' => config('ai.default'),
                 ],
                 'execution_time' => $aiResponse->executionTime,
@@ -187,7 +187,7 @@ trait RunsAIStage
                 'error_file' => $e->getFile(),
                 'error_line' => $e->getLine(),
                 'trace_summary' => collect(array_slice($e->getTrace(), 0, 5))
-                    ->map(fn ($t) => ($t['class'] ?? '') . '::' . ($t['function'] ?? '') . ':' . ($t['line'] ?? ''))
+                    ->map(fn ($t) => ($t['class'] ?? '').'::'.($t['function'] ?? '').':'.($t['line'] ?? ''))
                     ->toArray(),
             ]);
 
