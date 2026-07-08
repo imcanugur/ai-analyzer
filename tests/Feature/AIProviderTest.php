@@ -41,7 +41,7 @@ class AIProviderTest extends TestCase
         $provider = app(AIProviderInterface::class);
 
         $response = $provider->generate('Explain quantum computing in one sentence.', [
-            'temperature' => 0.5,
+            'temperature' => 0.1,
         ]);
 
         // Assert DTO properties

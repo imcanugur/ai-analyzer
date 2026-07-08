@@ -39,7 +39,7 @@ class StartAnalysisTest extends TestCase
             'engine' => 'llm',
             'model' => 'gemma',
             'version' => '1.0',
-            'config' => ['temperature' => 0.7],
+            'config' => ['temperature' => 0.1],
             'metadata' => ['env' => 'testing'],
         ];
 
@@ -60,7 +60,7 @@ class StartAnalysisTest extends TestCase
         $this->assertEquals('gemma', $analysis->model);
         $this->assertEquals('1.0', $analysis->version);
         $this->assertEquals(AnalysisStatus::PENDING, $analysis->status);
-        $this->assertEquals(['temperature' => 0.7], $analysis->config);
+        $this->assertEquals(['temperature' => 0.1], $analysis->config);
         $this->assertEquals(['env' => 'testing'], $analysis->metadata);
 
         // 5. Verify it exists in the database

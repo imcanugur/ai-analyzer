@@ -43,6 +43,14 @@ class ExtractTextJob implements ShouldQueue
                     // If it is a text-based format, read its content directly
                     if (str_starts_with($mime, 'text/') || in_array($extension, ['json', 'xml', 'sql', 'css', 'js', 'py', 'php'])) {
                         $extractedText = $disk->get($media->path);
+                    } elseif ($extension === 'pdf') {
+                        if (class_exists(\Smalot\PdfParser\Parser::class)) {
+                            $parser = new \Smalot\PdfParser\Parser();
+                            $pdf = $parser->parseContent($disk->get($media->path));
+                            $extractedText = $pdf->getText();
+                        } else {
+                            $extractedText = "[Stubbed Extracted Content for binary file: {$media->original_name} - smalot/pdfparser library is missing. Run 'composer require smalot/pdfparser' to enable PDF parsing.]";
+                        }
                     } else {
                         // Stub for binary formats (to be integrated with AI extraction in Sprint 9)
                         $extractedText = "[Stubbed Extracted Content for binary file: {$media->original_name}]";

@@ -30,6 +30,23 @@ class OllamaProvider implements AIProviderInterface
      */
     public function generate(string $prompt, array $options = [], ?string $systemPrompt = null): AIResponse
     {
+
+        Log::error("OllamaProvider::generate çalışıyor.", [
+            'prompt' => $prompt ?? 'prompt bulunamadı',
+            'options' => $options ?? 'options bulunamadı',
+            'systemPrompt' => $systemPrompt ?? 'systemPrompt bulunamadı',
+            'endpoint' => $this->endpoint ?? 'endpoint bulunamadı',
+            'defaultModel' => $this->defaultModel ?? 'defaultModel bulunamadı',
+            'timeout' => $this->timeout ?? 'timeout bulunamadı',
+            'apiKey' => $this->apiKey ?? 'apiKey bulunamadı',
+            'model' => $model ?? 'model bulunamadı',
+            'url' => $url ?? 'url bulunamadı',
+            'body' => $body ?? 'body bulunamadı',
+            'rawResponse' => $rawResponse ?? 'rawResponse bulunamadı',
+            'tokens' => $tokens ?? 'tokens bulunamadı',
+
+        ]);
+
         $model = $options['model'] ?? $this->defaultModel;
 
         unset($options['model']);
@@ -52,6 +69,7 @@ class OllamaProvider implements AIProviderInterface
                 'model' => $model,
                 'prompt' => $prompt,
                 'stream' => false,
+                'format' => 'json',
             ];
 
             if ($systemPrompt !== null && $systemPrompt !== '') {
@@ -65,12 +83,42 @@ class OllamaProvider implements AIProviderInterface
 
             $response = $http->post($url, $body);
 
+            Log::error("OllamaProvider::generate çalışıyor.", [
+                'prompt' => $prompt ?? 'prompt bulunamadı',
+                'options' => $options ?? 'options bulunamadı',
+                'systemPrompt' => $systemPrompt ?? 'systemPrompt bulunamadı',
+                'endpoint' => $this->endpoint ?? 'endpoint bulunamadı',
+                'defaultModel' => $this->defaultModel ?? 'defaultModel bulunamadı',
+                'timeout' => $this->timeout ?? 'timeout bulunamadı',
+                'apiKey' => $this->apiKey ?? 'apiKey bulunamadı',
+                'model' => $model ?? 'model bulunamadı',
+                'url' => $url ?? 'url bulunamadı',
+                'body' => $body ?? 'body bulunamadı',
+
+            ]);
+
             if ($response->failed()) {
                 throw new \RuntimeException('Ollama request failed: '.$response->body());
             }
 
             $data = $response->json();
             $text = $data['response'] ?? '';
+
+            Log::error("OllamaProvider::generate çalışıyor.", [
+                'prompt' => $prompt ?? 'prompt bulunamadı',
+                'options' => $options ?? 'options bulunamadı',
+                'systemPrompt' => $systemPrompt ?? 'systemPrompt bulunamadı',
+                'endpoint' => $this->endpoint ?? 'endpoint bulunamadı',
+                'defaultModel' => $this->defaultModel ?? 'defaultModel bulunamadı',
+                'timeout' => $this->timeout ?? 'timeout bulunamadı',
+                'apiKey' => $this->apiKey ?? 'apiKey bulunamadı',
+                'model' => $model ?? 'model bulunamadı',
+                'url' => $url ?? 'url bulunamadı',
+                'body' => $body ?? 'body bulunamadı',
+                'data' => $data ?? 'data bulunamadı',
+                'text' => $text ?? 'text bulunamadı',
+
+            ]);
 
             // Calculate total tokens processed (prompt eval tokens + generation response tokens)
             $tokens = ($data['prompt_eval_count'] ?? 0) + ($data['eval_count'] ?? 0);
