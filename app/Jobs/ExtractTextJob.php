@@ -76,10 +76,7 @@ class ExtractTextJob implements ShouldQueue
             'execution_time' => 0,
         ]);
 
-        // 4. Update the analysis record to completed
-        $this->analysis->update([
-            'status' => AnalysisStatus::COMPLETED,
-            'completed_at' => now(),
-        ]);
+        // 4. Dispatch the first AI stage job
+        GenerateSummaryJob::dispatch($this->analysis);
     }
 }

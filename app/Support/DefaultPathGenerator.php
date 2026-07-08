@@ -31,14 +31,13 @@ class DefaultPathGenerator implements PathGenerator
     }
 
     /**
-     * Storage path prefix: APP_URL slug / APP_ENV (örn: payshare-example-com/production)
+     * Storage path prefix: APP_NAME slug / APP_ENV (örn: ai-analyzer/local)
      */
     protected function getStoragePrefix(): string
     {
-        $urlSlug = $this->getUrlSlug();
-        $env = config('app.env', 'production');
+        $appName = Str::slug(config('app.name', 'laravel'));
 
-        return $urlSlug.'/'.$env;
+        return $appName;
     }
 
     /**

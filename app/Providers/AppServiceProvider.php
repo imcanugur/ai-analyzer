@@ -54,6 +54,11 @@ class AppServiceProvider extends ServiceProvider
             EloquentAnalysisResultRepository::class
         );
 
+        $this->app->bind(
+            \App\Contracts\ReportRepositoryInterface::class,
+            \App\Repositories\Eloquent\EloquentReportRepository::class
+        );
+
         $this->app->singleton(
             PromptService::class
         );

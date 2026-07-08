@@ -28,6 +28,7 @@ class SubmissionResource extends Resource
                 FilamentUI::generalInfoSection(),
                 FilamentUI::attachmentSection(),
                 FilamentUI::metadataSection(),
+                FilamentUI::analysisResultsSection(),
             ]);
     }
 
