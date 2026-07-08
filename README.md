@@ -1,4 +1,4 @@
-# AI Analyzer
+# AI Academic Reviewer
 
 [![PHP Version](https://img.shields.io/badge/PHP-%5E8.3-777bb4.svg?style=flat-square&logo=php)](https://www.php.net/)
 [![Laravel Version](https://img.shields.io/badge/Laravel-%5E13.8-ff2d20.svg?style=flat-square&logo=laravel)](https://laravel.com/)
@@ -8,7 +8,49 @@
 [![Storage](https://img.shields.io/badge/Storage-Cloudflare%20R2-f38020.svg?style=flat-square&logo=cloudflare)](https://www.cloudflare.com/products/r2/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
-An enterprise-ready, production-quality content analysis and media processing system built on the Laravel framework. The application provides robust structures for multi-stage analysis of diverse file types (documents, images, audio, video, source code) integrated with major AI engines and cloud providers.
+An enterprise-ready, production-quality **AI-Powered Academic Paper Evaluation and Peer Review System** built on the Laravel framework. The system automates the structural review, literature auditing, writing quality control, and grading of academic manuscripts and scientific articles, mimicking the rigorous peer-review process of international peer-reviewed journals.
+
+---
+
+## 🔬 Core Academic Review Pipeline
+
+When an academic manuscript (PDF, DOCX, etc.) is uploaded, the background processing worker triggers a multi-stage analysis pipeline configured under `config/ai.php`:
+
+```mermaid
+graph TD
+    A[Upload Manuscript] --> B[1. PDF/Text Extraction]
+    B --> C[2. Structural Summarization]
+    C --> D[3. Academic Grammar & Style]
+    D --> E[4. Literature & Reference Audit]
+    E --> F[5. Similarity & Plagiarism check]
+    F --> G[6. Peer Review Referee Scoring]
+    G --> H[7. PDF Report Generation]
+```
+
+### 1. Document Parsing & Text Extraction (`ExtractTextJob`)
+- **CLI Native Parser:** Integrates `pdftotext` (Poppler-utils) as the primary engine for high-performance and accurate document parsing.
+- **Configurable Fallback:** Fallback to a pure-PHP parsing parser.
+- **Configurable Parameters:** Font spacing, layout limits, and binary path are easily customized in `config/pdf.php`.
+
+### 2. Structural Summarization (`GenerateSummaryJob`)
+- Extracts academic metadata: Title, Research Goal, Problem Statement, Methodology, Findings, Discussion, Conclusions, Scientific Contributions, and Keywords.
+
+### 3. Academic Writing & Grammar Check (`GenerateGrammarJob`)
+- Audits spelling, readability, flow, and terminology.
+
+### 4. Literature & Reference Audit (`GenerateReferencesJob`)
+- Evaluates citation consistency, references style formats, and literature alignment.
+
+### 5. Plagiarism & Similarity Analysis (`GenerateSimilarityJob`)
+- Detects overlapping sections and matches.
+
+### 6. Double-Blind Peer Review Scoring (`GenerateReviewerJob`)
+- Assumes a senior academic referee persona.
+- Scores the paper (1-10) across 10 dimensions: title relevancy, originality, literature review depth, methodology, findings, discussion, conclusions, references, scientific contribution, and academic writing quality.
+- Issues an editorial decision: **Accept**, **Minor Revision**, **Major Revision**, or **Reject**.
+
+### 7. PDF Report Compilation (`GenerateReportJob`)
+- Merges all results into an official peer-review evaluation report.
 
 ---
 
@@ -56,7 +98,7 @@ Ensure your environment meets the following requirements:
 - **PHP**: `^8.3` (with `json`, `dom`, `curl`, `libxml`, `mbstring`, `gd`, `exif`, `pcntl`, `bcmath`, `zip`, and `redis` extensions)
 - **Database**: PostgreSQL `15+` (or SQLite for development/testing)
 - **Queue/Cache**: Redis Server `7.x+`
-- **System Utilities (Required for media processing)**: FFMPEG, Ghostscript, ImageMagick
+- **System Utilities (Required for media/PDF extraction)**: Poppler-utils (`pdftotext`), FFMPEG, Ghostscript, ImageMagick
 
 ---
 
@@ -80,7 +122,7 @@ Follow these steps to configure the project locally:
 3. **Configure Environment**
    ```bash
    cp .env.example .env
-   # Open .env and configure your database, Redis, and Cloudflare R2 credentials
+   # Configure database, Redis, Cloudflare R2, and PDF/AI settings
    ```
 
 4. **Generate Application Key**
@@ -116,6 +158,7 @@ The entrypoint container uses `install.sh` to automatically install vendor depen
 | Variable | Description | Required | Default Value |
 | :--- | :--- | :---: | :--- |
 | `FILESYSTEM_DISK` | Default storage driver disk | No | `r2` |
+| `PDF_BIN_PATH` | Path to the pdftotext executable | No | `/usr/bin/pdftotext` |
 | `R2_ACCESS_KEY_ID` | Cloudflare R2 Access Key | If disk is `r2` | - |
 | `R2_SECRET_ACCESS_KEY` | Cloudflare R2 Secret Key | If disk is `r2` | - |
 | `R2_BUCKET` | Cloudflare R2 Bucket Name | If disk is `r2` | `storage` |
@@ -209,4 +252,3 @@ This project is open-source software licensed under the [MIT License](LICENSE).
 ## Developer
 
 Developed and maintained by **Can Uğur** — [@imcanugur](https://github.com/imcanugur).
-

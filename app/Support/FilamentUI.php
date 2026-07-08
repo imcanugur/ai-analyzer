@@ -98,24 +98,6 @@ class FilamentUI
         return new HtmlString(view('filament.components.relative-time', ['time' => $time])->render());
     }
 
-    /**
-     * Reusable General Information Section.
-     */
-    public static function generalInfoSection(): Section
-    {
-        return Section::make('General Information')
-            ->schema([
-                TextInput::make('title')
-                    ->required()
-                    ->maxLength(255)
-                    ->columnSpanFull(),
-
-                Textarea::make('description')
-                    ->maxLength(65535)
-                    ->rows(8)
-                    ->columnSpanFull(),
-            ]);
-    }
 
     /**
      * Reusable Attachment Management Section.
@@ -192,24 +174,6 @@ class FilamentUI
             ]);
     }
 
-    /**
-     * Reusable Submission/Analysis Metadata Section.
-     */
-    public static function metadataSection(): Section
-    {
-        return Section::make('Submission Meta')
-            ->schema([
-                Placeholder::make('created_at')
-                    ->label('Created')
-                    ->content(fn ($record) => self::relativeTime($record?->created_at)),
-
-                Placeholder::make('status')
-                    ->label('Status')
-                    ->content(fn ($record) => self::statusBadge($record?->status)),
-            ])
-            ->hidden(fn (string $operation): bool => $operation === 'create')
-            ->columnSpanFull();
-    }
 
     /**
      * Reusable Status TextColumn for Tables.
@@ -233,15 +197,6 @@ class FilamentUI
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
-    /**
-     * Reusable Submitted At TextColumn for Tables.
-     */
-    public static function submittedAtColumn(string $name = 'submitted_at'): TextColumn
-    {
-        return TextColumn::make($name)
-            ->dateTime()
-            ->sortable();
-    }
 
     /**
      * Reusable Multi-Select Status Filter for Tables.
@@ -257,25 +212,6 @@ class FilamentUI
             );
     }
 
-    /**
-     * Reusable Multi-Select Attached File Type Filter for Tables.
-     */
-    public static function mediaTypeFilter(string $relationName = 'media', string $fieldName = 'type'): SelectFilter
-    {
-        return SelectFilter::make($relationName.'_'.$fieldName)
-            ->label('File Type')
-            ->multiple()
-            ->options(
-                collect(MediaType::cases())
-                    ->mapWithKeys(fn ($type) => [$type->value => ucfirst($type->value)])
-                    ->toArray()
-            )
-            ->query(function ($query, array $data) use ($relationName, $fieldName) {
-                if (! empty($data['values'])) {
-                    $query->whereHas($relationName, fn ($q) => $q->whereIn($fieldName, $data['values']));
-                }
-            });
-    }
 
     /**
      * Reusable Date Range Filter for Tables.
@@ -313,20 +249,6 @@ class FilamentUI
             });
     }
 
-    /**
-     * Display AI analysis reports and results inside the view form.
-     */
-    public static function analysisResultsSection(): Section
-    {
-        return Section::make('AI Analysis & Reports')
-            ->schema([
-                Placeholder::make('analysis_results')
-                    ->label('')
-                    ->content(fn ($record) => new HtmlString(view('filament.components.analysis-results', ['record' => $record])->render())),
-            ])
-            ->visible(fn (string $operation) => $operation === 'view')
-            ->columnSpanFull();
-    }
 
     /**
      * Render a consistent horizontal report card.
