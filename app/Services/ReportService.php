@@ -5,8 +5,6 @@ namespace App\Services;
 use App\Contracts\PathGenerator;
 use App\Models\Analysis;
 use App\Models\Media;
-use App\Services\MediaService;
-use Illuminate\Support\Facades\Storage;
 
 class ReportService
 {
@@ -36,7 +34,7 @@ class ReportService
 
         foreach ($results as $result) {
             $text = $result->payload['text'] ?? '';
-            
+
             // Decode JSON strings so they appear as structured arrays/objects in the JSON report
             if (is_string($text) && (str_starts_with(trim($text), '{') || str_starts_with(trim($text), '['))) {
                 $decoded = json_decode($text, true);

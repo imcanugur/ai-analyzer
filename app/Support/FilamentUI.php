@@ -70,6 +70,7 @@ class FilamentUI
         }
 
         $url = $report->url ?? $report->metadata['url'] ?? null;
+
         return $url ?? Storage::disk(config('filesystems.default'))->url($path);
     }
 
