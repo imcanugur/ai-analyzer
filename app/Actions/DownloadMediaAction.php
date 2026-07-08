@@ -36,13 +36,6 @@ class DownloadMediaAction
         }
 
         // 3. Forced Response Attachment stream download
-        return $disk->download(
-            $media->path,
-            $media->original_name,
-            [
-                'Content-Type' => $media->mime ?? 'application/octet-stream',
-                'Content-Disposition' => 'attachment; filename="'.basename($media->original_name).'"',
-            ]
-        );
+        return Storage::disk($media->disk)->download($media->path, $media->original_name);
     }
 }

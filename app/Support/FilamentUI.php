@@ -372,11 +372,12 @@ class FilamentUI
                         ->label('Download File')
                         ->color('primary')
                         ->icon('heroicon-o-arrow-down-tray')
-                        ->extraAttributes(['data-download-trigger' => 'true', 'rel' => 'noreferrer'])
-                        ->url(fn ($record) => $record && $record->media()->exists()
-                            ? $record->media()->first()->url
-                            : '#'
-                        ),
+                        ->action(function ($record) {
+                            if ($record && $record->media()->exists()) {
+                                $media = $record->media()->first();
+                                return Storage::disk($media->disk)->download($media->path, $media->original_name);
+                            }
+                        }),
 
                     FormAction::make('change_attachment')
                         ->label('Change File')
