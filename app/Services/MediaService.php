@@ -11,6 +11,7 @@ use App\Events\MediaCreating;
 use App\Models\Media;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
@@ -190,17 +191,30 @@ class MediaService
             $tmpIn = $file->getRealPath();
             $tmpOut = sys_get_temp_dir().'/'.uniqid().'.pdf';
 
-            if (shell_exec('which gs')) {
-                $cmd = 'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook '.
-                    "-dNOPAUSE -dQUIET -dBATCH -sOutputFile={$tmpOut} {$tmpIn}";
-                exec($cmd);
+            try {
+                $hasGs = Process::run(['which', 'gs'])->successful();
+                if ($hasGs) {
+                    $result = Process::run([
+                        'gs',
+                        '-sDEVICE=pdfwrite',
+                        '-dCompatibilityLevel=1.4',
+                        '-dPDFSETTINGS=/ebook',
+                        '-dNOPAUSE',
+                        '-dQUIET',
+                        '-dBATCH',
+                        "-sOutputFile={$tmpOut}",
+                        $tmpIn
+                    ]);
 
-                if (file_exists($tmpOut)) {
-                    $optContents = file_get_contents($tmpOut);
-                    unlink($tmpOut);
+                    if ($result->successful() && file_exists($tmpOut)) {
+                        $optContents = file_get_contents($tmpOut);
+                        @unlink($tmpOut);
 
-                    return $optContents;
+                        return $optContents;
+                    }
                 }
+            } catch (\Throwable $e) {
+                // gs not found or failed, ignore optimization
             }
         }
 
@@ -208,16 +222,26 @@ class MediaService
             $tmpIn = $file->getRealPath();
             $tmpOut = sys_get_temp_dir().'/'.uniqid().'.'.$file->getClientOriginalExtension();
 
-            if (shell_exec('which ffmpeg')) {
-                $cmd = "ffmpeg -i {$tmpIn} -b:v 1000k -b:a 128k -y {$tmpOut}";
-                exec($cmd);
+            try {
+                $hasFfmpeg = Process::run(['which', 'ffmpeg'])->successful();
+                if ($hasFfmpeg) {
+                    $result = Process::run([
+                        'ffmpeg',
+                        '-i', $tmpIn,
+                        '-b:v', '1000k',
+                        '-b:a', '128k',
+                        '-y', $tmpOut
+                    ]);
 
-                if (file_exists($tmpOut)) {
-                    $optContents = file_get_contents($tmpOut);
-                    unlink($tmpOut);
+                    if ($result->successful() && file_exists($tmpOut)) {
+                        $optContents = file_get_contents($tmpOut);
+                        @unlink($tmpOut);
 
-                    return $optContents;
+                        return $optContents;
+                    }
                 }
+            } catch (\Throwable $e) {
+                // ffmpeg not found or failed, ignore optimization
             }
         }
 

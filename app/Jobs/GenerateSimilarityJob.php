@@ -33,7 +33,6 @@ class GenerateSimilarityJob implements ShouldQueue
             analysis: $this->analysis,
             stage: AnalysisStage::SIMILARITY,
             promptName: 'similarity',
-            nextJobClass: GenerateReviewerJob::class,
             replacements: [
                 'source' => $sourceText,
                 'matches' => $matches,

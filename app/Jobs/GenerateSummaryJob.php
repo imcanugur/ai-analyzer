@@ -24,8 +24,7 @@ class GenerateSummaryJob implements ShouldQueue
         $this->runStage(
             analysis: $this->analysis,
             stage: AnalysisStage::SUMMARY,
-            promptName: 'summary',
-            nextJobClass: GenerateGrammarJob::class
+            promptName: 'summary'
         );
     }
 }

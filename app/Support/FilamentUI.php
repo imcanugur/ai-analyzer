@@ -23,6 +23,57 @@ use Illuminate\Support\HtmlString;
 class FilamentUI
 {
     /**
+     * Reusable Alpine.js state and helper methods for handling base64 files as Blob URLs.
+     */
+    protected static function alpineBlobData(): string
+    {
+        return 'x-data="{ '.
+            'open: false, '.
+            'blobUrl: \'\', '.
+            'initBlob(base64Data) { '.
+                'if (!base64Data) return; '.
+                'try { '.
+                    'const parts = base64Data.split(\',\'); '.
+                    'const mime = parts[0].split(\':\')[1].split(\';\')[0]; '.
+                    'const raw = window.atob(parts[1]); '.
+                    'const rawLength = raw.length; '.
+                    'const uInt8Array = new Uint8Array(rawLength); '.
+                    'for (let i = 0; i < rawLength; ++i) { '.
+                        'uInt8Array[i] = raw.charCodeAt(i); '.
+                    '} '.
+                    'const blob = new Blob([uInt8Array], { type: mime }); '.
+                    'this.blobUrl = URL.createObjectURL(blob); '.
+                '} catch (e) { console.error(e); } '.
+            '}, '.
+            'closeModal() { '.
+                'this.open = false; '.
+                'if (this.blobUrl) { '.
+                    'URL.revokeObjectURL(this.blobUrl); '.
+                    'this.blobUrl = \'\'; '.
+                '} '.
+            '} '.
+        '}"';
+    }
+
+    /**
+     * Reusable style tag for preview modal buttons and responsive layout adjustments.
+     */
+    protected static function cardStyle(): string
+    {
+        return '<style>'.
+            '.modal-btn-text { display: inline-block; }'.
+            '@media (max-width: 640px) {'.
+                '.modal-btn-text { display: none !important; }'.
+                '.modal-header-actions { gap: 6px !important; }'.
+                '.modal-header-title { font-size: 13px !important; max-width: 140px !important; }'.
+                '.modal-header-container { padding: 12px 16px !important; }'.
+                '.modal-body-container { padding: 12px !important; }'.
+                '.modal-header-icon { margin-right: 0 !important; }'.
+            '}'.
+        '</style>';
+    }
+
+    /**
      * Render a consistent horizontal media card with inline styles.
      */
     /**
@@ -164,43 +215,8 @@ class FilamentUI
 
         return new HtmlString(
             sprintf(
-                '<div x-data="{ '.
-                    'open: false, '.
-                    'blobUrl: \'\', '.
-                    'initBlob(base64Data) { '.
-                        'if (!base64Data) return; '.
-                        'try { '.
-                            'const parts = base64Data.split(\',\'); '.
-                            'const mime = parts[0].split(\':\')[1].split(\';\')[0]; '.
-                            'const raw = window.atob(parts[1]); '.
-                            'const rawLength = raw.length; '.
-                            'const uInt8Array = new Uint8Array(rawLength); '.
-                            'for (let i = 0; i < rawLength; ++i) { '.
-                                'uInt8Array[i] = raw.charCodeAt(i); '.
-                            '} '.
-                            'const blob = new Blob([uInt8Array], { type: mime }); '.
-                            'this.blobUrl = URL.createObjectURL(blob); '.
-                        '} catch (e) { console.error(e); } '.
-                    '}, '.
-                    'closeModal() { '.
-                        'this.open = false; '.
-                        'if (this.blobUrl) { '.
-                            'URL.revokeObjectURL(this.blobUrl); '.
-                            'this.blobUrl = \'\'; '.
-                        '} '.
-                    '} '.
-                '}">'.
-                    '<style>'.
-                        '.modal-btn-text { display: inline-block; }'.
-                        '@media (max-width: 640px) {'.
-                            '.modal-btn-text { display: none !important; }'.
-                            '.modal-header-actions { gap: 6px !important; }'.
-                            '.modal-header-title { font-size: 13px !important; max-width: 140px !important; }'.
-                            '.modal-header-container { padding: 12px 16px !important; }'.
-                            '.modal-body-container { padding: 12px !important; }'.
-                            '.modal-header-icon { margin-right: 0 !important; }'.
-                        '}'.
-                    '</style>'.
+                '<div '.self::alpineBlobData().'>'.
+                    self::cardStyle().
                     '<div style="display: flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; background-color: #f9fafb; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); gap: 16px;">'.
                         '<div style="width: 48px; height: 48px; border-radius: 8px; background-color: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">'.
                             '<svg style="width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">'.
@@ -632,43 +648,8 @@ class FilamentUI
 
         return new HtmlString(
             sprintf(
-                '<div x-data="{ '.
-                    'open: false, '.
-                    'blobUrl: \'\', '.
-                    'initBlob(base64Data) { '.
-                        'if (!base64Data) return; '.
-                        'try { '.
-                            'const parts = base64Data.split(\',\'); '.
-                            'const mime = parts[0].split(\':\')[1].split(\';\')[0]; '.
-                            'const raw = window.atob(parts[1]); '.
-                            'const rawLength = raw.length; '.
-                            'const uInt8Array = new Uint8Array(rawLength); '.
-                            'for (let i = 0; i < rawLength; ++i) { '.
-                                'uInt8Array[i] = raw.charCodeAt(i); '.
-                            '} '.
-                            'const blob = new Blob([uInt8Array], { type: mime }); '.
-                            'this.blobUrl = URL.createObjectURL(blob); '.
-                        '} catch (e) { console.error(e); } '.
-                    '}, '.
-                    'closeModal() { '.
-                        'this.open = false; '.
-                        'if (this.blobUrl) { '.
-                            'URL.revokeObjectURL(this.blobUrl); '.
-                            'this.blobUrl = \'\'; '.
-                        '} '.
-                    '} '.
-                '}" style="margin-top: 8px;">'.
-                    '<style>'.
-                        '.modal-btn-text { display: inline-block; }'.
-                        '@media (max-width: 640px) {'.
-                            '.modal-btn-text { display: none !important; }'.
-                            '.modal-header-actions { gap: 6px !important; }'.
-                            '.modal-header-title { font-size: 13px !important; max-width: 140px !important; }'.
-                            '.modal-header-container { padding: 12px 16px !important; }'.
-                            '.modal-body-container { padding: 12px !important; }'.
-                            '.modal-header-icon { margin-right: 0 !important; }'.
-                        '}'.
-                    '</style>'.
+                '<div '.self::alpineBlobData().' style="margin-top: 8px;">'.
+                    self::cardStyle().
                     '<div style="display: flex; align-items: center; border: 1px solid #10b981; border-radius: 12px; padding: 12px 16px; background-color: #ecfdf5; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); gap: 16px;">'.
                         '<div style="width: 40px; height: 40px; border-radius: 8px; background-color: #d1fae5; color: #059669; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">'.
                             '<svg style="width: 20px; height: 20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">'.

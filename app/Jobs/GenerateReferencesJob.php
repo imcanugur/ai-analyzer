@@ -24,8 +24,7 @@ class GenerateReferencesJob implements ShouldQueue
         $this->runStage(
             analysis: $this->analysis,
             stage: AnalysisStage::REFERENCES,
-            promptName: 'references',
-            nextJobClass: GenerateSimilarityJob::class
+            promptName: 'references'
         );
     }
 }

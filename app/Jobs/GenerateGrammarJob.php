@@ -24,8 +24,7 @@ class GenerateGrammarJob implements ShouldQueue
         $this->runStage(
             analysis: $this->analysis,
             stage: AnalysisStage::GRAMMAR,
-            promptName: 'grammar',
-            nextJobClass: GenerateReferencesJob::class
+            promptName: 'grammar'
         );
     }
 }

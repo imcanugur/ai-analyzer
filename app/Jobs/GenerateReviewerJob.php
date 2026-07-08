@@ -24,8 +24,7 @@ class GenerateReviewerJob implements ShouldQueue
         $this->runStage(
             analysis: $this->analysis,
             stage: AnalysisStage::REVIEWER,
-            promptName: 'reviewer',
-            nextJobClass: GenerateReportJob::class
+            promptName: 'reviewer'
         );
     }
 }

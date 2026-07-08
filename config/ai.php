@@ -45,4 +45,21 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | AI Analysis Stage Pipeline
+    |--------------------------------------------------------------------------
+    |
+    | Defines the sequence of execution for the background analysis stages.
+    | Decouples the job classes by avoiding direct imports between them.
+    |
+    */
+    'pipeline' => [
+        \App\Enums\AnalysisStage::SUMMARY->value => \App\Jobs\GenerateGrammarJob::class,
+        \App\Enums\AnalysisStage::GRAMMAR->value => \App\Jobs\GenerateReferencesJob::class,
+        \App\Enums\AnalysisStage::REFERENCES->value => \App\Jobs\GenerateSimilarityJob::class,
+        \App\Enums\AnalysisStage::SIMILARITY->value => \App\Jobs\GenerateReviewerJob::class,
+        \App\Enums\AnalysisStage::REVIEWER->value => \App\Jobs\GenerateReportJob::class,
+    ],
+
 ];

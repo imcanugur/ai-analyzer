@@ -30,30 +30,18 @@ class OllamaProvider implements AIProviderInterface
      */
     public function generate(string $prompt, array $options = [], ?string $systemPrompt = null): AIResponse
     {
-
-        Log::error('OllamaProvider::generate çalışıyor.', [
-            'prompt' => $prompt ?? 'prompt bulunamadı',
-            'options' => $options ?? 'options bulunamadı',
-            'systemPrompt' => $systemPrompt ?? 'systemPrompt bulunamadı',
-            'endpoint' => $this->endpoint ?? 'endpoint bulunamadı',
-            'defaultModel' => $this->defaultModel ?? 'defaultModel bulunamadı',
-            'timeout' => $this->timeout ?? 'timeout bulunamadı',
-            'apiKey' => $this->apiKey ?? 'apiKey bulunamadı',
-            'model' => $model ?? 'model bulunamadı',
-            'url' => $url ?? 'url bulunamadı',
-            'body' => $body ?? 'body bulunamadı',
-            'rawResponse' => $rawResponse ?? 'rawResponse bulunamadı',
-            'tokens' => $tokens ?? 'tokens bulunamadı',
-
-        ]);
-
         $model = $options['model'] ?? $this->defaultModel;
-
         unset($options['model']);
 
         $url = rtrim($this->endpoint, '/').'/api/generate';
-
         $startTime = microtime(true);
+
+        Log::info('[OllamaProvider] API request initiated.', [
+            'model' => $model,
+            'endpoint' => $url,
+            'prompt_length' => mb_strlen($prompt),
+            'system_prompt_length' => $systemPrompt !== null ? mb_strlen($systemPrompt) : 0,
+        ]);
 
         try {
             $http = Http::timeout($this->timeout);
@@ -83,20 +71,6 @@ class OllamaProvider implements AIProviderInterface
 
             $response = $http->post($url, $body);
 
-            Log::error('OllamaProvider::generate çalışıyor.', [
-                'prompt' => $prompt ?? 'prompt bulunamadı',
-                'options' => $options ?? 'options bulunamadı',
-                'systemPrompt' => $systemPrompt ?? 'systemPrompt bulunamadı',
-                'endpoint' => $this->endpoint ?? 'endpoint bulunamadı',
-                'defaultModel' => $this->defaultModel ?? 'defaultModel bulunamadı',
-                'timeout' => $this->timeout ?? 'timeout bulunamadı',
-                'apiKey' => $this->apiKey ?? 'apiKey bulunamadı',
-                'model' => $model ?? 'model bulunamadı',
-                'url' => $url ?? 'url bulunamadı',
-                'body' => $body ?? 'body bulunamadı',
-
-            ]);
-
             if ($response->failed()) {
                 throw new \RuntimeException('Ollama request failed: '.$response->body());
             }
@@ -104,26 +78,15 @@ class OllamaProvider implements AIProviderInterface
             $data = $response->json();
             $text = $data['response'] ?? '';
 
-            Log::error('OllamaProvider::generate çalışıyor.', [
-                'prompt' => $prompt ?? 'prompt bulunamadı',
-                'options' => $options ?? 'options bulunamadı',
-                'systemPrompt' => $systemPrompt ?? 'systemPrompt bulunamadı',
-                'endpoint' => $this->endpoint ?? 'endpoint bulunamadı',
-                'defaultModel' => $this->defaultModel ?? 'defaultModel bulunamadı',
-                'timeout' => $this->timeout ?? 'timeout bulunamadı',
-                'apiKey' => $this->apiKey ?? 'apiKey bulunamadı',
-                'model' => $model ?? 'model bulunamadı',
-                'url' => $url ?? 'url bulunamadı',
-                'body' => $body ?? 'body bulunamadı',
-                'data' => $data ?? 'data bulunamadı',
-                'text' => $text ?? 'text bulunamadı',
-
-            ]);
-
             // Calculate total tokens processed (prompt eval tokens + generation response tokens)
             $tokens = ($data['prompt_eval_count'] ?? 0) + ($data['eval_count'] ?? 0);
-
             $executionTime = (int) ((microtime(true) - $startTime) * 1000);
+
+            Log::info('[OllamaProvider] API request completed successfully.', [
+                'execution_time_ms' => $executionTime,
+                'tokens_processed' => $tokens,
+                'response_length' => mb_strlen($text),
+            ]);
 
             return new AIResponse(
                 text: $text,
@@ -133,7 +96,11 @@ class OllamaProvider implements AIProviderInterface
             );
 
         } catch (\Exception $e) {
-            Log::error('Ollama API Error: '.$e->getMessage());
+            Log::error('[OllamaProvider] API request failed.', [
+                'error' => $e->getMessage(),
+                'model' => $model,
+                'endpoint' => $url,
+            ]);
             throw $e;
         }
     }

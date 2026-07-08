@@ -28,12 +28,15 @@ trait RunsAIStage
         Analysis $analysis,
         AnalysisStage $stage,
         string $promptName,
-        ?string $nextJobClass = null,
         array $replacements = []
     ): void {
         $resultRepository = app(AnalysisResultRepositoryInterface::class);
         $promptService = app(PromptService::class);
         $aiProvider = app(AIProviderInterface::class);
+
+        // Resolve next job dynamically from central pipeline configuration
+        $pipeline = config('ai.pipeline', []);
+        $nextJobClass = $pipeline[$stage->value] ?? null;
 
         $logPrefix = "[AI-Stage:{$stage->value}][Analysis:{$analysis->id}]";
 
