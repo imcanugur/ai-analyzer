@@ -12,10 +12,11 @@ An enterprise-ready, production-quality **AI-Powered Academic Paper Evaluation a
 
 ---
 
-## 🔬 Core Academic Review Pipeline
+## 🔬 Core Academic Review Pipeline & AI Cluster Routing
 
-When an academic manuscript (PDF, DOCX, etc.) is uploaded, the background processing worker triggers a multi-stage analysis pipeline configured under `config/ai.php`:
+When an academic manuscript (PDF, DOCX, etc.) is uploaded, the background processing worker triggers a multi-stage analysis pipeline. Instead of binding to a static model or endpoint, the pipeline uses a dynamic, database-driven **AI Cluster & Load Balancing** routing system.
 
+### Pipeline Execution Flow
 ```mermaid
 graph TD
     A[Upload Manuscript] --> B[1. PDF/Text Extraction]
@@ -27,30 +28,44 @@ graph TD
     G --> H[7. PDF Report Generation]
 ```
 
-### 1. Document Parsing & Text Extraction (`ExtractTextJob`)
-- **CLI Native Parser:** Integrates `pdftotext` (Poppler-utils) as the primary engine for high-performance and accurate document parsing.
-- **Configurable Fallback:** Fallback to a pure-PHP parsing parser.
-- **Configurable Parameters:** Font spacing, layout limits, and binary path are easily customized in `config/pdf.php`.
+### AI Cluster Routing & Load Balancing Flow
+```mermaid
+graph TD
+    Sub[Submission] --> Ana[Analysis Stage]
+    Ana --> Router[Node Router]
+    Router --> Preferred{Preferred Node Set & Online?}
+    Preferred -- Yes --> Node[Preferred Node]
+    Preferred -- No --> LB[Load Balancer]
+    LB --> Strategy{Select Strategy}
+    Strategy -- Round Robin --> RR[Round Robin Node]
+    Strategy -- Least Conn --> LC[Least Connections Node]
+    Strategy -- Weighted RR --> WR[Weighted Round Robin Node]
+    Strategy -- Random --> RD[Random Node]
+    Strategy -- Priority --> PR[Priority Node]
+    RR --> Conn[Atomic Connection Increment]
+    LC --> Conn
+    WR --> Conn
+    RD --> Conn
+    PR --> Conn
+    Node --> Conn
+    Conn --> Ollama[Execute Ollama API]
+    Ollama --> Success{Execution Successful?}
+    Success -- Yes --> DB[Save Result to DB with Node ID]
+    Success -- No --> Failover{Failover Enabled?}
+    Failover -- Yes --> LB
+    Failover -- No --> Err[Fail Job & Save Error]
+    DB --> Decr[Decrement Connection Count]
+    Err --> Decr
+```
 
-### 2. Structural Summarization (`GenerateSummaryJob`)
-- Extracts academic metadata: Title, Research Goal, Problem Statement, Methodology, Findings, Discussion, Conclusions, Scientific Contributions, and Keywords.
-
-### 3. Academic Writing & Grammar Check (`GenerateGrammarJob`)
-- Audits spelling, readability, flow, and terminology.
-
-### 4. Literature & Reference Audit (`GenerateReferencesJob`)
-- Evaluates citation consistency, references style formats, and literature alignment.
-
-### 5. Plagiarism & Similarity Analysis (`GenerateSimilarityJob`)
-- Detects overlapping sections and matches.
-
-### 6. Double-Blind Peer Review Scoring (`GenerateReviewerJob`)
-- Assumes a senior academic referee persona.
-- Scores the paper (1-10) across 10 dimensions: title relevancy, originality, literature review depth, methodology, findings, discussion, conclusions, references, scientific contribution, and academic writing quality.
-- Issues an editorial decision: **Accept**, **Minor Revision**, **Major Revision**, or **Reject**.
-
-### 7. PDF Report Compilation (`GenerateReportJob`)
-- Merges all results into an official peer-review evaluation report.
+### Pipeline Analysis Stages
+1. **Document Parsing & Text Extraction (`ExtractTextJob`)**: Parses Poppler-based PDF structures.
+2. **Structural Summarization (`GenerateSummaryJob`)**: Dynamic summarization stage.
+3. **Academic Writing & Grammar Check (`GenerateGrammarJob`)**: Readability and spell checks.
+4. **Literature & Reference Audit (`GenerateReferencesJob`)**: Audit citations against references.
+5. **Plagiarism & Similarity Analysis (`GenerateSimilarityJob`)**: Overlap analysis.
+6. **Double-Blind Peer Review Scoring (`GenerateReviewerJob`)**: Scientific scoring and final decision.
+7. **PDF Report Compilation (`GenerateReportJob`)**: Generates official PDF evaluation reports.
 
 ---
 
@@ -84,10 +99,12 @@ graph TD
 1. **[User](app/Models/User.php)**: Represents application administrators and users. Integrates authentication services and owns submissions.
 2. **[Submission](app/Models/Submission.php)**: The root entity for processing. Contains metadata, statuses (`pending`, `processing`, `completed`, `failed`, `cancelled`), and polymorphic media relations. Supports soft deletes.
 3. **[Media](app/Models/Media.php)**: Polymorphic model linking physical files to submissions or analyses. Tracks size, mime type, original names, file extensions, SHA-256 checksums, storage disk, and optimization flags.
-4. **[Analysis](app/Models/Analysis.php)**: Tracks analysis runs including configured providers (`ollama`, `openai`, `anthropic`, `google`), engines (`llm`, `embedding`, `ocr`, `speech`, `vision`), and specific models (e.g., `gemma4`, `qwen3`, `whisper`, `bge-m3`).
-5. **[AnalysisResult](app/Models/AnalysisResult.php)**: Stores granular results per pipeline stage (`extract`, `summary`, `grammar`, `plagiarism`, etc.) alongside execution metrics (score, execution time, token count, financial cost, and payload).
-6. **[Report](app/Models/Report.php)**: Links final compiled reports (such as PDFs) to parent analyses.
-7. **[Setting](app/Models/Setting.php)**: Handles key-value application configurations.
+4. **[Analysis](app/Models/Analysis.php)**: Tracks analysis runs including configured providers (`ollama`, `openai`, `anthropic`, `google`), engines (`llm`, `embedding`, `ocr`, `speech`, `vision`), and specific models.
+5. **[AnalysisResult](app/Models/AnalysisResult.php)**: Stores granular results per pipeline stage (`extract`, `summary`, `grammar`, `plagiarism`, etc.) alongside execution metrics (score, execution time, token count, financial cost, executing node, model, driver, and payload).
+6. **[Node](app/Models/Node.php)**: Tracks AI cluster nodes, driver type (ollama, claude), endpoint URL, active connections count, priorities, weights, capabilities list, online status, and health-check history.
+7. **[StageRoute](app/Models/StageRoute.php)**: Maps analysis pipeline stages directly to target models and preferred database nodes.
+8. **[Report](app/Models/Report.php)**: Links final compiled reports (such as PDFs) to parent analyses.
+9. **[Setting](app/Models/Setting.php)**: Handles key-value application configurations.
 
 ---
 
@@ -169,6 +186,12 @@ The entrypoint container uses `install.sh` to automatically install vendor depen
 | `RUN_MIGRATIONS` | Auto-run migrations in Docker container | No | - |
 | `RUN_SEEDERS` | Auto-run database seeders in Docker container | No | - |
 | `PORT` | Custom external port for Nginx service | No | `8080` |
+| `AI_CLUSTER_ENABLED` | Enable AI routing cluster mode | No | `true` |
+| `AI_CLUSTER_LOAD_BALANCER` | Routing strategy (round_robin, weighted_round_robin, least_connections, random, priority) | No | `round_robin` |
+| `AI_CLUSTER_HEALTH_CHECK_INTERVAL` | Seconds between cron health probes | No | `30` |
+| `AI_CLUSTER_RETRY` | Attempt count for executing AI requests | No | `3` |
+| `AI_CLUSTER_TIMEOUT` | Seconds allowed per node connection execution | No | `300` |
+| `AI_CLUSTER_FAILOVER` | Enable automated fallback to alternate online nodes | No | `true` |
 
 ---
 

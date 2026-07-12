@@ -46,6 +46,9 @@ class AnalysisResult extends Model
      */
     protected $fillable = [
         'analysis_id',
+        'node_id',
+        'model',
+        'driver',
         'stage',
         'status',
         'score',
@@ -95,5 +98,13 @@ class AnalysisResult extends Model
     public function analysis(): BelongsTo
     {
         return $this->belongsTo(Analysis::class);
+    }
+
+    /**
+     * Get the cluster node that processed the result.
+     */
+    public function node(): BelongsTo
+    {
+        return $this->belongsTo(Node::class);
     }
 }

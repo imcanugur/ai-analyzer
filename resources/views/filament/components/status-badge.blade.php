@@ -11,6 +11,9 @@
             'completed' => ['bg' => '#ecfdf5', 'text' => '#065f46', 'dot' => '#10b981'],
             'failed' => ['bg' => '#fef2f2', 'text' => '#991b1b', 'dot' => '#ef4444'],
             'cancelled' => ['bg' => '#f3f4f6', 'text' => '#1f2937', 'dot' => '#4b5563'],
+            'online' => ['bg' => '#ecfdf5', 'text' => '#065f46', 'dot' => '#10b981'],
+            'offline' => ['bg' => '#fef2f2', 'text' => '#991b1b', 'dot' => '#ef4444'],
+            'unknown' => ['bg' => '#f3f4f6', 'text' => '#1f2937', 'dot' => '#4b5563'],
         ];
         $matched = $styles[strtolower($value)] ?? ['bg' => '#f3f4f6', 'text' => '#1f2937', 'dot' => '#4b5563'];
     @endphp

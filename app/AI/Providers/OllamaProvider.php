@@ -17,12 +17,16 @@ class OllamaProvider implements AIProviderInterface
 
     protected ?string $apiKey;
 
-    public function __construct()
-    {
-        $this->endpoint = config('ai.providers.ollama.endpoint', 'http://localhost:11434');
-        $this->defaultModel = config('ai.providers.ollama.default_model', 'gemma2');
-        $this->timeout = (int) config('ai.providers.ollama.timeout', 60);
-        $this->apiKey = config('ai.providers.ollama.api_key') ?: null;
+    public function __construct(
+        ?string $endpoint = null,
+        ?string $defaultModel = null,
+        ?int $timeout = null,
+        ?string $apiKey = null
+    ) {
+        $this->endpoint = $endpoint ?? config('ai.providers.ollama.endpoint', 'http://localhost:11434');
+        $this->defaultModel = $defaultModel ?? config('ai.providers.ollama.default_model', 'gemma2');
+        $this->timeout = $timeout ?? (int) config('ai.providers.ollama.timeout', 60);
+        $this->apiKey = $apiKey ?? config('ai.providers.ollama.api_key') ?: null;
     }
 
     /**

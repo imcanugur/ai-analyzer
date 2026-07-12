@@ -15,13 +15,7 @@ class AIServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(AIProviderInterface::class, function ($app) {
-            $driver = config('ai.default', 'ollama');
-
-            return match ($driver) {
-                'ollama' => new OllamaProvider,
-                'claude' => new ClaudeProvider,
-                default => throw new \InvalidArgumentException("Unsupported AI provider driver: {$driver}"),
-            };
+            return $app->make(\App\AI\Providers\ClusterAIProvider::class);
         });
     }
 

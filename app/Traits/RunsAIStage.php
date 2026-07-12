@@ -33,6 +33,10 @@ trait RunsAIStage
         $resultRepository = app(AnalysisResultRepositoryInterface::class);
         $promptService = app(PromptService::class);
         $aiProvider = app(AIProviderInterface::class);
+        $routeRepository = app(\App\Contracts\StageRouteRepositoryInterface::class);
+
+        $stageRoute = $routeRepository->findByStage($stage->value);
+        $model = $stageRoute ? $stageRoute->model : 'gemma2';
 
         // Resolve next job dynamically from central pipeline configuration
         $pipeline = config('ai.pipeline', []);
@@ -46,8 +50,7 @@ trait RunsAIStage
             'prompt_name' => $promptName,
             'next_job' => $nextJobClass,
             'custom_replacements' => ! empty($replacements),
-            'provider' => config('ai.default'),
-            'model' => config('ai.providers.'.config('ai.default').'.default_model'),
+            'model' => $model,
         ]);
 
         try {
@@ -112,8 +115,7 @@ trait RunsAIStage
 
             // 5. Call AI provider with system + user prompt separation
             Log::info("{$logPrefix} AI provider'a istek gönderiliyor...", [
-                'provider' => config('ai.default'),
-                'model' => config('ai.providers.'.config('ai.default').'.default_model'),
+                'model' => $model,
                 'system_prompt_length' => mb_strlen($systemPrompt),
                 'user_prompt_length' => mb_strlen($userPrompt),
                 'total_input_length' => mb_strlen($systemPrompt) + mb_strlen($userPrompt),
@@ -121,7 +123,10 @@ trait RunsAIStage
                 'full_user_prompt' => $userPrompt,
             ]);
 
-            $aiResponse = $aiProvider->generate($userPrompt, [], $systemPrompt);
+            $aiResponse = $aiProvider->generate($userPrompt, [
+                'stage' => $stage->value,
+                'model' => $model,
+            ], $systemPrompt);
 
             Log::info("{$logPrefix} AI yanıtı alındı.", [
                 'response_length' => mb_strlen($aiResponse->text),
@@ -147,15 +152,15 @@ trait RunsAIStage
             // 7. Save the stage result
             $resultRepository->create([
                 'analysis_id' => $analysis->id,
+                'node_id' => $aiResponse->metadata['node_id'] ?? null,
+                'model' => $model,
+                'driver' => $aiResponse->metadata['driver'] ?? 'ollama',
                 'stage' => $stage,
                 'status' => AnalysisStatus::COMPLETED,
                 'payload' => [
                     'text' => $aiResponse->text,
                 ],
-                'metadata' => [
-                    'model' => config('ai.providers.'.config('ai.default').'.default_model'),
-                    'provider' => config('ai.default'),
-                ],
+                'metadata' => $aiResponse->metadata,
                 'execution_time' => $aiResponse->executionTime,
                 'tokens' => $aiResponse->tokens,
             ]);

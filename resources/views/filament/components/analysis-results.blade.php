@@ -4,7 +4,7 @@
     <div style="font-size: 14px; color: #6b7280; font-style: italic;">No record loaded</div>
 @else
     @php
-        $analyses = $record->analyses()->with(['results', 'media'])->orderBy('created_at', 'desc')->get();
+        $analyses = $record->analyses()->with(['results.node', 'media'])->orderBy('created_at', 'desc')->get();
     @endphp
 
     @if($analyses->isEmpty())
@@ -47,7 +47,14 @@
                                 <div style="border: 1px solid #f3f4f6; border-radius: 8px; padding: 16px; background-color: #fafafa;">
                                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                                         <h5 style="font-size: 13px; font-weight: 700; color: #1e3a8a; text-transform: uppercase; margin: 0;">{{ $res->stage->value }}</h5>
-                                        <span style="font-size: 11px; color: #9ca3af;">Tokens: {{ $res->tokens }} • {{ $res->execution_time }}ms</span>
+                                        <span style="font-size: 11px; color: #9ca3af;">
+                                            Tokens: {{ $res->tokens }} • {{ $res->execution_time }}ms
+                                            @if($res->node)
+                                                • Node: {{ $res->node->name }}
+                                            @elseif($res->driver)
+                                                • Driver: {{ ucfirst($res->driver) }}
+                                            @endif
+                                        </span>
                                     </div>
                                     <div style="font-size: 13px; color: #374151; white-space: pre-wrap; line-height: 1.6; max-height: 250px; overflow-y: auto; padding-right: 8px;">{{ $res->payload['text'] ?? '' }}</div>
                                 </div>
