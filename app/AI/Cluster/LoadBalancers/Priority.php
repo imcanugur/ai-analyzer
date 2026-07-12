@@ -22,7 +22,7 @@ class Priority implements LoadBalancer
         }
 
         // If there's a tie, apply Round Robin on those candidates
-        $cacheKey = "cluster:load_balancer:priority_rr:".md5($capability);
+        $cacheKey = 'cluster:load_balancer:priority_rr:'.md5($capability);
         $lastNodeId = Cache::get($cacheKey);
 
         $index = 0;

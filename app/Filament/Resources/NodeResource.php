@@ -16,13 +16,12 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\HtmlString;
 
 class NodeResource extends Resource
 {
@@ -156,12 +155,12 @@ class NodeResource extends Resource
                     ->action(function (Node $record, AIClusterService $clusterService) {
                         $isOnline = $clusterService->checkNodeHealth($record);
                         if ($isOnline) {
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title("Node '{$record->name}' is Online!")
                                 ->success()
                                 ->send();
                         } else {
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title("Node '{$record->name}' health check failed")
                                 ->body($record->last_error)
                                 ->danger()

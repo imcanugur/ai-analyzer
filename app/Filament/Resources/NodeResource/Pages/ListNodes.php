@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources\NodeResource\Pages;
 
+use App\Contracts\NodeRepositoryInterface;
 use App\Filament\Resources\NodeResource;
+use App\Services\AIClusterService;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 
 class ListNodes extends ListRecords
@@ -18,7 +21,7 @@ class ListNodes extends ListRecords
                 ->label('Check All Nodes')
                 ->icon('heroicon-o-arrow-path')
                 ->color('success')
-                ->action(function (\App\Services\AIClusterService $clusterService, \App\Contracts\NodeRepositoryInterface $nodeRepository) {
+                ->action(function (AIClusterService $clusterService, NodeRepositoryInterface $nodeRepository) {
                     $nodes = $nodeRepository->all();
                     $onlineCount = 0;
                     foreach ($nodes as $node) {
@@ -26,9 +29,9 @@ class ListNodes extends ListRecords
                             $onlineCount++;
                         }
                     }
-                    \Filament\Notifications\Notification::make()
-                        ->title("Cluster Health Checked")
-                        ->body("{$onlineCount} of " . $nodes->count() . " nodes are online.")
+                    Notification::make()
+                        ->title('Cluster Health Checked')
+                        ->body("{$onlineCount} of ".$nodes->count().' nodes are online.')
                         ->success()
                         ->send();
                 }),

@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\AI\Contracts\AIProviderInterface;
 use App\Contracts\AnalysisResultRepositoryInterface;
+use App\Contracts\StageRouteRepositoryInterface;
 use App\Enums\AnalysisStage;
 use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
@@ -33,7 +34,7 @@ trait RunsAIStage
         $resultRepository = app(AnalysisResultRepositoryInterface::class);
         $promptService = app(PromptService::class);
         $aiProvider = app(AIProviderInterface::class);
-        $routeRepository = app(\App\Contracts\StageRouteRepositoryInterface::class);
+        $routeRepository = app(StageRouteRepositoryInterface::class);
 
         $stageRoute = $routeRepository->findByStage($stage->value);
         $model = $stageRoute ? $stageRoute->model : 'gemma2';

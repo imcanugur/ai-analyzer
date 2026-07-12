@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('stage')->unique();
             $table->string('model');
-            
+
             $table->foreignUuid('node_id')
                 ->nullable()
                 ->constrained('nodes')

@@ -6,11 +6,17 @@ use App\Contracts\AnalysisRepositoryInterface;
 use App\Contracts\AnalysisResultRepositoryInterface;
 use App\Contracts\MediaRepositoryInterface;
 use App\Contracts\MediaTypeResolver;
+use App\Contracts\NodeRepositoryInterface;
 use App\Contracts\PathGenerator;
+use App\Contracts\SettingRepositoryInterface;
+use App\Contracts\StageRouteRepositoryInterface;
 use App\Contracts\SubmissionRepositoryInterface;
 use App\Repositories\Eloquent\EloquentAnalysisRepository;
 use App\Repositories\Eloquent\EloquentAnalysisResultRepository;
 use App\Repositories\Eloquent\EloquentMediaRepository;
+use App\Repositories\Eloquent\EloquentNodeRepository;
+use App\Repositories\Eloquent\EloquentSettingRepository;
+use App\Repositories\Eloquent\EloquentStageRouteRepository;
 use App\Repositories\Eloquent\EloquentSubmissionRepository;
 use App\Services\PromptService;
 use App\Support\DefaultMediaTypeResolver;
@@ -55,18 +61,18 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            \App\Contracts\NodeRepositoryInterface::class,
-            \App\Repositories\Eloquent\EloquentNodeRepository::class
+            NodeRepositoryInterface::class,
+            EloquentNodeRepository::class
         );
 
         $this->app->bind(
-            \App\Contracts\SettingRepositoryInterface::class,
-            \App\Repositories\Eloquent\EloquentSettingRepository::class
+            SettingRepositoryInterface::class,
+            EloquentSettingRepository::class
         );
 
         $this->app->bind(
-            \App\Contracts\StageRouteRepositoryInterface::class,
-            \App\Repositories\Eloquent\EloquentStageRouteRepository::class
+            StageRouteRepositoryInterface::class,
+            EloquentStageRouteRepository::class
         );
 
         $this->app->singleton(

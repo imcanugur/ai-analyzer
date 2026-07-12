@@ -11,8 +11,6 @@ interface LoadBalancer
      * Select a node from the collection of candidates based on capability.
      *
      * @param  Collection<int, Node>  $nodes
-     * @param  string  $capability
-     * @return Node
      */
     public function select(Collection $nodes, string $capability): Node;
 }

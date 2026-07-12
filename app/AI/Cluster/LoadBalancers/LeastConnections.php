@@ -31,7 +31,7 @@ class LeastConnections implements LoadBalancer
         }
 
         // If still a tie, apply Round Robin on the best candidates
-        $cacheKey = "cluster:load_balancer:least_conn_rr:".md5($capability);
+        $cacheKey = 'cluster:load_balancer:least_conn_rr:'.md5($capability);
         $lastNodeId = Cache::get($cacheKey);
 
         $index = 0;

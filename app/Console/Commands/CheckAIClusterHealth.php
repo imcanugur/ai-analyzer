@@ -32,19 +32,20 @@ class CheckAIClusterHealth extends Command
 
         if ($nodes->isEmpty()) {
             $this->warn('No nodes registered in the database.');
+
             return;
         }
 
         foreach ($nodes as $node) {
             $this->info("Checking node: {$node->name} ({$node->endpoint})");
-            
+
             $isOnline = $clusterService->checkNodeHealth($node);
 
             // Reload node data to display updated capabilities/errors correctly
             $node->refresh();
 
             if ($isOnline) {
-                $capabilitiesStr = !empty($node->capabilities) ? implode(', ', $node->capabilities) : 'none';
+                $capabilitiesStr = ! empty($node->capabilities) ? implode(', ', $node->capabilities) : 'none';
                 $this->info("✔ Node '{$node->name}' is ONLINE. Capabilities: {$capabilitiesStr}");
             } else {
                 $this->error("✘ Node '{$node->name}' is OFFLINE. Error: {$node->last_error}");

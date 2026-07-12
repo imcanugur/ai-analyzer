@@ -25,7 +25,6 @@ class NodeRouter
     /**
      * Get candidate nodes for the requested capability, optionally excluding some.
      *
-     * @param  array  $excludeNodeIds
      * @return Collection<int, Node>
      */
     public function getCandidates(string $capability, array $excludeNodeIds = []): Collection
@@ -39,7 +38,7 @@ class NodeRouter
         // Filter nodes that support the capability (either matches model name or stage name)
         return $allOnlineNodes->filter(function (Node $node) use ($capability) {
             $capabilities = $node->capabilities ?: [];
-            
+
             // Perform case-insensitive match
             foreach ($capabilities as $cap) {
                 if (strcasecmp($cap, $capability) === 0) {
@@ -80,12 +79,12 @@ class NodeRouter
     protected function resolveStrategy(string $strategyName): LoadBalancer
     {
         return match ($strategyName) {
-            'weighted_round_robin' => new WeightedRoundRobin(),
-            'least_connections' => new LeastConnections(),
-            'random' => new Random(),
-            'priority' => new Priority(),
-            'round_robin' => new RoundRobin(),
-            default => new RoundRobin(),
+            'weighted_round_robin' => new WeightedRoundRobin,
+            'least_connections' => new LeastConnections,
+            'random' => new Random,
+            'priority' => new Priority,
+            'round_robin' => new RoundRobin,
+            default => new RoundRobin,
         };
     }
 }

@@ -23,7 +23,7 @@ class WeightedRoundRobin implements LoadBalancer
         }
 
         $expandedCollection = collect($expanded);
-        $cacheKey = "cluster:load_balancer:weighted_round_robin:".md5($capability);
+        $cacheKey = 'cluster:load_balancer:weighted_round_robin:'.md5($capability);
         $lastIndex = Cache::get($cacheKey, -1);
 
         $nextIndex = ($lastIndex + 1) % $expandedCollection->count();

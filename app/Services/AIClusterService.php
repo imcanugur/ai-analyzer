@@ -22,7 +22,7 @@ class AIClusterService
     public function checkNodeHealth(Node $node): bool
     {
         $endpoint = rtrim($node->endpoint, '/');
-        
+
         try {
             if ($node->driver === 'ollama') {
                 $url = "{$endpoint}/api/tags";
@@ -31,7 +31,7 @@ class AIClusterService
                 if ($response->successful()) {
                     $data = $response->json();
                     $models = [];
-                    
+
                     if (isset($data['models']) && is_array($data['models'])) {
                         foreach ($data['models'] as $modelData) {
                             if (isset($modelData['name'])) {
@@ -60,6 +60,7 @@ class AIClusterService
                         'last_health_check_at' => now(),
                         'last_error' => null,
                     ]);
+
                     return true;
                 }
             } else {
@@ -68,6 +69,7 @@ class AIClusterService
                     'last_health_check_at' => now(),
                     'last_error' => null,
                 ]);
+
                 return true;
             }
         } catch (\Exception $e) {
@@ -77,7 +79,7 @@ class AIClusterService
             $this->nodeRepository->update($node->id, [
                 'status' => 'offline',
                 'last_health_check_at' => now(),
-                'last_error' => 'Connection failed: ' . $errorMessage,
+                'last_error' => 'Connection failed: '.$errorMessage,
             ]);
         }
 

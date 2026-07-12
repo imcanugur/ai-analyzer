@@ -15,7 +15,7 @@ class RoundRobin implements LoadBalancer
     public function select(Collection $nodes, string $capability): Node
     {
         $nodes = $nodes->values();
-        $cacheKey = "cluster:load_balancer:round_robin:".md5($capability);
+        $cacheKey = 'cluster:load_balancer:round_robin:'.md5($capability);
         $lastNodeId = Cache::get($cacheKey);
 
         $index = 0;

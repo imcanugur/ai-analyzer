@@ -9,6 +9,7 @@ use Illuminate\Database\Seeder;
 class StageRouteSeeder extends Seeder
 {
     protected StageRouteRepositoryInterface $routeRepository;
+
     protected NodeRepositoryInterface $nodeRepository;
 
     public function __construct(
@@ -25,7 +26,7 @@ class StageRouteSeeder extends Seeder
     public function run(): void
     {
         $nodes = $this->nodeRepository->all();
-        
+
         $node1 = $nodes->first(fn ($n) => str_contains($n->endpoint, '11434'));
         $node2 = $nodes->first(fn ($n) => str_contains($n->endpoint, '11435'));
         $node3 = $nodes->first(fn ($n) => str_contains($n->endpoint, '11436'));

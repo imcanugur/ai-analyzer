@@ -21,7 +21,7 @@ class EloquentNodeRepository implements NodeRepositoryInterface
     public function update(string $id, array $attributes): bool
     {
         $node = $this->find($id);
-        if (!$node) {
+        if (! $node) {
             return false;
         }
 
@@ -31,7 +31,7 @@ class EloquentNodeRepository implements NodeRepositoryInterface
     public function delete(string $id): bool
     {
         $node = $this->find($id);
-        if (!$node) {
+        if (! $node) {
             return false;
         }
 

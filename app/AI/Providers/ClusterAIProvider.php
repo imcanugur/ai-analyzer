@@ -2,9 +2,9 @@
 
 namespace App\AI\Providers;
 
+use App\AI\Cluster\NodeRouter;
 use App\AI\Contracts\AIProviderInterface;
 use App\AI\DTO\AIResponse;
-use App\AI\Cluster\NodeRouter;
 use App\Contracts\NodeRepositoryInterface;
 use App\Contracts\StageRouteRepositoryInterface;
 use App\Models\Node;
@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\Log;
 class ClusterAIProvider implements AIProviderInterface
 {
     protected NodeRouter $router;
+
     protected NodeRepositoryInterface $nodeRepository;
+
     protected StageRouteRepositoryInterface $routeRepository;
 
     public function __construct(
@@ -49,7 +51,7 @@ class ClusterAIProvider implements AIProviderInterface
         $retries = (int) config('ai.cluster.retry', 3);
         $failover = (bool) config('ai.cluster.failover', true);
 
-        Log::info("[ClusterAIProvider] Starting cluster routing.", [
+        Log::info('[ClusterAIProvider] Starting cluster routing.', [
             'stage' => $stage,
             'capability' => $capability,
             'preferred_node' => $preferredNode?->name,
@@ -63,7 +65,7 @@ class ClusterAIProvider implements AIProviderInterface
             $node = null;
 
             // 1. Try preferred node on first attempt if online and not tried yet
-            if ($preferredNode && !in_array($preferredNode->id, $attemptedNodeIds)) {
+            if ($preferredNode && ! in_array($preferredNode->id, $attemptedNodeIds)) {
                 if ($preferredNode->status === 'online') {
                     $node = $preferredNode;
                 } else {
@@ -73,7 +75,7 @@ class ClusterAIProvider implements AIProviderInterface
             }
 
             // 2. Dynamic load balancing fallback
-            if (!$node) {
+            if (! $node) {
                 $candidates = $this->router->getCandidates($capability, $attemptedNodeIds);
 
                 if ($candidates->isEmpty()) {
@@ -123,18 +125,18 @@ class ClusterAIProvider implements AIProviderInterface
                 // Mark the node as offline via repository
                 $this->nodeRepository->update($node->id, [
                     'status' => 'offline',
-                    'last_error' => 'Execution failed: ' . $e->getMessage(),
+                    'last_error' => 'Execution failed: '.$e->getMessage(),
                 ]);
 
-                if (!$failover || $attempt === $retries) {
+                if (! $failover || $attempt === $retries) {
                     throw new \RuntimeException(
-                        "AI execution failed on node '{$node->name}' and failover is exhausted: " . $e->getMessage(),
+                        "AI execution failed on node '{$node->name}' and failover is exhausted: ".$e->getMessage(),
                         0,
                         $e
                     );
                 }
 
-                Log::warning("[ClusterAIProvider] Failing over to next available node.");
+                Log::warning('[ClusterAIProvider] Failing over to next available node.');
             } finally {
                 // Decrement connection count atomically via repository
                 $this->nodeRepository->decrementConnections($node->id);
@@ -158,7 +160,7 @@ class ClusterAIProvider implements AIProviderInterface
                 timeout: $timeout,
                 apiKey: $node->api_key
             ),
-            'claude' => new ClaudeProvider(),
+            'claude' => new ClaudeProvider,
             default => throw new \InvalidArgumentException("Unsupported node driver: {$node->driver}"),
         };
     }

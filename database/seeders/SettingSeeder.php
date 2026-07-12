@@ -20,7 +20,7 @@ class SettingSeeder extends Seeder
     public function run(): void
     {
         // Seed default stage models configuration in database settings table
-        if (!$this->settingRepository->get('stage_models')) {
+        if (! $this->settingRepository->get('stage_models')) {
             $this->settingRepository->set('stage_models', [
                 'summary' => 'qwen3:4b',
                 'grammar' => 'gemma3:4b',
