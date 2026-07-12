@@ -22,6 +22,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Http;
 
 class NodeResource extends Resource
 {
@@ -62,16 +63,17 @@ class NodeResource extends Resource
                                     ->color('success')
                                     ->action(function ($state, callable $set) {
                                         if (empty($state)) {
-                                            \Filament\Notifications\Notification::make()
+                                            Notification::make()
                                                 ->title('Please enter an endpoint URL first')
                                                 ->warning()
                                                 ->send();
+
                                             return;
                                         }
 
                                         try {
                                             $endpoint = rtrim($state, '/');
-                                            $response = \Illuminate\Support\Facades\Http::timeout(5)->get("{$endpoint}/api/tags");
+                                            $response = Http::timeout(5)->get("{$endpoint}/api/tags");
 
                                             if ($response->successful()) {
                                                 $data = $response->json();
@@ -84,27 +86,27 @@ class NodeResource extends Resource
                                                     }
                                                 }
 
-                                                if (!empty($models)) {
+                                                if (! empty($models)) {
                                                     $set('capabilities', $models);
-                                                    \Filament\Notifications\Notification::make()
+                                                    Notification::make()
                                                         ->title('Models fetched successfully!')
-                                                        ->body('Loaded ' . count($models) . ' models.')
+                                                        ->body('Loaded '.count($models).' models.')
                                                         ->success()
                                                         ->send();
                                                 } else {
-                                                    \Filament\Notifications\Notification::make()
+                                                    Notification::make()
                                                         ->title('No models found at this endpoint')
                                                         ->warning()
                                                         ->send();
                                                 }
                                             } else {
-                                                \Filament\Notifications\Notification::make()
+                                                Notification::make()
                                                     ->title('Failed to connect to endpoint')
                                                     ->danger()
                                                     ->send();
                                             }
                                         } catch (\Exception $e) {
-                                            \Filament\Notifications\Notification::make()
+                                            Notification::make()
                                                 ->title('Connection failed')
                                                 ->body($e->getMessage())
                                                 ->danger()

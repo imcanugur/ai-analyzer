@@ -2,17 +2,19 @@
 
 namespace App\Filament\Resources;
 
+use App\Contracts\NodeRepositoryInterface;
 use App\Filament\Resources\StageRouteResource\Pages;
-use App\Models\Node;
 use App\Models\StageRoute;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Http;
 
 class StageRouteResource extends Resource
 {
@@ -46,7 +48,7 @@ class StageRouteResource extends Resource
                             ->required()
                             ->options(function (callable $get) {
                                 $nodeId = $get('node_id');
-                                $nodeRepository = app(\App\Contracts\NodeRepositoryInterface::class);
+                                $nodeRepository = app(NodeRepositoryInterface::class);
 
                                 if ($nodeId) {
                                     $node = $nodeRepository->find($nodeId);
@@ -54,7 +56,7 @@ class StageRouteResource extends Resource
                                         if ($node->driver === 'ollama') {
                                             try {
                                                 $endpoint = rtrim($node->endpoint, '/');
-                                                $response = \Illuminate\Support\Facades\Http::timeout(3)->get("{$endpoint}/api/tags");
+                                                $response = Http::timeout(3)->get("{$endpoint}/api/tags");
                                                 if ($response->successful()) {
                                                     $data = $response->json();
                                                     $models = [];
@@ -65,18 +67,19 @@ class StageRouteResource extends Resource
                                                             }
                                                         }
                                                     }
-                                                    if (!empty($models)) {
+                                                    if (! empty($models)) {
                                                         $nodeRepository->update($node->id, [
                                                             'capabilities' => $models,
                                                             'status' => 'online',
                                                             'last_health_check_at' => now(),
                                                             'last_error' => null,
                                                         ]);
+
                                                         return array_combine($models, $models);
                                                     }
                                                 }
                                             } catch (\Exception $e) {
-                                                \Filament\Notifications\Notification::make()
+                                                Notification::make()
                                                     ->title('Failed to fetch models from node')
                                                     ->body($e->getMessage())
                                                     ->danger()
@@ -84,7 +87,7 @@ class StageRouteResource extends Resource
                                             }
                                         }
 
-                                        if (is_array($node->capabilities) && !empty($node->capabilities)) {
+                                        if (is_array($node->capabilities) && ! empty($node->capabilities)) {
                                             return array_combine($node->capabilities, $node->capabilities);
                                         }
                                     }
