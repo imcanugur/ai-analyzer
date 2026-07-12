@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
+use App\Actions\SendNotificationAction;
 use App\Contracts\UserRepositoryInterface;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Schema;
-use Filament\Notifications\Notification;
-use Filament\Pages\Page;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
-use Filament\Actions\Action;
+use Filament\Schemas\Schema;
 
 class SendNotification extends Page implements HasForms
 {
@@ -53,10 +53,11 @@ class SendNotification extends Page implements HasForms
                             ->searchable()
                             ->options(function () {
                                 $userRepository = app(UserRepositoryInterface::class);
+
                                 return $userRepository->all()->pluck('name', 'id')->toArray();
                             })
                             ->hidden(fn (callable $get) => $get('send_to_all'))
-                            ->required(fn (callable $get) => !$get('send_to_all')),
+                            ->required(fn (callable $get) => ! $get('send_to_all')),
 
                         TextInput::make('title')
                             ->required()
@@ -89,7 +90,7 @@ class SendNotification extends Page implements HasForms
                             ])
                             ->default('heroicon-o-bell')
                             ->required(),
-                    ])
+                    ]),
             ])
             ->statePath('data');
     }
@@ -105,10 +106,10 @@ class SendNotification extends Page implements HasForms
         ];
     }
 
-    public function send(\App\Actions\SendNotificationAction $action): void
+    public function send(SendNotificationAction $action): void
     {
         $formData = $this->form->getState();
-        
+
         $action->execute($formData);
 
         $this->form->fill();

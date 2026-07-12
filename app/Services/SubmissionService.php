@@ -8,6 +8,7 @@ use App\Contracts\SubmissionRepositoryInterface;
 use App\DTO\CreateSubmissionDTO;
 use App\Enums\SubmissionStatus;
 use App\Models\Submission;
+use Filament\Notifications\Notification;
 
 class SubmissionService
 {
@@ -32,7 +33,7 @@ class SubmissionService
         // Send database notification to the user
         $user = $submission->user;
         if ($user) {
-            \Filament\Notifications\Notification::make()
+            Notification::make()
                 ->title('Submission Uploaded')
                 ->body("Your manuscript '{$submission->title}' has been successfully uploaded and queued.")
                 ->icon('heroicon-o-document-arrow-up')

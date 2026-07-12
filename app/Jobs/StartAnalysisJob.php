@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Contracts\NotificationServiceInterface;
 use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
 use Illuminate\Bus\Queueable;
@@ -36,7 +37,7 @@ class StartAnalysisJob implements ShouldQueue
 
         $user = $this->analysis->submission?->user;
         if ($user) {
-            app(\App\Contracts\NotificationServiceInterface::class)->send(
+            app(NotificationServiceInterface::class)->send(
                 $user,
                 'Analysis Started',
                 "The AI evaluation pipeline has started for manuscript '{$this->analysis->submission->title}'.",

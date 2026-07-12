@@ -6,6 +6,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Contracts\UserRepositoryInterface;
 use App\Models\User;
+use Illuminate\Support\Collection;
 
 class EloquentUserRepository implements UserRepositoryInterface
 {
@@ -20,7 +21,7 @@ class EloquentUserRepository implements UserRepositoryInterface
     /**
      * Get all users in the database.
      */
-    public function all(): \Illuminate\Support\Collection
+    public function all(): Collection
     {
         return User::all();
     }
@@ -28,7 +29,7 @@ class EloquentUserRepository implements UserRepositoryInterface
     /**
      * Get users by their IDs.
      */
-    public function findMany(array $ids): \Illuminate\Support\Collection
+    public function findMany(array $ids): Collection
     {
         return User::whereIn('id', $ids)->get();
     }

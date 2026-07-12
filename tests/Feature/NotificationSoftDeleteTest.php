@@ -2,10 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Actions\SendNotificationAction;
 use App\Contracts\NotificationRepositoryInterface;
+use App\Contracts\NotificationServiceInterface;
 use App\Models\DatabaseNotification;
 use App\Models\User;
+use Filament\Notifications\Livewire\DatabaseNotifications;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class NotificationSoftDeleteTest extends TestCase
@@ -27,7 +32,7 @@ class NotificationSoftDeleteTest extends TestCase
 
         // 2. Create a notification
         $notification = DatabaseNotification::create([
-            'id' => \Illuminate\Support\Str::uuid()->toString(),
+            'id' => Str::uuid()->toString(),
             'type' => 'App\\Notifications\\TestNotification',
             'notifiable_type' => User::class,
             'notifiable_id' => $user->id,
@@ -64,7 +69,7 @@ class NotificationSoftDeleteTest extends TestCase
         $user = User::factory()->create();
 
         $notification1 = DatabaseNotification::create([
-            'id' => \Illuminate\Support\Str::uuid()->toString(),
+            'id' => Str::uuid()->toString(),
             'type' => 'App\\Notifications\\TestNotification',
             'notifiable_type' => User::class,
             'notifiable_id' => $user->id,
@@ -72,7 +77,7 @@ class NotificationSoftDeleteTest extends TestCase
         ]);
 
         $notification2 = DatabaseNotification::create([
-            'id' => \Illuminate\Support\Str::uuid()->toString(),
+            'id' => Str::uuid()->toString(),
             'type' => 'App\\Notifications\\TestNotification',
             'notifiable_type' => User::class,
             'notifiable_id' => $user->id,
@@ -93,7 +98,7 @@ class NotificationSoftDeleteTest extends TestCase
     public function test_notification_service_sends_notifications(): void
     {
         $user = User::factory()->create();
-        $service = app(\App\Contracts\NotificationServiceInterface::class);
+        $service = app(NotificationServiceInterface::class);
 
         $service->send(
             $user,
@@ -116,7 +121,7 @@ class NotificationSoftDeleteTest extends TestCase
     public function test_send_notification_action_sends_to_all_users(): void
     {
         $users = User::factory()->count(3)->create();
-        $action = app(\App\Actions\SendNotificationAction::class);
+        $action = app(SendNotificationAction::class);
 
         $action->execute([
             'send_to_all' => true,
@@ -135,7 +140,7 @@ class NotificationSoftDeleteTest extends TestCase
     public function test_send_notification_action_sends_to_selected_recipients(): void
     {
         $users = User::factory()->count(3)->create();
-        $action = app(\App\Actions\SendNotificationAction::class);
+        $action = app(SendNotificationAction::class);
 
         $action->execute([
             'send_to_all' => false,
@@ -157,7 +162,7 @@ class NotificationSoftDeleteTest extends TestCase
         $user = User::factory()->create();
 
         $notification = DatabaseNotification::create([
-            'id' => \Illuminate\Support\Str::uuid()->toString(),
+            'id' => Str::uuid()->toString(),
             'type' => 'App\\Notifications\\TestNotification',
             'notifiable_type' => User::class,
             'notifiable_id' => $user->id,
@@ -183,19 +188,19 @@ class NotificationSoftDeleteTest extends TestCase
 
         // Create a notification in the format Filament expects
         $notification = DatabaseNotification::create([
-            'id' => \Illuminate\Support\Str::uuid()->toString(),
+            'id' => Str::uuid()->toString(),
             'type' => 'App\\Notifications\\TestNotification',
             'notifiable_type' => User::class,
             'notifiable_id' => $user->id,
             'data' => [
                 'format' => 'filament',
                 'title' => 'Test',
-                'body' => 'Test body'
+                'body' => 'Test body',
             ],
         ]);
 
         // Test Livewire component clearNotifications
-        \Livewire\Livewire::test(\Filament\Notifications\Livewire\DatabaseNotifications::class)
+        Livewire::test(DatabaseNotifications::class)
             ->call('clearNotifications');
 
         // Assert it is soft-deleted
@@ -207,8 +212,8 @@ class NotificationSoftDeleteTest extends TestCase
     {
         $user = User::factory()->create();
         $query = $user->notifications()->where('data->format', 'filament');
-        fwrite(STDERR, "\n[DEBUG] SQL: " . $query->toSql() . "\n");
-        
+        fwrite(STDERR, "\n[DEBUG] SQL: ".$query->toSql()."\n");
+
         // If soft deletes are active, the query will automatically scope out deleted records
         $this->assertStringContainsString('deleted_at', $query->toSql());
     }

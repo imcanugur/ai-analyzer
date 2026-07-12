@@ -35,6 +35,7 @@ class EloquentNotificationRepository implements NotificationRepositoryInterface
         if ($notification) {
             return (bool) $notification->delete();
         }
+
         return false;
     }
 

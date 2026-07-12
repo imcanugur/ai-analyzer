@@ -12,7 +12,7 @@ interface NotificationRepositoryInterface
     /**
      * Get all database notifications.
      *
-     * @return \Illuminate\Support\Collection<\App\Models\DatabaseNotification>
+     * @return Collection<DatabaseNotification>
      */
     public function all(): Collection;
 

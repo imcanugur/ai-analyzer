@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Contracts\NodeRepositoryInterface;
 use App\Contracts\UserRepositoryInterface;
 use App\Models\Node;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -88,8 +89,8 @@ class AIClusterService
             // Alert system administrator
             $admin = app(UserRepositoryInterface::class)->first();
             if ($admin) {
-                \Filament\Notifications\Notification::make()
-                    ->title("Cluster Alert: Node Offline")
+                Notification::make()
+                    ->title('Cluster Alert: Node Offline')
                     ->body("AI Cluster Node '{$node->name}' ({$node->endpoint}) has gone offline.")
                     ->icon('heroicon-o-exclamation-triangle')
                     ->color('danger')

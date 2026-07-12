@@ -4,29 +4,34 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Contracts\UserRepositoryInterface;
-use App\Repositories\Eloquent\EloquentUserRepository;
-use App\Contracts\NotificationRepositoryInterface;
-use App\Repositories\Eloquent\EloquentNotificationRepository;
 use App\Contracts\AnalysisRepositoryInterface;
 use App\Contracts\AnalysisResultRepositoryInterface;
 use App\Contracts\MediaRepositoryInterface;
 use App\Contracts\MediaTypeResolver;
 use App\Contracts\NodeRepositoryInterface;
+use App\Contracts\NotificationRepositoryInterface;
+use App\Contracts\NotificationServiceInterface;
 use App\Contracts\PathGenerator;
 use App\Contracts\SettingRepositoryInterface;
 use App\Contracts\StageRouteRepositoryInterface;
 use App\Contracts\SubmissionRepositoryInterface;
+use App\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\EloquentAnalysisRepository;
 use App\Repositories\Eloquent\EloquentAnalysisResultRepository;
 use App\Repositories\Eloquent\EloquentMediaRepository;
 use App\Repositories\Eloquent\EloquentNodeRepository;
+use App\Repositories\Eloquent\EloquentNotificationRepository;
 use App\Repositories\Eloquent\EloquentSettingRepository;
 use App\Repositories\Eloquent\EloquentStageRouteRepository;
 use App\Repositories\Eloquent\EloquentSubmissionRepository;
+use App\Repositories\Eloquent\EloquentUserRepository;
+use App\Services\NotificationService;
 use App\Services\PromptService;
 use App\Support\DefaultMediaTypeResolver;
 use App\Support\DefaultPathGenerator;
+use Filament\Support\Facades\FilamentView;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -92,8 +97,8 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            \App\Contracts\NotificationServiceInterface::class,
-            \App\Services\NotificationService::class
+            NotificationServiceInterface::class,
+            NotificationService::class
         );
 
         $this->app->singleton(
@@ -108,12 +113,12 @@ class AppServiceProvider extends ServiceProvider
     {
         config(['livewire.temporary_file_upload.disk' => 'local']);
 
-        \Illuminate\Support\Facades\DB::listen(function ($query) {
-            \Illuminate\Support\Facades\Log::info('[SQL] ' . $query->sql . ' | Bindings: ' . json_encode($query->bindings));
+        DB::listen(function ($query) {
+            Log::info('[SQL] '.$query->sql.' | Bindings: '.json_encode($query->bindings));
         });
 
         // Fix Filament notifications z-index conflicts and sidebar overlap
-        \Filament\Support\Facades\FilamentView::registerRenderHook(
+        FilamentView::registerRenderHook(
             'panels::body.end',
             fn (): string => '
                 <style>

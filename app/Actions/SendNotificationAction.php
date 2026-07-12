@@ -44,6 +44,7 @@ class SendNotificationAction
                 ->title('No recipients found')
                 ->danger()
                 ->send();
+
             return;
         }
 
@@ -57,7 +58,7 @@ class SendNotificationAction
 
         FilamentNotification::make()
             ->title('Notifications sent successfully!')
-            ->body('Dispatched to ' . $users->count() . ' user(s).')
+            ->body('Dispatched to '.$users->count().' user(s).')
             ->success()
             ->send();
     }

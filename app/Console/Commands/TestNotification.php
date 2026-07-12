@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Contracts\NotificationServiceInterface;
 use App\Contracts\UserRepositoryInterface;
 use Illuminate\Console\Command;
 
@@ -26,7 +27,7 @@ class TestNotification extends Command
     /**
      * Execute the console command.
      */
-    public function handle(UserRepositoryInterface $userRepository, \App\Contracts\NotificationServiceInterface $notificationService): void
+    public function handle(UserRepositoryInterface $userRepository, NotificationServiceInterface $notificationService): void
     {
         $user = $userRepository->first();
 

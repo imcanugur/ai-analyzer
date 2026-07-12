@@ -13,18 +13,14 @@ interface NotificationServiceInterface
     /**
      * Send a database notification to one or more users.
      *
-     * @param  \App\Models\User|\Illuminate\Support\Collection<\App\Models\User>  $users
-     * @param  string  $title
-     * @param  string  $body
-     * @param  string|null  $icon
-     * @param  string|null  $color
+     * @param  User|Collection<User>  $users
      */
     public function send(User|Collection $users, string $title, string $body, ?string $icon = null, ?string $color = null): void;
 
     /**
      * Get all database notifications.
      *
-     * @return \Illuminate\Support\Collection<\App\Models\DatabaseNotification>
+     * @return Collection<DatabaseNotification>
      */
     public function all(): Collection;
 

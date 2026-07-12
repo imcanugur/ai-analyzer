@@ -6,6 +6,7 @@ namespace App\Traits;
 
 use App\AI\Contracts\AIProviderInterface;
 use App\Contracts\AnalysisResultRepositoryInterface;
+use App\Contracts\NotificationServiceInterface;
 use App\Contracts\StageRouteRepositoryInterface;
 use App\Enums\AnalysisStage;
 use App\Enums\AnalysisStatus;
@@ -188,7 +189,7 @@ trait RunsAIStage
                 // Send database notification to the user
                 $user = $analysis->submission?->user;
                 if ($user) {
-                    app(\App\Contracts\NotificationServiceInterface::class)->send(
+                    app(NotificationServiceInterface::class)->send(
                         $user,
                         'Analysis Completed!',
                         "The manuscript analysis for '{$analysis->submission->title}' has finished successfully.",
@@ -223,7 +224,7 @@ trait RunsAIStage
             // Send database notification to the user
             $user = $analysis->submission?->user;
             if ($user) {
-                app(\App\Contracts\NotificationServiceInterface::class)->send(
+                app(NotificationServiceInterface::class)->send(
                     $user,
                     'Analysis Failed',
                     "The manuscript analysis for '{$analysis->submission->title}' failed during [{$stage->value}] stage.",

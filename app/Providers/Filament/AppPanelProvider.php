@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Enums\DatabaseNotificationsPosition;
+use Filament\Enums\UserMenuPosition;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -19,8 +21,6 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Filament\Enums\DatabaseNotificationsPosition;
-use Filament\Enums\UserMenuPosition;
 
 class AppPanelProvider extends PanelProvider
 {

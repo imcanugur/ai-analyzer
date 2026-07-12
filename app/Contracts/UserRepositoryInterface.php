@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Contracts;
 
 use App\Models\User;
+use Illuminate\Support\Collection;
 
 interface UserRepositoryInterface
 {
@@ -16,15 +17,15 @@ interface UserRepositoryInterface
     /**
      * Get all users in the database.
      *
-     * @return \Illuminate\Support\Collection<\App\Models\User>
+     * @return Collection<User>
      */
-    public function all(): \Illuminate\Support\Collection;
+    public function all(): Collection;
 
     /**
      * Get users by their IDs.
      *
-     * @param array<string> $ids
-     * @return \Illuminate\Support\Collection<\App\Models\User>
+     * @param  array<string>  $ids
+     * @return Collection<User>
      */
-    public function findMany(array $ids): \Illuminate\Support\Collection;
+    public function findMany(array $ids): Collection;
 }
