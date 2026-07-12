@@ -46,20 +46,54 @@ class StageRouteResource extends Resource
                             ->required()
                             ->options(function (callable $get) {
                                 $nodeId = $get('node_id');
+                                $nodeRepository = app(\App\Contracts\NodeRepositoryInterface::class);
+
                                 if ($nodeId) {
-                                    $node = Node::find($nodeId);
-                                    if ($node && is_array($node->capabilities) && ! empty($node->capabilities)) {
-                                        return array_combine($node->capabilities, $node->capabilities);
+                                    $node = $nodeRepository->find($nodeId);
+                                    if ($node) {
+                                        if ($node->driver === 'ollama') {
+                                            try {
+                                                $endpoint = rtrim($node->endpoint, '/');
+                                                $response = \Illuminate\Support\Facades\Http::timeout(3)->get("{$endpoint}/api/tags");
+                                                if ($response->successful()) {
+                                                    $data = $response->json();
+                                                    $models = [];
+                                                    if (isset($data['models']) && is_array($data['models'])) {
+                                                        foreach ($data['models'] as $modelData) {
+                                                            if (isset($modelData['name'])) {
+                                                                $models[] = $modelData['name'];
+                                                            }
+                                                        }
+                                                    }
+                                                    if (!empty($models)) {
+                                                        $nodeRepository->update($node->id, [
+                                                            'capabilities' => $models,
+                                                            'status' => 'online',
+                                                            'last_health_check_at' => now(),
+                                                            'last_error' => null,
+                                                        ]);
+                                                        return array_combine($models, $models);
+                                                    }
+                                                }
+                                            } catch (\Exception $e) {
+                                                \Filament\Notifications\Notification::make()
+                                                    ->title('Failed to fetch models from node')
+                                                    ->body($e->getMessage())
+                                                    ->danger()
+                                                    ->send();
+                                            }
+                                        }
+
+                                        if (is_array($node->capabilities) && !empty($node->capabilities)) {
+                                            return array_combine($node->capabilities, $node->capabilities);
+                                        }
                                     }
 
                                     return [];
                                 }
 
-                                // Load all available capabilities from all registered nodes
-                                $capabilities = Node::query()
-                                    ->whereNotNull('capabilities')
-                                    ->get()
-                                    ->pluck('capabilities')
+                                $nodes = $nodeRepository->all();
+                                $capabilities = $nodes->pluck('capabilities')
                                     ->flatten()
                                     ->unique()
                                     ->filter()

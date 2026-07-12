@@ -55,7 +55,63 @@ class NodeResource extends Resource
                             ->required()
                             ->url()
                             ->default('http://localhost:11434')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->suffixAction(
+                                Action::make('fetch_capabilities')
+                                    ->icon('heroicon-m-arrow-path')
+                                    ->color('success')
+                                    ->action(function ($state, callable $set) {
+                                        if (empty($state)) {
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('Please enter an endpoint URL first')
+                                                ->warning()
+                                                ->send();
+                                            return;
+                                        }
+
+                                        try {
+                                            $endpoint = rtrim($state, '/');
+                                            $response = \Illuminate\Support\Facades\Http::timeout(5)->get("{$endpoint}/api/tags");
+
+                                            if ($response->successful()) {
+                                                $data = $response->json();
+                                                $models = [];
+                                                if (isset($data['models']) && is_array($data['models'])) {
+                                                    foreach ($data['models'] as $modelData) {
+                                                        if (isset($modelData['name'])) {
+                                                            $models[] = $modelData['name'];
+                                                        }
+                                                    }
+                                                }
+
+                                                if (!empty($models)) {
+                                                    $set('capabilities', $models);
+                                                    \Filament\Notifications\Notification::make()
+                                                        ->title('Models fetched successfully!')
+                                                        ->body('Loaded ' . count($models) . ' models.')
+                                                        ->success()
+                                                        ->send();
+                                                } else {
+                                                    \Filament\Notifications\Notification::make()
+                                                        ->title('No models found at this endpoint')
+                                                        ->warning()
+                                                        ->send();
+                                                }
+                                            } else {
+                                                \Filament\Notifications\Notification::make()
+                                                    ->title('Failed to connect to endpoint')
+                                                    ->danger()
+                                                    ->send();
+                                            }
+                                        } catch (\Exception $e) {
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('Connection failed')
+                                                ->body($e->getMessage())
+                                                ->danger()
+                                                ->send();
+                                        }
+                                    })
+                            ),
 
                         TextInput::make('api_key')
                             ->label('API Key / Token')
