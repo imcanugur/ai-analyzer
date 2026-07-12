@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Traits;
 
 use App\AI\Contracts\AIProviderInterface;
@@ -182,6 +184,18 @@ trait RunsAIStage
                     'status' => AnalysisStatus::COMPLETED,
                     'completed_at' => now(),
                 ]);
+
+                // Send database notification to the user
+                $user = $analysis->submission?->user;
+                if ($user) {
+                    app(\App\Contracts\NotificationServiceInterface::class)->send(
+                        $user,
+                        'Analysis Completed!',
+                        "The manuscript analysis for '{$analysis->submission->title}' has finished successfully.",
+                        'heroicon-o-check-circle',
+                        'success'
+                    );
+                }
             }
 
             Log::info("{$logPrefix} Stage başarıyla tamamlandı.", [
@@ -205,6 +219,18 @@ trait RunsAIStage
                 'error' => "[{$stage->value}] ".$e->getMessage(),
                 'completed_at' => now(),
             ]);
+
+            // Send database notification to the user
+            $user = $analysis->submission?->user;
+            if ($user) {
+                app(\App\Contracts\NotificationServiceInterface::class)->send(
+                    $user,
+                    'Analysis Failed',
+                    "The manuscript analysis for '{$analysis->submission->title}' failed during [{$stage->value}] stage.",
+                    'heroicon-o-x-circle',
+                    'danger'
+                );
+            }
         }
     }
 }

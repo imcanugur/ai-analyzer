@@ -83,4 +83,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(Submission::class);
     }
+
+    /**
+     * Get the entity's notifications.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function notifications()
+    {
+        return $this->morphMany(DatabaseNotification::class, 'notifiable')
+            ->orderBy('created_at', 'desc');
+    }
 }

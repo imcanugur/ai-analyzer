@@ -19,6 +19,8 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Enums\DatabaseNotificationsPosition;
+use Filament\Enums\UserMenuPosition;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -30,6 +32,9 @@ class AppPanelProvider extends PanelProvider
             ->path('app')
             ->maxContentWidth(Width::Full)
             ->login()
+            ->databaseNotifications(position: DatabaseNotificationsPosition::Sidebar)
+            ->databaseNotificationsPolling('15s')
+            ->userMenu(position: UserMenuPosition::Sidebar)
             ->colors([
                 'primary' => Color::Amber,
             ])

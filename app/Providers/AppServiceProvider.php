@@ -1,7 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\Contracts\UserRepositoryInterface;
+use App\Repositories\Eloquent\EloquentUserRepository;
+use App\Contracts\NotificationRepositoryInterface;
+use App\Repositories\Eloquent\EloquentNotificationRepository;
 use App\Contracts\AnalysisRepositoryInterface;
 use App\Contracts\AnalysisResultRepositoryInterface;
 use App\Contracts\MediaRepositoryInterface;
@@ -75,6 +81,21 @@ class AppServiceProvider extends ServiceProvider
             EloquentStageRouteRepository::class
         );
 
+        $this->app->bind(
+            UserRepositoryInterface::class,
+            EloquentUserRepository::class
+        );
+
+        $this->app->bind(
+            NotificationRepositoryInterface::class,
+            EloquentNotificationRepository::class
+        );
+
+        $this->app->bind(
+            \App\Contracts\NotificationServiceInterface::class,
+            \App\Services\NotificationService::class
+        );
+
         $this->app->singleton(
             PromptService::class
         );
@@ -86,5 +107,39 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         config(['livewire.temporary_file_upload.disk' => 'local']);
+
+        \Illuminate\Support\Facades\DB::listen(function ($query) {
+            \Illuminate\Support\Facades\Log::info('[SQL] ' . $query->sql . ' | Bindings: ' . json_encode($query->bindings));
+        });
+
+        // Fix Filament notifications z-index conflicts and sidebar overlap
+        \Filament\Support\Facades\FilamentView::registerRenderHook(
+            'panels::body.end',
+            fn (): string => '
+                <style>
+                    /* Target only the database notifications drawer to avoid breaking other modals */
+                    #database-notifications {
+                        z-index: 99999 !important;
+                        overflow-x: hidden !important;
+                    }
+                    #database-notifications .fi-modal-window {
+                        overflow-x: hidden !important;
+                        max-width: 100vw !important;
+                        width: 28rem !important;
+                    }
+                    #database-notifications div {
+                        overflow-x: hidden !important;
+                    }
+                    @media (max-width: 640px) {
+                        #database-notifications .fi-modal-window {
+                            width: 100vw !important;
+                        }
+                    }
+                    body.overflow-hidden {
+                        overflow-x: hidden !important;
+                    }
+                </style>
+            ',
+        );
     }
 }

@@ -105,6 +105,8 @@ graph TD
 7. **[StageRoute](app/Models/StageRoute.php)**: Maps analysis pipeline stages directly to target models and preferred database nodes.
 8. **[Report](app/Models/Report.php)**: Links final compiled reports (such as PDFs) to parent analyses.
 9. **[Setting](app/Models/Setting.php)**: Handles key-value application configurations.
+10. **[User](app/Models/User.php)**: Represents system users and administrators, decoupled via `UserRepositoryInterface`.
+11. **Database Notification**: Standard database table integrated natively with the Filament header bell icon to track user success/failure notifications dynamically.
 
 ---
 

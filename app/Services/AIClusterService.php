@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Contracts\NodeRepositoryInterface;
+use App\Contracts\UserRepositoryInterface;
 use App\Models\Node;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -81,6 +84,18 @@ class AIClusterService
                 'last_health_check_at' => now(),
                 'last_error' => 'Connection failed: '.$errorMessage,
             ]);
+
+            // Alert system administrator
+            $admin = app(UserRepositoryInterface::class)->first();
+            if ($admin) {
+                \Filament\Notifications\Notification::make()
+                    ->title("Cluster Alert: Node Offline")
+                    ->body("AI Cluster Node '{$node->name}' ({$node->endpoint}) has gone offline.")
+                    ->icon('heroicon-o-exclamation-triangle')
+                    ->color('danger')
+                    ->danger()
+                    ->sendToDatabase($admin);
+            }
         }
 
         return false;
