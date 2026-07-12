@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\StageRouteResource\Pages;
+use App\Models\Node;
 use App\Models\StageRoute;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -46,15 +47,16 @@ class StageRouteResource extends Resource
                             ->options(function (callable $get) {
                                 $nodeId = $get('node_id');
                                 if ($nodeId) {
-                                    $node = \App\Models\Node::find($nodeId);
-                                    if ($node && is_array($node->capabilities) && !empty($node->capabilities)) {
+                                    $node = Node::find($nodeId);
+                                    if ($node && is_array($node->capabilities) && ! empty($node->capabilities)) {
                                         return array_combine($node->capabilities, $node->capabilities);
                                     }
+
                                     return [];
                                 }
 
                                 // Load all available capabilities from all registered nodes
-                                $capabilities = \App\Models\Node::query()
+                                $capabilities = Node::query()
                                     ->whereNotNull('capabilities')
                                     ->get()
                                     ->pluck('capabilities')

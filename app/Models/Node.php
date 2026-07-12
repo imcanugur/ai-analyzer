@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class Node
@@ -91,10 +93,10 @@ class Node extends Model
     protected static function booted(): void
     {
         static::saving(function (Node $node) {
-            if ($node->driver === 'ollama' && !empty($node->endpoint)) {
+            if ($node->driver === 'ollama' && ! empty($node->endpoint)) {
                 try {
                     $endpoint = rtrim($node->endpoint, '/');
-                    $response = \Illuminate\Support\Facades\Http::timeout(5)->get("{$endpoint}/api/tags");
+                    $response = Http::timeout(5)->get("{$endpoint}/api/tags");
                     if ($response->successful()) {
                         $data = $response->json();
                         $models = [];
@@ -105,7 +107,7 @@ class Node extends Model
                                 }
                             }
                         }
-                        if (!empty($models)) {
+                        if (! empty($models)) {
                             $node->capabilities = $models;
                             $node->status = 'online';
                             $node->last_health_check_at = now();
@@ -113,7 +115,7 @@ class Node extends Model
                         }
                     }
                 } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::warning("[Node Model] Auto capability fetch failed for {$node->endpoint}: " . $e->getMessage());
+                    Log::warning("[Node Model] Auto capability fetch failed for {$node->endpoint}: ".$e->getMessage());
                 }
             }
         });
