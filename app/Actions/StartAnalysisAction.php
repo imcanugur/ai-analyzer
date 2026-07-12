@@ -23,10 +23,6 @@ class StartAnalysisAction
             type: $dto->type,
             options: [
                 'category' => $dto->category,
-                'provider' => $dto->provider,
-                'engine' => $dto->engine,
-                'model' => $dto->model,
-                'version' => $dto->version,
                 'config' => $dto->config,
                 'metadata' => $dto->metadata,
             ]

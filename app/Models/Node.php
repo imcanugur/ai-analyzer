@@ -84,4 +84,38 @@ class Node extends Model
             'last_health_check_at' => 'datetime',
         ];
     }
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Node $node) {
+            if ($node->driver === 'ollama' && !empty($node->endpoint)) {
+                try {
+                    $endpoint = rtrim($node->endpoint, '/');
+                    $response = \Illuminate\Support\Facades\Http::timeout(5)->get("{$endpoint}/api/tags");
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        $models = [];
+                        if (isset($data['models']) && is_array($data['models'])) {
+                            foreach ($data['models'] as $modelData) {
+                                if (isset($modelData['name'])) {
+                                    $models[] = $modelData['name'];
+                                }
+                            }
+                        }
+                        if (!empty($models)) {
+                            $node->capabilities = $models;
+                            $node->status = 'online';
+                            $node->last_health_check_at = now();
+                            $node->last_error = null;
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning("[Node Model] Auto capability fetch failed for {$node->endpoint}: " . $e->getMessage());
+                }
+            }
+        });
+    }
 }

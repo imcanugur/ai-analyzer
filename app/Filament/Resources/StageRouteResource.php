@@ -33,16 +33,42 @@ class StageRouteResource extends Resource
                             ->disabled()
                             ->required(),
 
-                        TextInput::make('model')
-                            ->required()
-                            ->placeholder('e.g. qwen3:4b')
-                            ->maxLength(255),
-
                         Select::make('node_id')
                             ->label('Preferred Node')
                             ->relationship('node', 'name')
                             ->placeholder('Dynamic (Load Balancer)')
+                            ->live()
                             ->nullable(),
+
+                        Select::make('model')
+                            ->label('Model')
+                            ->required()
+                            ->options(function (callable $get) {
+                                $nodeId = $get('node_id');
+                                if ($nodeId) {
+                                    $node = \App\Models\Node::find($nodeId);
+                                    if ($node && is_array($node->capabilities) && !empty($node->capabilities)) {
+                                        return array_combine($node->capabilities, $node->capabilities);
+                                    }
+                                    return [];
+                                }
+
+                                // Load all available capabilities from all registered nodes
+                                $capabilities = \App\Models\Node::query()
+                                    ->whereNotNull('capabilities')
+                                    ->get()
+                                    ->pluck('capabilities')
+                                    ->flatten()
+                                    ->unique()
+                                    ->filter()
+                                    ->toArray();
+
+                                if (empty($capabilities)) {
+                                    return [];
+                                }
+
+                                return array_combine($capabilities, $capabilities);
+                            }),
                     ]),
             ]);
     }

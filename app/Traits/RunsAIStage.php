@@ -161,7 +161,7 @@ trait RunsAIStage
                 'payload' => [
                     'text' => $aiResponse->text,
                 ],
-                'metadata' => $aiResponse->metadata,
+                'metadata' => null,
                 'execution_time' => $aiResponse->executionTime,
                 'tokens' => $aiResponse->tokens,
             ]);

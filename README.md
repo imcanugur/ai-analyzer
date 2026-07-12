@@ -99,7 +99,7 @@ graph TD
 1. **[User](app/Models/User.php)**: Represents application administrators and users. Integrates authentication services and owns submissions.
 2. **[Submission](app/Models/Submission.php)**: The root entity for processing. Contains metadata, statuses (`pending`, `processing`, `completed`, `failed`, `cancelled`), and polymorphic media relations. Supports soft deletes.
 3. **[Media](app/Models/Media.php)**: Polymorphic model linking physical files to submissions or analyses. Tracks size, mime type, original names, file extensions, SHA-256 checksums, storage disk, and optimization flags.
-4. **[Analysis](app/Models/Analysis.php)**: Tracks analysis runs including configured providers (`ollama`, `openai`, `anthropic`, `google`), engines (`llm`, `embedding`, `ocr`, `speech`, `vision`), and specific models.
+4. **[Analysis](app/Models/Analysis.php)**: Tracks parent analysis runs (status, started/completed timestamps, and config metadata) decoupled from specific dynamic node models.
 5. **[AnalysisResult](app/Models/AnalysisResult.php)**: Stores granular results per pipeline stage (`extract`, `summary`, `grammar`, `plagiarism`, etc.) alongside execution metrics (score, execution time, token count, financial cost, executing node, model, driver, and payload).
 6. **[Node](app/Models/Node.php)**: Tracks AI cluster nodes, driver type (ollama, claude), endpoint URL, active connections count, priorities, weights, capabilities list, online status, and health-check history.
 7. **[StageRoute](app/Models/StageRoute.php)**: Maps analysis pipeline stages directly to target models and preferred database nodes.

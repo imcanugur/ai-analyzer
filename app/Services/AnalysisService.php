@@ -23,10 +23,6 @@ class AnalysisService
             'type' => $type,
             'status' => AnalysisStatus::PENDING,
             'category' => $options['category'] ?? null,
-            'provider' => $options['provider'] ?? null,
-            'engine' => $options['engine'] ?? null,
-            'model' => $options['model'] ?? null,
-            'version' => $options['version'] ?? null,
             'config' => $options['config'] ?? null,
             'metadata' => $options['metadata'] ?? null,
         ]);
