@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use AdriaanZon\FilamentPasskeys\FilamentPasskeysPlugin;
+use AdriaanZon\FilamentPasskeys\PasskeyAuthentication;
 use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Auth\MultiFactor\Email\EmailAuthentication;
@@ -24,8 +26,6 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use AdriaanZon\FilamentPasskeys\FilamentPasskeysPlugin;
-use AdriaanZon\FilamentPasskeys\PasskeyAuthentication;
 
 class AppPanelProvider extends PanelProvider
 {
