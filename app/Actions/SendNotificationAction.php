@@ -6,6 +6,7 @@ namespace App\Actions;
 
 use App\Contracts\NotificationServiceInterface;
 use App\Contracts\UserRepositoryInterface;
+use App\DTO\SendNotificationDTO;
 use Filament\Notifications\Notification as FilamentNotification;
 
 class SendNotificationAction
@@ -20,22 +21,13 @@ class SendNotificationAction
 
     /**
      * Execute the send notification action.
-     *
-     * @param  array{
-     *     send_to_all: bool,
-     *     recipients?: array<string>,
-     *     title: string,
-     *     body: string,
-     *     color: string,
-     *     icon: string
-     * }  $data
      */
-    public function execute(array $data): void
+    public function execute(SendNotificationDTO $dto): void
     {
-        if ($data['send_to_all']) {
+        if ($dto->sendToAll) {
             $users = $this->userRepository->all();
         } else {
-            $recipients = $data['recipients'] ?? [];
+            $recipients = $dto->recipients ?? [];
             $users = $this->userRepository->findMany($recipients);
         }
 
@@ -50,15 +42,15 @@ class SendNotificationAction
 
         $this->notificationService->send(
             $users,
-            $data['title'],
-            $data['body'],
-            $data['icon'],
-            $data['color']
+            $dto->title,
+            $dto->body,
+            $dto->icon,
+            $dto->color
         );
 
         FilamentNotification::make()
             ->title('Notifications sent successfully!')
-            ->body('Dispatched to '.$users->count().' user(s).')
+            ->body('Dispatched to ' . $users->count() . ' user(s).')
             ->success()
             ->send();
     }

@@ -21,6 +21,9 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Actions\Action;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
+use Filament\Auth\MultiFactor\Email\EmailAuthentication;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -31,10 +34,27 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->maxContentWidth(Width::Full)
-            ->login()
             ->databaseNotifications(position: DatabaseNotificationsPosition::Sidebar)
             ->databaseNotificationsPolling('15s')
+            ->login()
+            ->registration()
+            ->passwordReset()
+            ->emailVerification()
+            ->profile(isSimple: false)
+            ->multiFactorAuthentication([
+                AppAuthentication::make()
+                    ->recoverable()
+                    ->recoveryCodeCount(8)
+                    ->regenerableRecoveryCodes(false)
+                    ->codeWindow(4),
+                EmailAuthentication::make()
+                    ->codeExpiryMinutes(4),
+            ])
             ->userMenu(position: UserMenuPosition::Sidebar)
+            ->userMenuItems([
+                'profile' => fn (Action $action) => $action->label('Edit profile'),
+                'logout' => fn (Action $action) => $action->label('Log out')
+            ])
             ->colors([
                 'primary' => Color::Amber,
             ])

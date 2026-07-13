@@ -106,11 +106,11 @@ class SendNotification extends Page implements HasForms
         ];
     }
 
-    public function send(SendNotificationAction $action): void
+    public function send(\App\Actions\SendNotificationAction $action): void
     {
         $formData = $this->form->getState();
-
-        $action->execute($formData);
+        
+        $action->execute(\App\DTO\SendNotificationDTO::fromArray($formData));
 
         $this->form->fill();
     }

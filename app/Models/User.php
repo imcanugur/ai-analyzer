@@ -10,6 +10,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthentication;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthenticationRecovery;
+use Filament\Auth\MultiFactor\Email\Contracts\HasEmailAuthentication;
+use Filament\Auth\MultiFactor\Email\Concerns\InteractsWithEmailAuthentication;
+use Filament\Models\Contracts\FilamentUser;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 /**
  * Class User
@@ -25,9 +33,13 @@ use Illuminate\Notifications\Notifiable;
  * @property Carbon|null $updated_at
  * @property-read Collection|Submission[] $submissions
  */
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasEmailAuthentication, MustVerifyEmail
 {
     use HasFactory, HasUuids, Notifiable;
+    use InteractsWithAppAuthentication;
+    use InteractsWithAppAuthenticationRecovery;
+    use InteractsWithEmailAuthentication;
+
 
     /**
      * The attributes that are mass assignable.
@@ -88,11 +100,23 @@ class User extends Authenticatable
     /**
      * Get the entity's notifications.
      *
-     * @return MorphMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function notifications()
     {
-        return $this->morphMany(DatabaseNotification::class, 'notifiable')
+        $relation = $this->morphMany(DatabaseNotification::class, 'notifiable')
             ->orderBy('created_at', 'desc');
+
+        \Illuminate\Support\Facades\Log::info('[DEBUG] User notifications() relationship called. Model resolved: ' . get_class($relation->getModel()));
+
+        return $relation;
+    }
+
+    /**
+     * Determine if the user can access the given panel.
+     */
+    public function canAccessPanel(\Filament\Panel $panel): bool
+    {
+        return true;
     }
 }
