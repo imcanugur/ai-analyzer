@@ -50,7 +50,7 @@ class SendNotificationAction
 
         FilamentNotification::make()
             ->title('Notifications sent successfully!')
-            ->body('Dispatched to ' . $users->count() . ' user(s).')
+            ->body('Dispatched to '.$users->count().' user(s).')
             ->success()
             ->send();
     }

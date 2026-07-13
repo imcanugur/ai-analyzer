@@ -6,6 +6,7 @@ namespace App\Filament\Pages;
 
 use App\Actions\SendNotificationAction;
 use App\Contracts\UserRepositoryInterface;
+use App\DTO\SendNotificationDTO;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -106,11 +107,11 @@ class SendNotification extends Page implements HasForms
         ];
     }
 
-    public function send(\App\Actions\SendNotificationAction $action): void
+    public function send(SendNotificationAction $action): void
     {
         $formData = $this->form->getState();
-        
-        $action->execute(\App\DTO\SendNotificationDTO::fromArray($formData));
+
+        $action->execute(SendNotificationDTO::fromArray($formData));
 
         $this->form->fill();
     }

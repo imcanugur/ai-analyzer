@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Actions\Action;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
+use Filament\Auth\MultiFactor\Email\EmailAuthentication;
 use Filament\Enums\DatabaseNotificationsPosition;
 use Filament\Enums\UserMenuPosition;
 use Filament\Http\Middleware\Authenticate;
@@ -21,9 +24,6 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Filament\Actions\Action;
-use Filament\Auth\MultiFactor\App\AppAuthentication;
-use Filament\Auth\MultiFactor\Email\EmailAuthentication;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -53,7 +53,7 @@ class AppPanelProvider extends PanelProvider
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->userMenuItems([
                 'profile' => fn (Action $action) => $action->label('Edit profile'),
-                'logout' => fn (Action $action) => $action->label('Log out')
+                'logout' => fn (Action $action) => $action->label('Log out'),
             ])
             ->colors([
                 'primary' => Color::Amber,
