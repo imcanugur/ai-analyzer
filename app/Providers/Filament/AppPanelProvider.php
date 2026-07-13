@@ -24,6 +24,8 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use AdriaanZon\FilamentPasskeys\FilamentPasskeysPlugin;
+use AdriaanZon\FilamentPasskeys\PasskeyAuthentication;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -49,6 +51,10 @@ class AppPanelProvider extends PanelProvider
                     ->codeWindow(4),
                 EmailAuthentication::make()
                     ->codeExpiryMinutes(4),
+                PasskeyAuthentication::make()->managementOnly(),
+            ], isRequired: true)
+            ->plugins([
+                FilamentPasskeysPlugin::make()->passwordlessLogin(),
             ])
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->userMenuItems([

@@ -18,8 +18,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Log;
-
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
+use Laravel\Passkeys\Contracts\PasskeyUser;
+use Laravel\Passkeys\PasskeyAuthenticatable;
 /**
  * Class User
  *
@@ -34,12 +35,13 @@ use Illuminate\Support\Facades\Log;
  * @property Carbon|null $updated_at
  * @property-read Collection|Submission[] $submissions
  */
-class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasEmailAuthentication, MustVerifyEmail
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasEmailAuthentication, MustVerifyEmail, PasskeyUser
 {
     use HasFactory, HasUuids, Notifiable;
     use InteractsWithAppAuthentication;
     use InteractsWithAppAuthenticationRecovery;
     use InteractsWithEmailAuthentication;
+    use PasskeyAuthenticatable;
 
     /**
      * The attributes that are mass assignable.
@@ -106,8 +108,6 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
     {
         $relation = $this->morphMany(DatabaseNotification::class, 'notifiable')
             ->orderBy('created_at', 'desc');
-
-        Log::info('[DEBUG] User notifications() relationship called. Model resolved: '.get_class($relation->getModel()));
 
         return $relation;
     }
