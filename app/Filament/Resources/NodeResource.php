@@ -12,6 +12,9 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\ImportAction;
+use Filament\Actions\ExportAction;
+use Filament\Actions\ExportBulkAction;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
@@ -229,8 +232,16 @@ class NodeResource extends Resource
                 EditAction::make(),
                 DeleteAction::make(),
             ])
+            ->headerActions([
+                ImportAction::make()
+                    ->importer(\App\Filament\Imports\NodeImporter::class),
+                ExportAction::make()
+                    ->exporter(\App\Filament\Exports\NodeExporter::class),
+            ])
             ->bulkActions([
                 BulkActionGroup::make([
+                    ExportBulkAction::make()
+                        ->exporter(\App\Filament\Exports\NodeExporter::class),
                     DeleteBulkAction::make(),
                 ]),
             ]);
