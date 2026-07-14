@@ -8,6 +8,7 @@ use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\Register;
 use App\Filament\Pages\Auth\RequestPasswordReset;
 use App\Filament\Pages\Auth\ResetPassword;
+use Emuniq\FilamentBrowserNotifications\BrowserNotificationsPlugin;
 use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Auth\MultiFactor\Email\EmailAuthentication;
@@ -32,8 +33,6 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Filament\Pages\Enums\SubNavigationPosition;
-use Emuniq\FilamentBrowserNotifications\BrowserNotificationsPlugin;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -67,9 +66,9 @@ class AppPanelProvider extends PanelProvider
             ->plugins([
                 FilamentPasskeysPlugin::make()->passwordlessLogin(),
                 BrowserNotificationsPlugin::make()
-                    ->promptDelay(5)       
+                    ->promptDelay(5)
                     ->dismissCooldownDays(14)
-                    ->profileSection(true),  
+                    ->profileSection(true),
             ])
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->userMenuItems([

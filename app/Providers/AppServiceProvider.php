@@ -16,6 +16,7 @@ use App\Contracts\SettingRepositoryInterface;
 use App\Contracts\StageRouteRepositoryInterface;
 use App\Contracts\SubmissionRepositoryInterface;
 use App\Contracts\UserRepositoryInterface;
+use App\Models\DatabaseNotification;
 use App\Repositories\Eloquent\EloquentAnalysisRepository;
 use App\Repositories\Eloquent\EloquentAnalysisResultRepository;
 use App\Repositories\Eloquent\EloquentMediaRepository;
@@ -29,8 +30,10 @@ use App\Services\NotificationService;
 use App\Services\PromptService;
 use App\Support\DefaultMediaTypeResolver;
 use App\Support\DefaultPathGenerator;
+use Emuniq\FilamentBrowserNotifications\Listeners\SendWebPushOnDatabaseNotification;
 use Filament\Support\Facades\FilamentView;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
@@ -113,9 +116,9 @@ class AppServiceProvider extends ServiceProvider
     {
         config(['livewire.temporary_file_upload.disk' => 'local']);
 
-        \Illuminate\Support\Facades\Event::listen(
-            'eloquent.created: ' . \App\Models\DatabaseNotification::class,
-            \Emuniq\FilamentBrowserNotifications\Listeners\SendWebPushOnDatabaseNotification::class
+        Event::listen(
+            'eloquent.created: '.DatabaseNotification::class,
+            SendWebPushOnDatabaseNotification::class
         );
 
         DB::listen(function ($query) {

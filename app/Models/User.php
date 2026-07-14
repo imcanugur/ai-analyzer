@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use NotificationChannels\WebPush\HasPushSubscriptions;
 use Carbon\Carbon;
 use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthentication;
 use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthenticationRecovery;
@@ -22,6 +21,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passkeys\Contracts\PasskeyUser;
 use Laravel\Passkeys\PasskeyAuthenticatable;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 /**
  * Class User
@@ -39,7 +39,7 @@ use Laravel\Passkeys\PasskeyAuthenticatable;
  */
 class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasEmailAuthentication, MustVerifyEmail, PasskeyUser
 {
-    use HasFactory, HasUuids, HasPushSubscriptions, Notifiable;
+    use HasFactory, HasPushSubscriptions, HasUuids, Notifiable;
     use InteractsWithAppAuthentication;
     use InteractsWithAppAuthenticationRecovery;
     use InteractsWithEmailAuthentication;
