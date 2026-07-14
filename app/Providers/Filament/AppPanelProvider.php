@@ -8,6 +8,8 @@ use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\Register;
 use App\Filament\Pages\Auth\RequestPasswordReset;
 use App\Filament\Pages\Auth\ResetPassword;
+use App\Models\User;
+use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
 use Emuniq\FilamentBrowserNotifications\BrowserNotificationsPlugin;
 use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
@@ -33,8 +35,6 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
-use App\Models\User;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -73,7 +73,7 @@ class AppPanelProvider extends PanelProvider
                     ->profileSection(true),
                 FilamentDeveloperLoginsPlugin::make()
                     ->enabled(app()->environment('local'))
-                        ->users(fn () => User::pluck('email', 'name')->toArray()),
+                    ->users(fn () => User::pluck('email', 'name')->toArray()),
             ])
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->userMenuItems([
