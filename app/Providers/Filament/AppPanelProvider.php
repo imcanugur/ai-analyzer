@@ -35,6 +35,10 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Eloquage\FilamentHorizon\FilamentHorizonPlugin;
+use Eloquage\FilamentHorizon\Widgets\StatsOverview;
+use Eloquage\FilamentHorizon\Widgets\WorkloadWidget;
+use Eloquage\FilamentHorizon\Widgets\WorkersWidget;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -66,6 +70,7 @@ class AppPanelProvider extends PanelProvider
                 PasskeyAuthentication::make()->managementOnly(),
             ], isRequired: true)
             ->plugins([
+                FilamentHorizonPlugin::make(),
                 FilamentPasskeysPlugin::make()->passwordlessLogin(),
                 BrowserNotificationsPlugin::make()
                     ->promptDelay(5)
@@ -92,6 +97,9 @@ class AppPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
+                StatsOverview::class,
+                WorkloadWidget::class,
+                WorkersWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

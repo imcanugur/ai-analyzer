@@ -1,11 +1,8 @@
 <?php
 
-use App\Providers\AIServiceProvider;
-use App\Providers\AppServiceProvider;
-use App\Providers\Filament\AppPanelProvider;
-
 return [
-    AppServiceProvider::class,
-    AppPanelProvider::class,
-    AIServiceProvider::class,
+    App\Providers\AIServiceProvider::class,
+    App\Providers\AppServiceProvider::class,
+    App\Providers\Filament\AppPanelProvider::class,
+    App\Providers\HorizonServiceProvider::class,
 ];
