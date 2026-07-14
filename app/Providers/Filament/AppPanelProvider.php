@@ -10,6 +10,10 @@ use App\Filament\Pages\Auth\RequestPasswordReset;
 use App\Filament\Pages\Auth\ResetPassword;
 use App\Models\User;
 use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
+use Eloquage\FilamentHorizon\FilamentHorizonPlugin;
+use Eloquage\FilamentHorizon\Widgets\StatsOverview;
+use Eloquage\FilamentHorizon\Widgets\WorkersWidget;
+use Eloquage\FilamentHorizon\Widgets\WorkloadWidget;
 use Emuniq\FilamentBrowserNotifications\BrowserNotificationsPlugin;
 use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
@@ -35,10 +39,6 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Eloquage\FilamentHorizon\FilamentHorizonPlugin;
-use Eloquage\FilamentHorizon\Widgets\StatsOverview;
-use Eloquage\FilamentHorizon\Widgets\WorkloadWidget;
-use Eloquage\FilamentHorizon\Widgets\WorkersWidget;
 
 class AppPanelProvider extends PanelProvider
 {
