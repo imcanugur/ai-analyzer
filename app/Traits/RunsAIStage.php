@@ -24,6 +24,21 @@ trait RunsAIStage
     public $timeout = 0;
 
     /**
+     * Get the tags that should be assigned to the job.
+     *
+     * @return array<int, string>
+     */
+    public function tags(): array
+    {
+        return [
+            'analysis',
+            'pipeline_stage',
+            'analysis_id:' . $this->analysis->id,
+            'submission_id:' . ($this->analysis->submission_id ?? 'none'),
+        ];
+    }
+
+    /**
      * Run an AI stage: load system + user prompts, call provider, save result, dispatch next.
      *
      * @param  array  $replacements  Custom placeholder replacements (default: ['text' => extracted_text])

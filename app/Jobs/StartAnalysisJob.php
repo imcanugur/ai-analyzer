@@ -25,6 +25,21 @@ class StartAnalysisJob implements ShouldQueue
     ) {}
 
     /**
+     * Get the tags that should be assigned to the job.
+     *
+     * @return array<int, string>
+     */
+    public function tags(): array
+    {
+        return [
+            'analysis',
+            'start',
+            'analysis_id:' . $this->analysis->id,
+            'submission_id:' . ($this->analysis->submission_id ?? 'none'),
+        ];
+    }
+
+    /**
      * Execute the job.
      */
     public function handle(): void

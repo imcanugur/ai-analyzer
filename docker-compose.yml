@@ -34,11 +34,11 @@ services:
         networks:
             - npm_default
 
-    queue:
+    horizon:
         build:
             context: .
             dockerfile: Dockerfile
-        container_name: ai-analyzer_queue
+        container_name: ai-analyzer_horizon
         restart: unless-stopped
         working_dir: /var/www
         volumes:
@@ -47,7 +47,7 @@ services:
         env_file:
             - .env
         environment:
-            CONTAINER_ROLE: queue
+            CONTAINER_ROLE: horizon
         depends_on:
             - app
         networks:
