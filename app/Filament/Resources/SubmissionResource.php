@@ -22,6 +22,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\HtmlString;
+use Illuminate\Database\Eloquent\Builder;
 
 class SubmissionResource extends Resource
 {
@@ -30,6 +31,12 @@ class SubmissionResource extends Resource
     protected static ?string $recordTitleAttribute = 'title';
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-duplicate';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('user_id', auth()->id());
+    }
 
     public static function form(Schema $form): Schema
     {

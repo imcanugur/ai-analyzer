@@ -33,6 +33,8 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
+use App\Models\User;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -69,6 +71,9 @@ class AppPanelProvider extends PanelProvider
                     ->promptDelay(5)
                     ->dismissCooldownDays(14)
                     ->profileSection(true),
+                FilamentDeveloperLoginsPlugin::make()
+                    ->enabled(app()->environment('local'))
+                        ->users(fn () => User::pluck('email', 'name')->toArray()),
             ])
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->userMenuItems([
@@ -106,11 +111,6 @@ class AppPanelProvider extends PanelProvider
             ->unsavedChangesAlerts(true)
             ->sidebarCollapsibleOnDesktop(true)
             ->spa(hasPrefetching: true)
-            // ->spaUrlExceptions([
-            //     '*/app/login',
-            //     '*/app/register',
-            //     '*/app/password-reset/*',
-            // ])
             ->globalSearch(position: GlobalSearchPosition::Sidebar)
             ->globalSearchDebounce('750ms')
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
