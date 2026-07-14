@@ -32,6 +32,8 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Pages\Enums\SubNavigationPosition;
+use Emuniq\FilamentBrowserNotifications\BrowserNotificationsPlugin;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -43,7 +45,7 @@ class AppPanelProvider extends PanelProvider
             ->path('app')
             ->maxContentWidth(Width::Full)
             ->databaseNotifications(position: DatabaseNotificationsPosition::Sidebar)
-            ->databaseNotificationsPolling('15s')
+            ->databaseNotificationsPolling('10s')
             ->login(Login::class)
             ->registration(Register::class)
             ->passwordReset(
@@ -64,6 +66,10 @@ class AppPanelProvider extends PanelProvider
             ], isRequired: true)
             ->plugins([
                 FilamentPasskeysPlugin::make()->passwordlessLogin(),
+                BrowserNotificationsPlugin::make()
+                    ->promptDelay(5)       
+                    ->dismissCooldownDays(14)
+                    ->profileSection(true),  
             ])
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->userMenuItems([
@@ -101,11 +107,11 @@ class AppPanelProvider extends PanelProvider
             ->unsavedChangesAlerts(true)
             ->sidebarCollapsibleOnDesktop(true)
             ->spa(hasPrefetching: true)
-            ->spaUrlExceptions([
-                '*/app/login',
-                '*/app/register',
-                '*/app/password-reset/*',
-            ])
+            // ->spaUrlExceptions([
+            //     '*/app/login',
+            //     '*/app/register',
+            //     '*/app/password-reset/*',
+            // ])
             ->globalSearch(position: GlobalSearchPosition::Sidebar)
             ->globalSearchDebounce('750ms')
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])

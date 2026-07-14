@@ -113,6 +113,11 @@ class AppServiceProvider extends ServiceProvider
     {
         config(['livewire.temporary_file_upload.disk' => 'local']);
 
+        \Illuminate\Support\Facades\Event::listen(
+            'eloquent.created: ' . \App\Models\DatabaseNotification::class,
+            \Emuniq\FilamentBrowserNotifications\Listeners\SendWebPushOnDatabaseNotification::class
+        );
+
         DB::listen(function ($query) {
             Log::info('[SQL] '.$query->sql.' | Bindings: '.json_encode($query->bindings));
         });
