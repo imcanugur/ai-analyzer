@@ -33,6 +33,8 @@ class NodeResource extends Resource
 {
     protected static ?string $model = Node::class;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-server-stack';
 
     protected static ?string $navigationLabel = 'AI Cluster Nodes';

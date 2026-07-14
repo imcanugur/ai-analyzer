@@ -26,6 +26,9 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Pages\Enums\SubNavigationPosition;
+use Filament\Enums\GlobalSearchPosition;
+use Filament\Support\Enums\Platform;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -38,9 +41,12 @@ class AppPanelProvider extends PanelProvider
             ->maxContentWidth(Width::Full)
             ->databaseNotifications(position: DatabaseNotificationsPosition::Sidebar)
             ->databaseNotificationsPolling('15s')
-            ->login()
-            ->registration()
-            ->passwordReset()
+            ->login(\App\Filament\Pages\Auth\Login::class)
+            ->registration(\App\Filament\Pages\Auth\Register::class)
+            ->passwordReset(
+                \App\Filament\Pages\Auth\RequestPasswordReset::class,
+                \App\Filament\Pages\Auth\ResetPassword::class
+            )
             ->emailVerification()
             ->profile(isSimple: false)
             ->multiFactorAuthentication([
@@ -84,9 +90,26 @@ class AppPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-            ])
+            ], isPersistent: true)
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ], isPersistent: true)
+            ->databaseTransactions(true)
+            ->unsavedChangesAlerts(true)
+            ->sidebarCollapsibleOnDesktop(true)
+            ->spa(hasPrefetching: true)
+            ->spaUrlExceptions([
+                '*/app/login',
+                '*/app/register',
+                '*/app/password-reset/*',
+            ])
+            ->globalSearch(position: GlobalSearchPosition::Sidebar)
+            ->globalSearchDebounce('750ms')
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearchFieldSuffix(fn (): ?string => match (Platform::detect()) {
+                Platform::Windows, Platform::Linux => 'CTRL+K',
+                Platform::Mac => '⌘K',
+                default => null,
+            });
     }
 }

@@ -27,6 +27,8 @@ class SubmissionResource extends Resource
 {
     protected static ?string $model = Submission::class;
 
+    protected static ?string $recordTitleAttribute = 'title';
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-duplicate';
 
     public static function form(Schema $form): Schema

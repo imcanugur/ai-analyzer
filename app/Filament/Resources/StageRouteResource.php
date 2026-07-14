@@ -20,6 +20,8 @@ class StageRouteResource extends Resource
 {
     protected static ?string $model = StageRoute::class;
 
+    protected static ?string $recordTitleAttribute = 'stage';
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-arrows-right-left';
 
     protected static ?string $navigationLabel = 'AI Stage Routing';
