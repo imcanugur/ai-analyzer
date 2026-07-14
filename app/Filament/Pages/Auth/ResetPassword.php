@@ -3,8 +3,8 @@
 namespace App\Filament\Pages\Auth;
 
 use Coderflex\FilamentTurnstile\Forms\Components\Turnstile;
-use Filament\Schemas\Schema;
 use Filament\Auth\Pages\PasswordReset\ResetPassword as BaseResetPassword;
+use Filament\Schemas\Schema;
 
 class ResetPassword extends BaseResetPassword
 {

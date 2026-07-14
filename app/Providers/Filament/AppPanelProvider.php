@@ -4,10 +4,15 @@ namespace App\Providers\Filament;
 
 use AdriaanZon\FilamentPasskeys\FilamentPasskeysPlugin;
 use AdriaanZon\FilamentPasskeys\PasskeyAuthentication;
+use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\Auth\Register;
+use App\Filament\Pages\Auth\RequestPasswordReset;
+use App\Filament\Pages\Auth\ResetPassword;
 use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Auth\MultiFactor\Email\EmailAuthentication;
 use Filament\Enums\DatabaseNotificationsPosition;
+use Filament\Enums\GlobalSearchPosition;
 use Filament\Enums\UserMenuPosition;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -17,6 +22,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Platform;
 use Filament\Support\Enums\Width;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -26,9 +32,6 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Filament\Pages\Enums\SubNavigationPosition;
-use Filament\Enums\GlobalSearchPosition;
-use Filament\Support\Enums\Platform;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -41,11 +44,11 @@ class AppPanelProvider extends PanelProvider
             ->maxContentWidth(Width::Full)
             ->databaseNotifications(position: DatabaseNotificationsPosition::Sidebar)
             ->databaseNotificationsPolling('15s')
-            ->login(\App\Filament\Pages\Auth\Login::class)
-            ->registration(\App\Filament\Pages\Auth\Register::class)
+            ->login(Login::class)
+            ->registration(Register::class)
             ->passwordReset(
-                \App\Filament\Pages\Auth\RequestPasswordReset::class,
-                \App\Filament\Pages\Auth\ResetPassword::class
+                RequestPasswordReset::class,
+                ResetPassword::class
             )
             ->emailVerification()
             ->profile(isSimple: false)

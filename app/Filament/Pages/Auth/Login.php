@@ -3,8 +3,8 @@
 namespace App\Filament\Pages\Auth;
 
 use Coderflex\FilamentTurnstile\Forms\Components\Turnstile;
-use Filament\Schemas\Schema;
 use Filament\Auth\Pages\Login as BaseLogin;
+use Filament\Schemas\Schema;
 
 class Login extends BaseLogin
 {

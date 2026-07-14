@@ -3,8 +3,8 @@
 namespace App\Filament\Pages\Auth;
 
 use Coderflex\FilamentTurnstile\Forms\Components\Turnstile;
-use Filament\Schemas\Schema;
 use Filament\Auth\Pages\Register as BaseRegister;
+use Filament\Schemas\Schema;
 
 class Register extends BaseRegister
 {
