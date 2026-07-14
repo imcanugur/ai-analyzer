@@ -34,8 +34,8 @@ class StartAnalysisJob implements ShouldQueue
         return [
             'analysis',
             'start',
-            'analysis_id:' . $this->analysis->id,
-            'submission_id:' . ($this->analysis->submission_id ?? 'none'),
+            'analysis_id:'.$this->analysis->id,
+            'submission_id:'.($this->analysis->submission_id ?? 'none'),
         ];
     }
 
