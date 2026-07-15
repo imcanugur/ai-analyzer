@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bfb0cb8112033528ac5f88b33bb621ee",
+    "content-hash": "e414bef523bc33bf1f8f0819c8a94888",
     "packages": [
         {
             "name": "adriaanzon/filament-passkeys",
@@ -1481,11 +1481,17 @@
         },
         {
             "name": "eloquage/filament-horizon",
-            "version": "dev-filament-5-support",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eloquage/filament-horizon.git",
+                "reference": "4a9756e9471bff36db4491ca881883d11313667c"
+            },
             "dist": {
-                "type": "path",
-                "url": "../packages/filament-horizon",
-                "reference": "d6b51a930382dc939707663bc4a483aca9fdd77f"
+                "type": "zip",
+                "url": "https://api.github.com/repos/eloquage/filament-horizon/zipball/4a9756e9471bff36db4491ca881883d11313667c",
+                "reference": "4a9756e9471bff36db4491ca881883d11313667c",
+                "shasum": ""
             },
             "require": {
                 "filament/filament": "^4 || ^5",
@@ -1501,15 +1507,16 @@
                 "pestphp/pest": "^4",
                 "pestphp/pest-plugin-laravel": "^4"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
-                    "providers": [
-                        "Eloquage\\FilamentHorizon\\FilamentHorizonServiceProvider"
-                    ],
                     "aliases": {
                         "FilamentHorizon": "Eloquage\\FilamentHorizon\\Facades\\FilamentHorizon"
-                    }
+                    },
+                    "providers": [
+                        "Eloquage\\FilamentHorizon\\FilamentHorizonServiceProvider"
+                    ]
                 }
             },
             "autoload": {
@@ -1518,28 +1525,7 @@
                     "Eloquage\\FilamentHorizon\\Database\\Factories\\": "database/factories/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Eloquage\\FilamentHorizon\\Tests\\": "tests/"
-                }
-            },
-            "scripts": {
-                "post-autoload-dump": [
-                    "@php ./vendor/bin/testbench package:discover --ansi"
-                ],
-                "analyse": [
-                    "vendor/bin/phpstan analyse"
-                ],
-                "test": [
-                    "vendor/bin/pest"
-                ],
-                "test-coverage": [
-                    "vendor/bin/pest --coverage"
-                ],
-                "format": [
-                    "vendor/bin/pint"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1561,10 +1547,13 @@
                 "issues": "https://github.com/eloquage/filament-horizon/issues",
                 "source": "https://github.com/eloquage/filament-horizon"
             },
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
+            "funding": [
+                {
+                    "url": "https://github.com/eloquage",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-07-15T12:40:04+00:00"
         },
         {
             "name": "emuniq/filament-browser-notifications",
