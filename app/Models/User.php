@@ -96,6 +96,20 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
     }
 
     /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::created(function (self $user) {
+            if ($user->roles()->count() === 0) {
+                if (\App\Models\Role::where('name', 'none')->exists()) {
+                    $user->assignRole('none');
+                }
+            }
+        });
+    }
+
+    /**
      * Get the submissions for the user.
      */
     public function submissions(): HasMany

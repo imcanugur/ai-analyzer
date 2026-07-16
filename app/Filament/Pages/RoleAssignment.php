@@ -4,22 +4,26 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
-use App\Models\Role;
 use App\Models\User;
-use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+use App\Models\Role;
+use Filament\Pages\Page;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Notifications\Notification;
-use Filament\Pages\Page;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Schema;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
-class RoleAssignment extends Page implements HasForms
+class RoleAssignment extends Page implements HasTable, HasForms
 {
-    use HasPageShield;
+    use InteractsWithTable;
     use InteractsWithForms;
+    use HasPageShield;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
@@ -31,72 +35,76 @@ class RoleAssignment extends Page implements HasForms
 
     protected string $view = 'filament.pages.role-assignment';
 
-    public ?array $data = [];
-
-    public function mount(): void
+    public function table(Table $table): Table
     {
-        $this->form->fill();
-    }
+        return $table
+            ->query(User::query())
+            ->columns([
+                TextColumn::make('name')
+                    ->label('User')
+                    ->searchable()
+                    ->sortable()
+                    ->icon('heroicon-m-user')
+                    ->iconColor('primary')
+                    ->weight('bold')
+                    ->copyable()
+                    ->copyMessage('Username copied!'),
 
-    public function form(Schema $form): Schema
-    {
-        return $form
-            ->schema([
-                Section::make('Select User and Assign Roles')
-                    ->schema([
-                        Select::make('user_id')
-                            ->label('User')
-                            ->placeholder('Select a user to assign roles...')
-                            ->searchable()
-                            ->required()
-                            ->options(User::pluck('email', 'id')->toArray())
-                            ->live()
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                if ($state) {
-                                    $user = User::find($state);
-                                    if ($user) {
-                                        $set('roles', $user->roles->pluck('name')->toArray());
-                                    }
-                                } else {
-                                    $set('roles', []);
-                                }
-                            }),
+                TextColumn::make('email')
+                    ->label('Email Address')
+                    ->searchable()
+                    ->sortable()
+                    ->icon('heroicon-m-envelope')
+                    ->iconColor('gray')
+                    ->copyable()
+                    ->copyMessage('Email address copied!'),
 
-                        Select::make('roles')
-                            ->label('Roles')
-                            ->placeholder('Select one or more roles...')
-                            ->multiple()
-                            ->preload()
-                            ->options(Role::pluck('name', 'name')->toArray())
-                            ->required(),
-                    ]),
+                TextColumn::make('roles.name')
+                    ->label('Assigned Roles')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'super_admin' => 'danger',
+                        'panel_user' => 'gray',
+                        'none' => 'warning',
+                        default => 'info',
+                    })
+                    ->separator(', '),
             ])
-            ->statePath('data');
-    }
+            ->actions([
+                Action::make('editRoles')
+                    ->label('Edit Roles')
+                    ->icon('heroicon-m-shield-check')
+                    ->color('warning')
+                    ->button()
+                    ->outlined()
+                    ->size('sm')
+                    ->modalWidth('md')
+                    ->modalHeading('Manage User Roles')
+                    ->modalDescription(fn (User $record) => "Select the access roles for {$record->name} ({$record->email}).")
+                    ->modalIcon('heroicon-o-shield-check')
+                    ->modalIconColor('warning')
+                    ->modalSubmitActionLabel('Save Roles')
+                    ->form([
+                        CheckboxList::make('roles')
+                            ->label('Available Roles')
+                            ->options(Role::pluck('name', 'name')->toArray())
+                            ->columns(2)
+                            ->required(),
+                    ])
+                    ->fillForm(fn (User $record): array => [
+                        'roles' => $record->roles->pluck('name')->toArray(),
+                    ])
+                    ->action(function (User $record, array $data): void {
+                        $record->syncRoles($data['roles']);
 
-    protected function getFormActions(): array
-    {
-        return [
-            Action::make('save')
-                ->label('Save Changes')
-                ->submit('form')
-                ->color('primary')
-                ->size('lg'),
-        ];
-    }
-
-    public function save(): void
-    {
-        $formData = $this->form->getState();
-
-        $user = User::find($formData['user_id']);
-        if ($user) {
-            $user->syncRoles($formData['roles']);
-
-            Notification::make()
-                ->title('User roles updated successfully!')
-                ->success()
-                ->send();
-        }
+                        Notification::make()
+                            ->title('User roles updated successfully!')
+                            ->success()
+                            ->send();
+                    }),
+            ])
+            ->striped()
+            ->paginated([5, 10, 25, 50])
+            ->defaultPaginationPageOption(10);
     }
 }
