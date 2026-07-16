@@ -8,7 +8,9 @@ use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\Register;
 use App\Filament\Pages\Auth\RequestPasswordReset;
 use App\Filament\Pages\Auth\ResetPassword;
+use App\Filament\Pages\Dashboard;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
 use Eloquage\FilamentHorizon\FilamentHorizonPlugin;
 use Eloquage\FilamentHorizon\Widgets\StatsOverview;
@@ -25,7 +27,6 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use App\Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -70,7 +71,7 @@ class AppPanelProvider extends PanelProvider
                 PasskeyAuthentication::make()->managementOnly(),
             ], isRequired: true)
             ->plugins([
-                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make(),
                 FilamentHorizonPlugin::make(),
                 FilamentPasskeysPlugin::make()->passwordlessLogin(),
                 BrowserNotificationsPlugin::make()

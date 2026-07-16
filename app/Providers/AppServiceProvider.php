@@ -162,7 +162,7 @@ class AppServiceProvider extends ServiceProvider
                         body.overflow-hidden {
                             overflow-x: hidden !important;
                         }
-                        ' . $hideHorizonCss . '
+                        '.$hideHorizonCss.'
                     </style>
                 ';
             }
