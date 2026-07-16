@@ -102,7 +102,7 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
     {
         static::created(function (self $user) {
             if ($user->roles()->count() === 0) {
-                if (\App\Models\Role::where('name', 'none')->exists()) {
+                if (Role::where('name', 'none')->exists()) {
                     $user->assignRole('none');
                 }
             }
