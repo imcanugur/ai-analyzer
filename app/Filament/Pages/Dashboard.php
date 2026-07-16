@@ -6,7 +6,7 @@ use Eloquage\FilamentHorizon\Widgets\StatsOverview;
 use Eloquage\FilamentHorizon\Widgets\WorkersWidget;
 use Eloquage\FilamentHorizon\Widgets\WorkloadWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
-use Filament\Widgets\AccountWidget;
+use App\Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 
 class Dashboard extends BaseDashboard
@@ -18,14 +18,19 @@ class Dashboard extends BaseDashboard
      */
     public function getWidgets(): array
     {
+        $widgets = [
+            WorkloadWidget::class => 'View:WorkloadWidget',
+            WorkersWidget::class => 'View:WorkersWidget',
+            StatsOverview::class => 'View:StatsOverview',
+        ];
+
         return [
             AccountWidget::class,
             FilamentInfoWidget::class,
-            ...((auth()->user()?->can('ViewHorizon') ?? false) ? [
-                StatsOverview::class,
-                WorkloadWidget::class,
-                WorkersWidget::class,
-            ] : []),
+            ...array_keys(array_filter(
+                $widgets,
+                fn (string $permission): bool => auth()->user()?->can($permission) ?? false
+            )),
         ];
     }
 }
