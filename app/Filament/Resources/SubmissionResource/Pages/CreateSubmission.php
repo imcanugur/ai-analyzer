@@ -18,7 +18,7 @@ class CreateSubmission extends CreateRecord
      */
     protected function handleRecordCreation(array $data): Model
     {
-        $data['user_id'] = auth()->id() ?? User::first()?->id;
+        $data['user_id'] = \Filament\Facades\Filament::auth()->id() ?? auth()->id() ?? User::first()?->id;
 
         $dto = CreateSubmissionDTO::fromArray($data);
 
