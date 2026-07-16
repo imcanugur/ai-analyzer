@@ -2,10 +2,10 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Pages\Dashboard as BaseDashboard;
 use Eloquage\FilamentHorizon\Widgets\StatsOverview;
 use Eloquage\FilamentHorizon\Widgets\WorkersWidget;
 use Eloquage\FilamentHorizon\Widgets\WorkloadWidget;
+use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 

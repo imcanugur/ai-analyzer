@@ -7,6 +7,7 @@ namespace App\Filament\Pages;
 use App\Actions\SendNotificationAction;
 use App\Contracts\UserRepositoryInterface;
 use App\DTO\SendNotificationDTO;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -17,12 +18,11 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class SendNotification extends Page implements HasForms
 {
-    use InteractsWithForms;
     use HasPageShield;
+    use InteractsWithForms;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-paper-airplane';
 
