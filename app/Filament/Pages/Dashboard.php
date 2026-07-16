@@ -2,12 +2,12 @@
 
 namespace App\Filament\Pages;
 
-use App\Filament\Widgets\AccountWidget;
 use Eloquage\FilamentHorizon\Widgets\StatsOverview;
 use Eloquage\FilamentHorizon\Widgets\WorkersWidget;
 use Eloquage\FilamentHorizon\Widgets\WorkloadWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
-use Filament\Widgets\FilamentInfoWidget;
+use App\Filament\Widgets\AccountWidget;
+use App\Filament\Widgets\InfoWidget;
 
 class Dashboard extends BaseDashboard
 {
@@ -26,7 +26,7 @@ class Dashboard extends BaseDashboard
 
         return [
             AccountWidget::class,
-            FilamentInfoWidget::class,
+            InfoWidget::class,
             ...array_keys(array_filter(
                 $widgets,
                 fn (string $permission): bool => auth()->user()?->can($permission) ?? false

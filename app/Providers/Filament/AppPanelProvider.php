@@ -9,14 +9,10 @@ use App\Filament\Pages\Auth\Register;
 use App\Filament\Pages\Auth\RequestPasswordReset;
 use App\Filament\Pages\Auth\ResetPassword;
 use App\Filament\Pages\Dashboard;
-use App\Filament\Widgets\AccountWidget;
 use App\Models\User;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
 use Eloquage\FilamentHorizon\FilamentHorizonPlugin;
-use Eloquage\FilamentHorizon\Widgets\StatsOverview;
-use Eloquage\FilamentHorizon\Widgets\WorkersWidget;
-use Eloquage\FilamentHorizon\Widgets\WorkloadWidget;
 use Emuniq\FilamentBrowserNotifications\BrowserNotificationsPlugin;
 use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
@@ -33,7 +29,6 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Platform;
 use Filament\Support\Enums\Width;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -71,7 +66,8 @@ class AppPanelProvider extends PanelProvider
                 PasskeyAuthentication::make()->managementOnly(),
             ], isRequired: true)
             ->plugins([
-                FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make()
+                    ->navigationGroup(fn () => null),
                 FilamentHorizonPlugin::make(),
                 FilamentPasskeysPlugin::make()->passwordlessLogin(),
                 BrowserNotificationsPlugin::make()
@@ -96,13 +92,6 @@ class AppPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
-                StatsOverview::class,
-                WorkloadWidget::class,
-                WorkersWidget::class,
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

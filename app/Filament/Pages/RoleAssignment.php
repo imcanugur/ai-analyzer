@@ -26,8 +26,6 @@ class RoleAssignment extends Page implements HasForms, HasTable
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Filament Shield';
-
     protected static ?string $navigationLabel = 'Role Assignment';
 
     protected static ?string $title = 'Assign Roles to Users';
