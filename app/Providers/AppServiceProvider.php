@@ -128,31 +128,44 @@ class AppServiceProvider extends ServiceProvider
         // Fix Filament notifications z-index conflicts and sidebar overlap
         FilamentView::registerRenderHook(
             'panels::body.end',
-            fn (): string => '
-                <style>
-                    /* Target only the database notifications drawer to avoid breaking other modals */
-                    #database-notifications {
-                        z-index: 99999 !important;
-                        overflow-x: hidden !important;
-                    }
-                    #database-notifications .fi-modal-window {
-                        overflow-x: hidden !important;
-                        max-width: 100vw !important;
-                        width: 28rem !important;
-                    }
-                    #database-notifications div {
-                        overflow-x: hidden !important;
-                    }
-                    @media (max-width: 640px) {
-                        #database-notifications .fi-modal-window {
-                            width: 100vw !important;
+            function (): string {
+                $user = auth()->user();
+                $hideHorizonCss = '';
+                if ($user && ! $user->can('ViewHorizon')) {
+                    $hideHorizonCss = '
+                        .fi-sidebar-item:has(a[href*="/app/horizon"]) {
+                            display: none !important;
                         }
-                    }
-                    body.overflow-hidden {
-                        overflow-x: hidden !important;
-                    }
-                </style>
-            ',
+                    ';
+                }
+
+                return '
+                    <style>
+                        /* Target only the database notifications drawer to avoid breaking other modals */
+                        #database-notifications {
+                            z-index: 99999 !important;
+                            overflow-x: hidden !important;
+                        }
+                        #database-notifications .fi-modal-window {
+                            overflow-x: hidden !important;
+                            max-width: 100vw !important;
+                            width: 28rem !important;
+                        }
+                        #database-notifications div {
+                            overflow-x: hidden !important;
+                        }
+                        @media (max-width: 640px) {
+                            #database-notifications .fi-modal-window {
+                                width: 100vw !important;
+                            }
+                        }
+                        body.overflow-hidden {
+                            overflow-x: hidden !important;
+                        }
+                        ' . $hideHorizonCss . '
+                    </style>
+                ';
+            }
         );
     }
 }

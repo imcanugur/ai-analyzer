@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.3",
         "adriaanzon/filament-passkeys": "^0.2.2",
+        "bezhansalleh/filament-shield": "^4.2",
         "coderflex/filament-turnstile": "^4.0",
         "dutchcodingcompany/filament-developer-logins": "^2.1",
         "eloquage/filament-horizon": "dev-main",

@@ -22,6 +22,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passkeys\Contracts\PasskeyUser;
 use Laravel\Passkeys\PasskeyAuthenticatable;
 use NotificationChannels\WebPush\HasPushSubscriptions;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * Class User
@@ -40,6 +41,7 @@ use NotificationChannels\WebPush\HasPushSubscriptions;
 class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasEmailAuthentication, MustVerifyEmail, PasskeyUser
 {
     use HasFactory, HasPushSubscriptions, HasUuids, Notifiable;
+    use HasRoles;
     use InteractsWithAppAuthentication;
     use InteractsWithAppAuthenticationRecovery;
     use InteractsWithEmailAuthentication;
