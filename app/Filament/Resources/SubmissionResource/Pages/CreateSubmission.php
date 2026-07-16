@@ -6,6 +6,7 @@ use App\Actions\CreateSubmissionAction;
 use App\DTO\CreateSubmissionDTO;
 use App\Filament\Resources\SubmissionResource;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,7 +19,7 @@ class CreateSubmission extends CreateRecord
      */
     protected function handleRecordCreation(array $data): Model
     {
-        $data['user_id'] = \Filament\Facades\Filament::auth()->id() ?? auth()->id() ?? User::first()?->id;
+        $data['user_id'] = Filament::auth()->id() ?? auth()->id() ?? User::first()?->id;
 
         $dto = CreateSubmissionDTO::fromArray($data);
 
