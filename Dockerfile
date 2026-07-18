@@ -9,12 +9,12 @@ RUN apt-get update && apt-get install -y \
     libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
     zip unzip git curl vim \
     libonig-dev libxml2-dev libzip-dev \
-    pkg-config libssl-dev \
+    pkg-config libssl-dev libpq-dev \
     && docker-php-ext-configure gd \
         --with-jpeg \
         --with-freetype \
     && docker-php-ext-install -j$(nproc) \
-        gd pdo_mysql mbstring exif pcntl bcmath zip \
+        gd pdo_mysql pdo_pgsql pgsql mbstring exif pcntl bcmath zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && apt-get clean && rm -rf /var/lib/apt/lists/*

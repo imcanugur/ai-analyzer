@@ -72,6 +72,8 @@ graph TD
 ## Features
 
 - **Multi-Stage Content Analysis Pipeline**: Built-in support for multiple analysis stages including text extraction, summarization, grammar validation, reference checks, similarity/plagiarism detection, readability scoring, and final reporting.
+- **Dynamic Roles & Permissions (Spatie & Shield)**: Full database-driven authorization system. Features like Horizon access, custom dashboard widgets, and administrative resource actions are managed dynamically via Spatie permission checks instead of hardcoded roles.
+- **Custom Role Assignment Interface**: A customized, searchable table-based user-role manager under Filament Shield. Administrators can assign, update, and review roles dynamically using clean checkbox list modals.
 - **Polymorphic Media Management**: Integrated polymorphic media system supporting file uploads, automated checksum validation, mime-type classification, and optimization flag tracking.
 - **Cloudflare R2 Integration**: S3-compatible cloud storage adapter configured out of the box for handling heavy media files globally.
 - **Filament Administration Panel**: Full-featured, modern dashboard panel built with Filament PHP for managing users, submissions, analysis results, and configuration settings.
@@ -152,6 +154,14 @@ Follow these steps to configure the project locally:
 5. **Run Database Migrations & Seeders**
    ```bash
    php artisan migrate
+   php artisan db:seed --force
+   ```
+
+6. **Generate Shield Permissions & Clear Cache**
+   Generate or regenerate permission policies and reset the permission cache:
+   ```bash
+   php artisan shield:generate --all
+   php artisan permission:cache-reset
    ```
 
 ### Docker Deployment
