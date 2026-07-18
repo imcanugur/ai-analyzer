@@ -40,73 +40,40 @@ use Illuminate\Support\ServiceProvider;
 class AppServiceProvider extends ServiceProvider
 {
     /**
+     * All of the container bindings that should be registered.
+     *
+     * @var array<class-string, class-string>
+     */
+    public array $bindings = [
+        PathGenerator::class => DefaultPathGenerator::class,
+        MediaTypeResolver::class => DefaultMediaTypeResolver::class,
+        SubmissionRepositoryInterface::class => EloquentSubmissionRepository::class,
+        MediaRepositoryInterface::class => EloquentMediaRepository::class,
+        AnalysisRepositoryInterface::class => EloquentAnalysisRepository::class,
+        AnalysisResultRepositoryInterface::class => EloquentAnalysisResultRepository::class,
+        NodeRepositoryInterface::class => EloquentNodeRepository::class,
+        SettingRepositoryInterface::class => EloquentSettingRepository::class,
+        StageRouteRepositoryInterface::class => EloquentStageRouteRepository::class,
+        UserRepositoryInterface::class => EloquentUserRepository::class,
+        NotificationRepositoryInterface::class => EloquentNotificationRepository::class,
+        NotificationServiceInterface::class => NotificationService::class,
+    ];
+
+    /**
+     * All of the container singletons that should be registered.
+     *
+     * @var array<class-string, class-string>
+     */
+    public array $singletons = [
+        PromptService::class => PromptService::class,
+    ];
+
+    /**
      * Register any application services.
      */
     public function register(): void
     {
-        $this->app->bind(
-            PathGenerator::class,
-            DefaultPathGenerator::class
-        );
-
-        $this->app->bind(
-            MediaTypeResolver::class,
-            DefaultMediaTypeResolver::class
-        );
-
-        $this->app->bind(
-            SubmissionRepositoryInterface::class,
-            EloquentSubmissionRepository::class
-        );
-
-        $this->app->bind(
-            MediaRepositoryInterface::class,
-            EloquentMediaRepository::class
-        );
-
-        $this->app->bind(
-            AnalysisRepositoryInterface::class,
-            EloquentAnalysisRepository::class
-        );
-
-        $this->app->bind(
-            AnalysisResultRepositoryInterface::class,
-            EloquentAnalysisResultRepository::class
-        );
-
-        $this->app->bind(
-            NodeRepositoryInterface::class,
-            EloquentNodeRepository::class
-        );
-
-        $this->app->bind(
-            SettingRepositoryInterface::class,
-            EloquentSettingRepository::class
-        );
-
-        $this->app->bind(
-            StageRouteRepositoryInterface::class,
-            EloquentStageRouteRepository::class
-        );
-
-        $this->app->bind(
-            UserRepositoryInterface::class,
-            EloquentUserRepository::class
-        );
-
-        $this->app->bind(
-            NotificationRepositoryInterface::class,
-            EloquentNotificationRepository::class
-        );
-
-        $this->app->bind(
-            NotificationServiceInterface::class,
-            NotificationService::class
-        );
-
-        $this->app->singleton(
-            PromptService::class
-        );
+        // Registered via $bindings and $singletons properties
     }
 
     /**
@@ -121,51 +88,58 @@ class AppServiceProvider extends ServiceProvider
             SendWebPushOnDatabaseNotification::class
         );
 
-        DB::listen(function ($query) {
-            Log::info('[SQL] '.$query->sql.' | Bindings: '.json_encode($query->bindings));
-        });
+        if (config('app.debug')) {
+            DB::listen(function ($query) {
+                Log::info('[SQL] '.$query->sql.' | Bindings: '.json_encode($query->bindings));
+            });
+        }
 
-        // Fix Filament notifications z-index conflicts and sidebar overlap
         FilamentView::registerRenderHook(
             'panels::body.end',
-            function (): string {
-                $user = auth()->user();
-                $hideHorizonCss = '';
-                if ($user && ! $user->can('ViewHorizon')) {
-                    $hideHorizonCss = '
-                        .fi-sidebar-item:has(a[href*="/app/horizon"]) {
-                            display: none !important;
-                        }
-                    ';
-                }
-
-                return '
-                    <style>
-                        /* Target only the database notifications drawer to avoid breaking other modals */
-                        #database-notifications {
-                            z-index: 99999 !important;
-                            overflow-x: hidden !important;
-                        }
-                        #database-notifications .fi-modal-window {
-                            overflow-x: hidden !important;
-                            max-width: 100vw !important;
-                            width: 28rem !important;
-                        }
-                        #database-notifications div {
-                            overflow-x: hidden !important;
-                        }
-                        @media (max-width: 640px) {
-                            #database-notifications .fi-modal-window {
-                                width: 100vw !important;
-                            }
-                        }
-                        body.overflow-hidden {
-                            overflow-x: hidden !important;
-                        }
-                        '.$hideHorizonCss.'
-                    </style>
-                ';
-            }
+            fn (): string => $this->getFilamentCustomStyles()
         );
+    }
+
+    /**
+     * Get custom CSS styles for Filament view.
+     */
+    private function getFilamentCustomStyles(): string
+    {
+        $user = auth()->user();
+        $hideHorizonCss = '';
+
+        if ($user && ! $user->can('ViewHorizon')) {
+            $hideHorizonCss = '
+                .fi-sidebar-item:has(a[href*="/app/horizon"]) {
+                    display: none !important;
+                }
+            ';
+        }
+
+        return <<<HTML
+            <style>
+                #database-notifications {
+                    z-index: 99999 !important;
+                    overflow-x: hidden !important;
+                }
+                #database-notifications .fi-modal-window {
+                    overflow-x: hidden !important;
+                    max-width: 100vw !important;
+                    width: 28rem !important;
+                }
+                #database-notifications div {
+                    overflow-x: hidden !important;
+                }
+                @media (max-width: 640px) {
+                    #database-notifications .fi-modal-window {
+                        width: 100vw !important;
+                    }
+                }
+                body.overflow-hidden {
+                    overflow-x: hidden !important;
+                }
+                {$hideHorizonCss}
+            </style>
+        HTML;
     }
 }
