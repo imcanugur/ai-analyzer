@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\AI\Providers;
 
 use App\AI\Contracts\AIProviderInterface;
@@ -25,7 +27,7 @@ class OllamaProvider implements AIProviderInterface
     ) {
         $this->endpoint = $endpoint ?? config('ai.providers.ollama.endpoint', 'http://localhost:11434');
         $this->defaultModel = $defaultModel ?? config('ai.providers.ollama.default_model', 'gemma2');
-        $this->timeout = $timeout ?? (int) config('ai.providers.ollama.timeout', 60);
+        $this->timeout = $timeout ?? (int) config('ai.providers.ollama.timeout', 300);
         $this->apiKey = $apiKey ?? config('ai.providers.ollama.api_key') ?: null;
     }
 
@@ -35,7 +37,6 @@ class OllamaProvider implements AIProviderInterface
     public function generate(string $prompt, array $options = [], ?string $systemPrompt = null): AIResponse
     {
         $model = $options['model'] ?? $this->defaultModel;
-        unset($options['model']);
 
         $url = rtrim($this->endpoint, '/').'/api/generate';
         $startTime = microtime(true);
@@ -68,9 +69,25 @@ class OllamaProvider implements AIProviderInterface
                 $body['system'] = $systemPrompt;
             }
 
-            // Only include options if non-empty, cast to object for JSON {} serialization
-            if (! empty($options)) {
-                $body['options'] = (object) $options;
+            // Map and sanitize Ollama API options strictly
+            $ollamaOptions = [];
+            if (isset($options['temperature'])) {
+                $ollamaOptions['temperature'] = (float) $options['temperature'];
+            }
+            if (isset($options['max_tokens'])) {
+                $ollamaOptions['num_predict'] = (int) $options['max_tokens'];
+            } elseif (isset($options['num_predict'])) {
+                $ollamaOptions['num_predict'] = (int) $options['num_predict'];
+            }
+            if (isset($options['top_p'])) {
+                $ollamaOptions['top_p'] = (float) $options['top_p'];
+            }
+            if (isset($options['top_k'])) {
+                $ollamaOptions['top_k'] = (int) $options['top_k'];
+            }
+
+            if (! empty($ollamaOptions)) {
+                $body['options'] = (object) $ollamaOptions;
             }
 
             $response = $http->post($url, $body);
@@ -80,9 +97,9 @@ class OllamaProvider implements AIProviderInterface
             }
 
             $data = $response->json();
-            $text = $data['response'] ?? '';
+            $text = trim($data['response'] ?? '');
 
-            // Calculate total tokens processed (prompt eval tokens + generation response tokens)
+            // Calculate total tokens processed (prompt eval count + eval count)
             $tokens = ($data['prompt_eval_count'] ?? 0) + ($data['eval_count'] ?? 0);
             $executionTime = (int) ((microtime(true) - $startTime) * 1000);
 

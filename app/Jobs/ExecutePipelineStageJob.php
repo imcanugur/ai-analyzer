@@ -120,6 +120,13 @@ class ExecutePipelineStageJob implements ShouldQueue
             // 6. Execute AI generation
             $aiResponse = $aiProvider->generate($userPrompt, $options, $systemPrompt);
 
+            $trimmedResponse = trim($aiResponse->text ?? '');
+            $cleanPayloadText = preg_replace('/\s+/', '', $trimmedResponse);
+
+            if (empty($trimmedResponse) || $cleanPayloadText === '{}' || $cleanPayloadText === '[]') {
+                throw new \RuntimeException("AI provider returned empty response payload for stage [{$this->stageKey}].");
+            }
+
             // 7. Update result record to COMPLETED
             if (! $resultRecord) {
                 $resultRecord = new AnalysisResult([
