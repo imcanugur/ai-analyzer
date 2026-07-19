@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Contracts\NodeRepositoryInterface;
-use App\Contracts\StageRouteRepositoryInterface;
 use App\Filament\Resources\StageRouteResource\Pages;
 use App\Models\StageRoute;
 use Filament\Actions\DeleteAction;
@@ -18,7 +17,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;

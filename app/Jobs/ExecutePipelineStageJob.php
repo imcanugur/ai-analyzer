@@ -58,6 +58,7 @@ class ExecutePipelineStageJob implements ShouldQueue
                 $resultRecord->delete();
             }
             $pipelineService->runNextPendingStage($this->analysis);
+
             return;
         }
 

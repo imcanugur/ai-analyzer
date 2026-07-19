@@ -6,6 +6,7 @@ use App\Contracts\AnalysisResultRepositoryInterface;
 use App\Enums\AnalysisStage;
 use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
+use App\Services\PipelineService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -129,6 +130,6 @@ class ExtractTextJob implements ShouldQueue
         ]);
 
         // 4. Dispatch the first dynamic AI stage using PipelineService
-        app(\App\Services\PipelineService::class)->runNextPendingStage($this->analysis);
+        app(PipelineService::class)->runNextPendingStage($this->analysis);
     }
 }

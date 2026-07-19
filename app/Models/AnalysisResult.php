@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\AnalysisStage;
 use App\Enums\AnalysisStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;

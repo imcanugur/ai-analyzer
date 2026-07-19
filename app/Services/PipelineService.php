@@ -41,6 +41,7 @@ class PipelineService
             if ($activeStages->isEmpty()) {
                 Log::warning("{$logPrefix} No active pipeline stages found. Generating report...");
                 GenerateReportJob::dispatch($analysis);
+
                 return;
             }
 
@@ -76,6 +77,7 @@ class PipelineService
                 ]);
 
                 ExecutePipelineStageJob::dispatch($analysis, $nextStageRoute->stage);
+
                 return;
             }
 
@@ -84,7 +86,7 @@ class PipelineService
 
             if (! $hasProcessingStage) {
                 Log::info("{$logPrefix} All pipeline stages finished. Dispatching report generation.");
-                
+
                 GenerateReportJob::dispatch($analysis);
             }
         });

@@ -10,7 +10,6 @@ use App\Enums\AnalysisStatus;
 use App\Jobs\ExecutePipelineStageJob;
 use App\Jobs\GenerateReportJob;
 use App\Models\Analysis;
-use App\Models\StageRoute;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -42,6 +41,7 @@ class PipelineDagService
             if ($activeStages->isEmpty()) {
                 Log::warning("{$logPrefix} No active pipeline stages found in database.");
                 GenerateReportJob::dispatch($analysis);
+
                 return;
             }
 
@@ -67,6 +67,7 @@ class PipelineDagService
                     if ($status === 'failed' && $stageRoute->on_failure === 'fail_pipeline') {
                         $hasUnrecoverableFailure = true;
                     }
+
                     continue;
                 }
 
@@ -86,6 +87,7 @@ class PipelineDagService
                     'status' => AnalysisStatus::FAILED,
                     'completed_at' => now(),
                 ]);
+
                 return;
             }
 
@@ -95,6 +97,7 @@ class PipelineDagService
                     Log::info("{$logPrefix} Dispatching ready stage '{$stageToDispatch->stage}' (Parallel DAG step)");
                     ExecutePipelineStageJob::dispatch($analysis, $stageToDispatch->stage);
                 }
+
                 return;
             }
 

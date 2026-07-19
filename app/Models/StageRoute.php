@@ -107,7 +107,7 @@ class StageRoute extends Model
     /**
      * Check if all required prerequisite dependencies are completed for the given analysis.
      *
-     * @param  array<string, string>  $completedStageStatuses Map of stage key => status
+     * @param  array<string, string>  $completedStageStatuses  Map of stage key => status
      */
     public function isReadyToExecute(array $completedStageStatuses): bool
     {
