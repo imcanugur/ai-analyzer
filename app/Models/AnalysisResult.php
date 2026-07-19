@@ -91,6 +91,17 @@ class AnalysisResult extends Model
     }
 
     /**
+     * Encode the given value to JSON with unescaped Unicode characters.
+     *
+     * @param  mixed  $value
+     * @return string
+     */
+    protected function asJson($value, $flags = 0)
+    {
+        return json_encode($value, $flags | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
      * Get the analysis that owns the result.
      */
     public function analysis(): BelongsTo

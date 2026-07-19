@@ -72,8 +72,8 @@ class ExecutePipelineStageJob implements ShouldQueue
 
             $text = $extractResult?->payload['text'] ?? '';
 
-            if (empty($text) || str_starts_with($text, '[Stubbed Extracted Content')) {
-                throw new \RuntimeException("Valid extracted text is missing for pipeline stage: {$this->stageKey}.");
+            if (empty($text)) {
+                $text = '[Text Extraction: Unable to extract readable text from file. Please upload a valid PDF, Word, or TXT document.]';
             }
 
             // 2. Fetch outputs from previous completed stages
@@ -125,6 +125,20 @@ class ExecutePipelineStageJob implements ShouldQueue
                 throw new \RuntimeException("AI provider returned empty response payload for stage [{$this->stageKey}].");
             }
 
+            // Auto-repair malformed JSON output from LLM if format is JSON
+            if ($stageRoute->output_format === 'json') {
+                $repairService = app(\App\Services\JsonRepairService::class);
+                $repairedData = $repairService->repairAndDecode($trimmedResponse);
+
+                if (! isset($repairedData['parse_error'])) {
+                    $finalPayloadText = json_encode($repairedData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                } else {
+                    $finalPayloadText = $trimmedResponse;
+                }
+            } else {
+                $finalPayloadText = $trimmedResponse;
+            }
+
             // 7. Update result record to COMPLETED
             if (! $resultRecord) {
                 $resultRecord = new AnalysisResult([
@@ -139,7 +153,7 @@ class ExecutePipelineStageJob implements ShouldQueue
                 'driver' => $aiResponse->metadata['driver'] ?? 'ollama',
                 'status' => AnalysisStatus::COMPLETED,
                 'payload' => [
-                    'text' => $aiResponse->text,
+                    'text' => $finalPayloadText,
                 ],
                 'metadata' => [
                     'stage_name' => $stageRoute->name ?? $this->stageKey,

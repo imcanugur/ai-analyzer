@@ -62,7 +62,7 @@ trait RunsAIStage
 
         $logPrefix = "[AI-Stage:{$stage}][Analysis:{$analysis->id}]";
 
-        Log::info("{$logPrefix} Stage başlatılıyor.", [
+        Log::info("{$logPrefix} Initiating stage execution.", [
             'stage' => $stage,
             'analysis_id' => $analysis->id,
             'prompt_name' => $promptName,
@@ -81,7 +81,7 @@ trait RunsAIStage
 
             // Check if text is empty or a stub/placeholder
             if (empty($text)) {
-                Log::error("{$logPrefix} Extract edilmiş metin bulunamadı.", [
+                Log::error("{$logPrefix} Extracted text not found.", [
                     'extract_result_exists' => $extractResult !== null,
                     'payload_keys' => $extractResult ? array_keys($extractResult->payload ?? []) : [],
                 ]);
@@ -89,13 +89,13 @@ trait RunsAIStage
             }
 
             if (str_starts_with($text, '[Stubbed Extracted Content')) {
-                Log::error("{$logPrefix} PDF/Binary dosya metin çıkarımı henüz yapılmamış, taslak (stub) veri tespit edildi. AI analizi iptal ediliyor.", [
+                Log::error("{$logPrefix} Text extraction pending or failed. Stub content detected.", [
                     'text' => $text,
                 ]);
                 throw new \RuntimeException('Text extraction is not yet implemented or failed for this file type (Stub detected). Please make sure PDF text extraction is active.');
             }
 
-            Log::info("{$logPrefix} Metin alındı.", [
+            Log::info("{$logPrefix} Manuscript text retrieved successfully.", [
                 'text_length' => mb_strlen($text),
                 'text_preview' => mb_substr($text, 0, 200).'...',
             ]);
@@ -103,7 +103,7 @@ trait RunsAIStage
             // 2. Load system prompt (shared across all stages)
             $systemPrompt = $promptService->get('system');
 
-            Log::info("{$logPrefix} System prompt yüklendi.", [
+            Log::info("{$logPrefix} System prompt loaded.", [
                 'system_prompt_length' => mb_strlen($systemPrompt),
                 'system_prompt' => $systemPrompt,
             ]);
@@ -113,7 +113,7 @@ trait RunsAIStage
                 $replacements = ['text' => $text];
             }
 
-            Log::info("{$logPrefix} Replacement'lar hazırlandı.", [
+            Log::info("{$logPrefix} Replacements prepared.", [
                 'replacement_keys' => array_keys($replacements),
                 'replacement_lengths' => array_map(fn ($v) => mb_strlen((string) $v), $replacements),
                 'replacements' => $replacements,
@@ -123,7 +123,7 @@ trait RunsAIStage
             // 4. Render the user prompt template with placeholders
             $userPrompt = $promptService->render($promptName, $replacements);
 
-            Log::info("{$logPrefix} User prompt render edildi.", [
+            Log::info("{$logPrefix} User prompt rendered successfully.", [
                 'prompt_name' => $promptName,
                 'user_prompt_length' => mb_strlen($userPrompt),
                 'user_prompt_preview' => mb_substr($userPrompt, 0, 500).'...',
@@ -132,7 +132,7 @@ trait RunsAIStage
             ]);
 
             // 5. Call AI provider with system + user prompt separation
-            Log::info("{$logPrefix} AI provider'a istek gönderiliyor...", [
+            Log::info("{$logPrefix} Sending request to AI provider...", [
                 'model' => $model,
                 'system_prompt_length' => mb_strlen($systemPrompt),
                 'user_prompt_length' => mb_strlen($userPrompt),
@@ -146,23 +146,23 @@ trait RunsAIStage
                 'model' => $model,
             ], $systemPrompt);
 
-            Log::info("{$logPrefix} AI yanıtı alındı.", [
+            Log::info("{$logPrefix} AI response received.", [
                 'response_length' => mb_strlen($aiResponse->text),
                 'tokens' => $aiResponse->tokens,
                 'execution_time_ms' => $aiResponse->executionTime,
                 'response_preview' => mb_substr($aiResponse->text, 0, 500).'...',
             ]);
 
-            // 6. JSON parse kontrolü (debug amaçlı)
+            // 6. Check JSON validity for debugging
             $jsonDecoded = json_decode($aiResponse->text, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                Log::warning("{$logPrefix} AI yanıtı geçerli JSON değil!", [
+                Log::warning("{$logPrefix} AI response is not valid JSON!", [
                     'json_error' => json_last_error_msg(),
                     'raw_response_start' => mb_substr($aiResponse->text, 0, 300),
                     'raw_response_end' => mb_substr($aiResponse->text, -300),
                 ]);
             } else {
-                Log::info("{$logPrefix} AI yanıtı geçerli JSON.", [
+                Log::info("{$logPrefix} AI response is valid JSON.", [
                     'json_keys' => array_keys($jsonDecoded),
                 ]);
             }
@@ -183,18 +183,18 @@ trait RunsAIStage
                 'tokens' => $aiResponse->tokens,
             ]);
 
-            Log::info("{$logPrefix} Sonuç kaydedildi.", [
+            Log::info("{$logPrefix} Stage result saved.", [
                 'status' => 'completed',
             ]);
 
             // 8. Dispatch next job or mark analysis as completed
             if ($nextJobClass) {
-                Log::info("{$logPrefix} Sonraki job dispatch ediliyor.", [
+                Log::info("{$logPrefix} Dispatching next job.", [
                     'next_job' => $nextJobClass,
                 ]);
                 $nextJobClass::dispatch($analysis);
             } else {
-                Log::info("{$logPrefix} Son stage tamamlandı. Analiz completed olarak işaretleniyor.");
+                Log::info("{$logPrefix} Final stage completed. Marking analysis as COMPLETED.");
                 $analysis->update([
                     'status' => AnalysisStatus::COMPLETED,
                     'completed_at' => now(),
@@ -213,13 +213,13 @@ trait RunsAIStage
                 }
             }
 
-            Log::info("{$logPrefix} Stage başarıyla tamamlandı.", [
+            Log::info("{$logPrefix} Stage completed successfully.", [
                 'total_execution_time_ms' => $aiResponse->executionTime,
                 'total_tokens' => $aiResponse->tokens,
             ]);
 
         } catch (\Exception $e) {
-            Log::error("{$logPrefix} Stage BAŞARISIZ!", [
+            Log::error("{$logPrefix} Stage FAILED!", [
                 'error_message' => $e->getMessage(),
                 'error_class' => get_class($e),
                 'error_file' => $e->getFile(),
