@@ -15,6 +15,13 @@ interface StageRouteRepositoryInterface
     public function all(): Collection;
 
     /**
+     * Get all active stage routes ordered by sort_order.
+     *
+     * @return Collection<int, StageRoute>
+     */
+    public function getActiveOrdered(): Collection;
+
+    /**
      * Find a stage route by its stage name.
      */
     public function findByStage(string $stage): ?StageRoute;

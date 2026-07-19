@@ -43,8 +43,11 @@ class ReportService
                 }
             }
 
-            $compiledData['stages'][$result->stage->value] = [
-                'status' => $result->status->value,
+            $stageKey = is_object($result->stage) ? $result->stage->value : (string) $result->stage;
+            $statusKey = is_object($result->status) ? $result->status->value : (string) $result->status;
+
+            $compiledData['stages'][$stageKey] = [
+                'status' => $statusKey,
                 'text' => $text,
                 'tokens' => $result->tokens,
                 'execution_time' => $result->execution_time,

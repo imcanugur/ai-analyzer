@@ -10,7 +10,15 @@ class EloquentStageRouteRepository implements StageRouteRepositoryInterface
 {
     public function all(): Collection
     {
-        return StageRoute::with('node')->get();
+        return StageRoute::with('node')->orderBy('sort_order', 'asc')->get();
+    }
+
+    public function getActiveOrdered(): Collection
+    {
+        return StageRoute::with('node')
+            ->active()
+            ->ordered()
+            ->get();
     }
 
     public function findByStage(string $stage): ?StageRoute

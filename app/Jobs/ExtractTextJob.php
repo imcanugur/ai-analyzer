@@ -128,7 +128,7 @@ class ExtractTextJob implements ShouldQueue
             'execution_time' => 0,
         ]);
 
-        // 4. Dispatch the first AI stage job
-        GenerateSummaryJob::dispatch($this->analysis);
+        // 4. Dispatch the first dynamic AI stage using PipelineService
+        app(\App\Services\PipelineService::class)->runNextPendingStage($this->analysis);
     }
 }

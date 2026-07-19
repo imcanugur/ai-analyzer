@@ -1,30 +1,8 @@
 <?php
 
-use App\Enums\AnalysisStage;
-use App\Jobs\GenerateGrammarJob;
-use App\Jobs\GenerateReferencesJob;
-use App\Jobs\GenerateReportJob;
-use App\Jobs\GenerateReviewerJob;
-use App\Jobs\GenerateSimilarityJob;
+declare(strict_types=1);
 
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | AI Analysis Stage Pipeline
-    |--------------------------------------------------------------------------
-    |
-    | Defines the sequence of execution for the background analysis stages.
-    | Decouples the job classes by avoiding direct imports between them.
-    |
-    */
-    'pipeline' => [
-        AnalysisStage::SUMMARY->value => GenerateGrammarJob::class,
-        AnalysisStage::GRAMMAR->value => GenerateReferencesJob::class,
-        AnalysisStage::REFERENCES->value => GenerateSimilarityJob::class,
-        AnalysisStage::SIMILARITY->value => GenerateReviewerJob::class,
-        AnalysisStage::REVIEWER->value => GenerateReportJob::class,
-    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -32,6 +10,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Configuration options for the AI cluster load balancer and dynamic routing.
+    | Pipeline execution is fully dynamic and managed via database StageRoute records.
     |
     */
     'cluster' => [

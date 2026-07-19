@@ -81,7 +81,6 @@ class AnalysisResult extends Model
     protected function casts(): array
     {
         return [
-            'stage' => AnalysisStage::class,
             'status' => AnalysisStatus::class,
             'score' => 'float',
             'payload' => 'array',
