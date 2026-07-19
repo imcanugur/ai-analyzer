@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
 use App\Models\AnalysisResult;
+use App\Services\PipelineService;
 use App\Services\ReportService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -49,7 +50,7 @@ class GenerateReportJob implements ShouldQueue
                 'completed_at' => now(),
             ]);
 
-            app(\App\Services\PipelineService::class)->runNextPendingStage($this->analysis);
+            app(PipelineService::class)->runNextPendingStage($this->analysis);
 
         } catch (\Exception $e) {
             $this->analysis->update([

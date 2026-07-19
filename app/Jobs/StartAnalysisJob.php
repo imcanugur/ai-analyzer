@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Contracts\NotificationServiceInterface;
 use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
+use App\Services\PipelineService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -62,6 +63,6 @@ class StartAnalysisJob implements ShouldQueue
         }
 
         // 2. Initiate the 100% dynamic DB pipeline engine
-        app(\App\Services\PipelineService::class)->runNextPendingStage($this->analysis);
+        app(PipelineService::class)->runNextPendingStage($this->analysis);
     }
 }

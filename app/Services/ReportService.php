@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\PathGenerator;
 use App\Models\Analysis;
 use App\Models\Media;
+use App\Models\StageRoute;
 
 class ReportService
 {
@@ -95,7 +96,7 @@ class ReportService
                 continue;
             }
 
-            $stageRoute = \App\Models\StageRoute::where('stage', $stageKey)->first();
+            $stageRoute = StageRoute::where('stage', $stageKey)->first();
             $displayName = $stageRoute->name ?? ucfirst($stageKey);
 
             $stagesHtml .= '<h2>'.e($displayName).'</h2>';

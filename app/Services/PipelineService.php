@@ -42,6 +42,7 @@ class PipelineService
 
             if ($activeStages->isEmpty()) {
                 Log::warning("{$logPrefix} No active pipeline stages found in database.");
+
                 return;
             }
 
@@ -64,6 +65,7 @@ class PipelineService
 
                 if ($nextStageRoute->stage === 'extract') {
                     ExtractTextJob::dispatch($analysis);
+
                     return;
                 }
 
@@ -80,6 +82,7 @@ class PipelineService
                     ]);
 
                     GenerateReportJob::dispatch($analysis);
+
                     return;
                 }
 
@@ -98,6 +101,7 @@ class PipelineService
                 ]);
 
                 ExecutePipelineStageJob::dispatch($analysis, $nextStageRoute->stage);
+
                 return;
             }
 
