@@ -1,22 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 class PromptService
 {
     /**
-     * Get raw prompt content without any replacements.
-     * Useful for loading system prompts.
+     * Render a raw template string by replacing placeholders like {{ text }}.
+     */
+    public function renderString(string $template, array $replacements = []): string
+    {
+        foreach ($replacements as $key => $value) {
+            if (is_scalar($value)) {
+                $template = str_replace('{{ '.$key.' }}', (string) $value, $template);
+                $template = str_replace('{{'.$key.'}}', (string) $value, $template);
+            }
+        }
+
+        return $template;
+    }
+
+    /**
+     * Get raw prompt content from disk file (legacy fallback).
      */
     public function get(string $name): string
     {
         $path = resource_path("prompts/{$name}.md");
 
-        if (! file_exists($path)) {
-            throw new \InvalidArgumentException("Prompt template not found: {$name}");
+        if (file_exists($path)) {
+            return file_get_contents($path);
         }
 
-        return file_get_contents($path);
+        return "# Academic Analysis: {$name}\n\n{{ text }}\n\nPerform analysis for {$name}.";
     }
 
     /**
@@ -26,21 +42,6 @@ class PromptService
     {
         $prompt = $this->get($name);
 
-        foreach ($replacements as $key => $value) {
-            $prompt = str_replace('{{ '.$key.' }}', $value, $prompt);
-            $prompt = str_replace('{{'.$key.'}}', $value, $prompt);
-        }
-
-        return $prompt;
-    }
-
-    /**
-     * Load a prompt file and replace placeholders.
-     *
-     * @deprecated Use render() instead. Kept for backward compatibility.
-     */
-    public function load(string $name, array $replacements = []): string
-    {
-        return $this->render($name, $replacements);
+        return $this->renderString($prompt, $replacements);
     }
 }

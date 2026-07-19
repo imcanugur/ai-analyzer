@@ -78,7 +78,10 @@
                                     'summary' => 'Summarizing Manuscript',
                                     'grammar' => 'Academic Style & Grammar Audit',
                                     'references' => 'Citation & Reference Verification',
+                                    'similarity' => 'Similarity Analysis',
                                     'reviewer' => 'Double-Blind Review Referee Scoring',
+                                    'plagiarism' => 'Plagiarism Detection',
+                                    'readability' => 'Readability Scoring',
                                 ];
                             }
                             $completedStages = $analysis->results->map(fn ($r) => is_object($r->stage) ? $r->stage->value : (string) $r->stage)->toArray();
@@ -149,28 +152,30 @@
 
                     @if($analysis->results->isNotEmpty())
                         @php
-                            $uniqueCompletedResults = $analysis->results
-                                ->filter(function($r) {
-                                    $st = is_object($r->status) ? $r->status->value : (string) $r->status;
-                                    return $st === 'completed';
-                                })
+                            $uniqueResults = $analysis->results
                                 ->unique(fn($r) => is_object($r->stage) ? $r->stage->value : (string) $r->stage);
                         @endphp
 
-                        @if($uniqueCompletedResults->isNotEmpty())
+                        @if($uniqueResults->isNotEmpty())
                             <div style="display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; text-align: left;">
-                                @foreach($uniqueCompletedResults as $res)
+                                @foreach($uniqueResults as $res)
                                     @php
                                         $resStageStr = is_object($res->stage) ? $res->stage->value : (string) $res->stage;
+                                        $resStatusStr = is_object($res->status) ? $res->status->value : (string) $res->status;
                                     @endphp
                                     @if($resStageStr === 'extract')
                                         @continue
                                     @endif
-                                    <div style="border: 1px solid #f3f4f6; border-radius: 8px; padding: 16px; background-color: #fafafa;">
+                                    <div style="border: 1px solid {{ $resStatusStr === 'failed' ? '#fee2e2' : '#f3f4f6' }}; border-radius: 8px; padding: 16px; background-color: {{ $resStatusStr === 'failed' ? '#fef2f2' : '#fafafa' }};">
                                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                                            <h5 style="font-size: 13px; font-weight: 700; color: #1e3a8a; text-transform: uppercase; margin: 0;">{{ $resStageStr }}</h5>
+                                            <h5 style="font-size: 13px; font-weight: 700; color: {{ $resStatusStr === 'failed' ? '#991b1b' : '#1e3a8a' }}; text-transform: uppercase; margin: 0;">
+                                                {{ $resStageStr }}
+                                                @if($resStatusStr === 'failed')
+                                                    <span style="font-size: 10px; background-color: #ef4444; color: #ffffff; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">FAILED</span>
+                                                @endif
+                                            </h5>
                                             <span style="font-size: 11px; color: #9ca3af;">
-                                                Tokens: {{ $res->tokens }} • {{ $res->execution_time }}ms
+                                                Tokens: {{ $res->tokens ?? 0 }} • {{ $res->execution_time ?? 0 }}ms
                                                 @if($res->node)
                                                     • Node: {{ $res->node->name }}
                                                 @elseif($res->driver)
@@ -178,7 +183,11 @@
                                                 @endif
                                             </span>
                                         </div>
-                                        <div style="font-size: 13px; color: #374151; white-space: pre-wrap; line-height: 1.6; max-height: 250px; overflow-y: auto; padding-right: 8px;">{{ $res->payload['text'] ?? '' }}</div>
+                                        @if($resStatusStr === 'failed')
+                                            <p style="font-size: 12px; color: #b91c1c; margin: 4px 0 0 0;">{{ $res->payload['error'] ?? 'Stage execution failed.' }}</p>
+                                        @else
+                                            <div style="font-size: 13px; color: #374151; white-space: pre-wrap; line-height: 1.6; max-height: 250px; overflow-y: auto; padding-right: 8px;">{{ $res->payload['text'] ?? '' }}</div>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>

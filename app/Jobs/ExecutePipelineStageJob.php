@@ -88,19 +88,17 @@ class ExecutePipelineStageJob implements ShouldQueue
                 }
             }
 
-            // 3. Resolve system prompt
-            $systemPrompt = ! empty($stageRoute->system_prompt)
-                ? $stageRoute->system_prompt
-                : $promptService->get('system');
+            // 3. Resolve system prompt directly from Database
+            $systemPrompt = $stageRoute->system_prompt ?? null;
 
-            // 4. Resolve user prompt & interpolate placeholders
-            if (! empty($stageRoute->prompt_template)) {
-                $userPrompt = str_replace(['{{ text }}', '{{text}}'], $text, $stageRoute->prompt_template);
-                foreach ($previousResults as $pStage => $pContent) {
-                    $userPrompt = str_replace(["{{ {$pStage}_output }}", "{{{$pStage}_output}}"], $pContent, $userPrompt);
-                }
-            } else {
-                $userPrompt = $promptService->render($this->stageKey, array_merge(['text' => $text], $previousResults));
+            // 4. Resolve user prompt template directly from Database (throw exception if NULL)
+            if (empty($stageRoute->prompt_template)) {
+                throw new \RuntimeException("Prompt template is missing in database for stage '{$this->stageKey}'. Please configure the prompt template in the admin panel.");
+            }
+
+            $userPrompt = str_replace(['{{ text }}', '{{text}}'], $text, $stageRoute->prompt_template);
+            foreach ($previousResults as $pStage => $pContent) {
+                $userPrompt = str_replace(["{{ {$pStage}_output }}", "{{{$pStage}_output}}"], $pContent, $userPrompt);
             }
 
             Log::info("{$logPrefix} Initiating AI provider execution (Model: {$model})");
