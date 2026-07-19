@@ -90,8 +90,15 @@ class ReportService
     protected function compileHtmlReport(Analysis $analysis, array $data): string
     {
         $stagesHtml = '';
-        foreach ($data['stages'] as $stageName => $stageData) {
-            $stagesHtml .= '<h2>'.ucfirst($stageName).'</h2>';
+        foreach ($data['stages'] as $stageKey => $stageData) {
+            if ($stageKey === 'extract') {
+                continue;
+            }
+
+            $stageRoute = \App\Models\StageRoute::where('stage', $stageKey)->first();
+            $displayName = $stageRoute->name ?? ucfirst($stageKey);
+
+            $stagesHtml .= '<h2>'.e($displayName).'</h2>';
             $text = $stageData['text'] ?? '';
             if (is_array($text) || is_object($text)) {
                 $text = json_encode($text, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

@@ -8,7 +8,6 @@ use App\AI\Contracts\AIProviderInterface;
 use App\Contracts\AnalysisResultRepositoryInterface;
 use App\Contracts\NotificationServiceInterface;
 use App\Contracts\StageRouteRepositoryInterface;
-use App\Enums\AnalysisStage;
 use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
 use App\Services\PromptService;
@@ -45,7 +44,7 @@ trait RunsAIStage
      */
     protected function runStage(
         Analysis $analysis,
-        AnalysisStage $stage,
+        string $stage,
         string $promptName,
         array $replacements = []
     ): void {
@@ -54,17 +53,17 @@ trait RunsAIStage
         $aiProvider = app(AIProviderInterface::class);
         $routeRepository = app(StageRouteRepositoryInterface::class);
 
-        $stageRoute = $routeRepository->findByStage($stage->value);
+        $stageRoute = $routeRepository->findByStage($stage);
         $model = $stageRoute ? $stageRoute->model : 'gemma2';
 
         // Resolve next job dynamically from central pipeline configuration
         $pipeline = config('ai.pipeline', []);
-        $nextJobClass = $pipeline[$stage->value] ?? null;
+        $nextJobClass = $pipeline[$stage] ?? null;
 
-        $logPrefix = "[AI-Stage:{$stage->value}][Analysis:{$analysis->id}]";
+        $logPrefix = "[AI-Stage:{$stage}][Analysis:{$analysis->id}]";
 
         Log::info("{$logPrefix} Stage başlatılıyor.", [
-            'stage' => $stage->value,
+            'stage' => $stage,
             'analysis_id' => $analysis->id,
             'prompt_name' => $promptName,
             'next_job' => $nextJobClass,
@@ -75,7 +74,7 @@ trait RunsAIStage
         try {
             // 1. Get extracted text from the extract stage result
             $extractResult = $analysis->results()
-                ->where('stage', AnalysisStage::EXTRACT)
+                ->where('stage', 'extract')
                 ->first();
 
             $text = $extractResult?->payload['text'] ?? '';
@@ -143,7 +142,7 @@ trait RunsAIStage
             ]);
 
             $aiResponse = $aiProvider->generate($userPrompt, [
-                'stage' => $stage->value,
+                'stage' => $stage,
                 'model' => $model,
             ], $systemPrompt);
 
@@ -232,7 +231,7 @@ trait RunsAIStage
 
             $analysis->update([
                 'status' => AnalysisStatus::FAILED,
-                'error' => "[{$stage->value}] ".$e->getMessage(),
+                'error' => "[{$stage}] ".$e->getMessage(),
                 'completed_at' => now(),
             ]);
 
@@ -242,7 +241,7 @@ trait RunsAIStage
                 app(NotificationServiceInterface::class)->send(
                     $user,
                     'Analysis Failed',
-                    "The manuscript analysis for '{$analysis->submission->title}' failed during [{$stage->value}] stage.",
+                    "The manuscript analysis for '{$analysis->submission->title}' failed during [{$stage}] stage.",
                     'heroicon-o-x-circle',
                     'danger'
                 );

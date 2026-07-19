@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Actions\StartAnalysisAction;
 use App\DTO\StartAnalysisDTO;
-use App\Enums\AnalysisStage;
 use App\Enums\AnalysisStatus;
 use App\Enums\MediaType;
 use App\Jobs\StartAnalysisJob;
@@ -97,28 +96,28 @@ class QueueAnalysisTest extends TestCase
         $this->assertNotNull($analysis->completed_at);
         $this->assertNull($analysis->error);
 
-        // 4. Assertions on all 6 stage results
+        // 4. Assertions on stage results
         $stages = [
-            AnalysisStage::EXTRACT,
-            AnalysisStage::SUMMARY,
-            AnalysisStage::GRAMMAR,
-            AnalysisStage::REFERENCES,
-            AnalysisStage::SIMILARITY,
-            AnalysisStage::REVIEWER,
+            'extract',
+            'summary',
+            'grammar',
+            'references',
+            'similarity',
+            'reviewer',
         ];
 
         foreach ($stages as $stage) {
-            $result = $analysis->results()->where('stage', $stage->value)->first();
-            $this->assertNotNull($result, "AnalysisResult for stage [{$stage->value}] should exist.");
+            $result = $analysis->results()->where('stage', $stage)->first();
+            $this->assertNotNull($result, "AnalysisResult for stage [{$stage}] should exist.");
             $this->assertEquals(AnalysisStatus::COMPLETED, $result->status);
         }
 
         // 5. Verify extract stage has original text
-        $extractResult = $analysis->results()->where('stage', AnalysisStage::EXTRACT->value)->first();
+        $extractResult = $analysis->results()->where('stage', 'extract')->first();
         $this->assertEquals($fileContent, $extractResult->payload['text']);
 
         // 6. Verify AI stages have generated content
-        $summaryResult = $analysis->results()->where('stage', AnalysisStage::SUMMARY->value)->first();
+        $summaryResult = $analysis->results()->where('stage', 'summary')->first();
         $this->assertEquals('AI generated response for testing.', $summaryResult->payload['text']);
         $this->assertEquals(30, $summaryResult->tokens); // 10 + 20
     }

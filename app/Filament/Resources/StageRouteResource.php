@@ -89,8 +89,8 @@ class StageRouteResource extends Resource
                             ->nullable(),
 
                         Select::make('model')
-                            ->label('Target AI Model')
-                            ->required()
+                            ->label('Target AI Model (Optional for internal stages)')
+                            ->nullable()
                             ->options(function (callable $get) {
                                 $nodeId = $get('node_id');
                                 $nodeRepository = app(NodeRepositoryInterface::class);

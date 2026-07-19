@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Enums\AnalysisStage;
 use App\Models\Analysis;
 use App\Traits\RunsAIStage;
 use Illuminate\Bus\Queueable;
@@ -23,7 +22,7 @@ class GenerateGrammarJob implements ShouldQueue
     {
         $this->runStage(
             analysis: $this->analysis,
-            stage: AnalysisStage::GRAMMAR,
+            stage: 'grammar',
             promptName: 'grammar'
         );
     }

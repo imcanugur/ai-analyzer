@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Enums\AnalysisStage;
 use App\Enums\AnalysisStatus;
 use App\Jobs\GenerateReportJob;
 use App\Models\Analysis;
@@ -39,14 +38,14 @@ class ReportGenerationTest extends TestCase
         // Create dummy analysis results for stages
         AnalysisResult::create([
             'analysis_id' => $analysis->id,
-            'stage' => AnalysisStage::EXTRACT,
+            'stage' => 'extract',
             'status' => AnalysisStatus::COMPLETED,
             'payload' => ['text' => 'This is extracted content.'],
         ]);
 
         AnalysisResult::create([
             'analysis_id' => $analysis->id,
-            'stage' => AnalysisStage::SUMMARY,
+            'stage' => 'summary',
             'status' => AnalysisStatus::COMPLETED,
             'payload' => ['text' => 'This is a summary.'],
         ]);

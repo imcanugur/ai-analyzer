@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Contracts\AnalysisResultRepositoryInterface;
-use App\Enums\AnalysisStage;
 use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
 use App\Services\PipelineService;
@@ -116,7 +115,7 @@ class ExtractTextJob implements ShouldQueue
         // 3. Save the result of the extraction stage using the repository
         $resultRepository->create([
             'analysis_id' => $this->analysis->id,
-            'stage' => AnalysisStage::EXTRACT,
+            'stage' => 'extract',
             'status' => AnalysisStatus::COMPLETED,
             'payload' => [
                 'text' => $extractedText,

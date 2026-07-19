@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Contracts\AnalysisResultRepositoryInterface;
-use App\Enums\AnalysisStage;
 use App\Enums\AnalysisStatus;
 use App\Enums\MediaType;
 use App\Jobs\ExtractTextJob;
@@ -98,7 +97,7 @@ class PDFParserTest extends TestCase
 
         // 3. Assertions
         $analysis->refresh();
-        $result = $analysis->results()->where('stage', AnalysisStage::EXTRACT->value)->first();
+        $result = $analysis->results()->where('stage', 'extract')->first();
 
         $this->assertNotNull($result);
         $this->assertEquals('Mocked pdftotext output content.', $result->payload['text']);

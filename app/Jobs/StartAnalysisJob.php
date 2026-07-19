@@ -61,7 +61,7 @@ class StartAnalysisJob implements ShouldQueue
             );
         }
 
-        // 2. Dispatch the text extraction job in the background
-        ExtractTextJob::dispatch($this->analysis);
+        // 2. Initiate the 100% dynamic DB pipeline engine
+        app(\App\Services\PipelineService::class)->runNextPendingStage($this->analysis);
     }
 }
