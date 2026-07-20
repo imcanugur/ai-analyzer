@@ -178,14 +178,14 @@ class StageRouteResource extends Resource
                     ->schema([
                         Textarea::make('system_prompt')
                             ->label('Custom System Prompt (Optional)')
-                            ->rows(3)
+                            ->rows(8)
                             ->placeholder('Override system prompt directives for this specific stage...'),
 
                         MarkdownEditor::make('prompt_template')
                             ->label('Stage User Prompt Template')
                             ->helperText('Available placeholders: {{ text }} for document text, or {{ summary_output }} for prerequisite stage outputs.')
                             ->columnSpanFull(),
-                    ]),
+                    ])->columnSpanFull(),
             ]);
     }
 

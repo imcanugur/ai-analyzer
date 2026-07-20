@@ -15,14 +15,22 @@ class ReportService
     ) {}
 
     /**
-     * Compile analysis results and generate both JSON and PDF reports.
+     * Compile analysis results and generate both JSON and PDF reports sorted strictly by stage_routes sort_order.
      *
      * @return array{json: Media, pdf: Media}
      */
     public function generateReports(Analysis $analysis): array
     {
-        // 1. Fetch analysis results
-        $results = $analysis->results()->get();
+        // 1. Fetch stage routes sort order and active names
+        $stageOrders = StageRoute::active()->pluck('sort_order', 'stage')->toArray();
+
+        // 2. Fetch analysis results sorted by stage_routes sort_order
+        $results = $analysis->results()
+            ->get()
+            ->sortBy(function ($res) use ($stageOrders) {
+                $sKey = is_object($res->stage) ? $res->stage->value : (string) $res->stage;
+                return $stageOrders[$sKey] ?? 999;
+            });
 
         $compiledData = [
             'analysis_id' => $analysis->id,
@@ -67,7 +75,7 @@ class ReportService
         );
 
         // Generate JSON content
-        $jsonContent = json_encode($compiledData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $jsonContent = json_encode($compiledData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         // Save JSON as media directly bound to Analysis model
         $jsonMedia = $this->mediaService->saveRawContent(
@@ -86,47 +94,55 @@ class ReportService
     }
 
     /**
-     * Build clean readable print layout content.
+     * Build clean readable print layout content ordered strictly by stage_routes sort_order.
      */
     protected function compileHtmlReport(Analysis $analysis, array $data): string
     {
+        $stageRoutes = StageRoute::active()->ordered()->get()->keyBy('stage');
         $stagesHtml = '';
+
         foreach ($data['stages'] as $stageKey => $stageData) {
-            if ($stageKey === 'extract') {
+            if ($stageKey === 'extract' || $stageKey === 'report') {
                 continue;
             }
 
-            $stageRoute = StageRoute::where('stage', $stageKey)->first();
-            $displayName = $stageRoute->name ?? ucfirst($stageKey);
+            $stageRoute = $stageRoutes->get($stageKey);
+            $displayName = $stageRoute->name ?? strtoupper($stageKey);
 
-            $stagesHtml .= '<h2>'.e($displayName).'</h2>';
+            $stagesHtml .= '<div style="margin-bottom: 24px;">';
+            $stagesHtml .= '<h2 style="color: #1e3a8a; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 12px;">'.e($displayName).'</h2>';
+            
             $text = $stageData['text'] ?? '';
             if (is_array($text) || is_object($text)) {
                 $text = json_encode($text, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             }
-            $stagesHtml .= '<p>'.nl2br(e($text)).'</p>';
-            $stagesHtml .= "<small>Tokens: {$stageData['tokens']} | Time: {$stageData['execution_time']}ms</small><hr>";
+            
+            $stagesHtml .= '<div style="font-size: 13px; color: #334155; white-space: pre-wrap; line-height: 1.6;">'.nl2br(e((string) $text)).'</div>';
+            $stagesHtml .= '<div style="margin-top: 8px; font-size: 11px; color: #64748b;">Tokens: '.($stageData['tokens'] ?? 0).' | Execution Time: '.($stageData['execution_time'] ?? 0).'ms</div>';
+            $stagesHtml .= '</div>';
         }
 
         return <<<HTML
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Analysis Report - {$analysis->id}</title>
+    <meta charset="utf-8">
+    <title>AI Analysis Report - {$analysis->id}</title>
     <style>
-        body { font-family: sans-serif; margin: 40px; color: #333; line-height: 1.6; }
-        h1 { color: #1a365d; border-bottom: 2px solid #2b6cb0; padding-bottom: 10px; }
-        h2 { color: #2b6cb0; margin-top: 30px; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 40px; color: #1e293b; line-height: 1.6; }
+        h1 { color: #0f172a; border-bottom: 2px solid #2563eb; padding-bottom: 10px; margin-bottom: 16px; }
+        .metadata { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; font-size: 13px; }
+        .metadata p { margin: 4px 0; }
         hr { border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0; }
-        small { color: #718096; }
     </style>
 </head>
 <body>
-    <h1>AI Analysis Report</h1>
-    <p><strong>Analysis ID:</strong> {$analysis->id}</p>
-    <p><strong>Model:</strong> {$analysis->model}</p>
-    <p><strong>Generated At:</strong> {$data['generated_at']}</p>
-    <hr>
+    <h1>AI Manuscript Analysis Report</h1>
+    <div class="metadata">
+        <p><strong>Analysis Run ID:</strong> {$analysis->id}</p>
+        <p><strong>Model Assigned:</strong> {$analysis->model}</p>
+        <p><strong>Report Generated At:</strong> {$data['generated_at']}</p>
+    </div>
     {$stagesHtml}
 </body>
 </html>

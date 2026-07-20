@@ -29,7 +29,7 @@ class GenerateReportJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(ReportService $reportService): void
+    public function handle(ReportService $reportService, PipelineService $pipelineService): void
     {
         try {
             $reportService->generateReports($this->analysis);
@@ -50,7 +50,7 @@ class GenerateReportJob implements ShouldQueue
                 'completed_at' => now(),
             ]);
 
-            app(PipelineService::class)->runNextPendingStage($this->analysis);
+            $pipelineService->runNextPendingStage($this->analysis);
 
         } catch (\Exception $e) {
             $this->analysis->update([

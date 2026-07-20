@@ -43,7 +43,8 @@ class ExecutePipelineStageJob implements ShouldQueue
         StageRouteRepositoryInterface $routeRepository,
         PromptService $promptService,
         AIProviderInterface $aiProvider,
-        PipelineService $pipelineService
+        PipelineService $pipelineService,
+        JsonRepairService $repairService
     ): void {
         $logPrefix = "[PipelineJob:{$this->stageKey}][Analysis:{$this->analysis->id}]";
         $stageRoute = $routeRepository->findByStage($this->stageKey);
@@ -127,7 +128,6 @@ class ExecutePipelineStageJob implements ShouldQueue
 
             // Auto-repair malformed JSON output from LLM if format is JSON
             if ($stageRoute->output_format === 'json') {
-                $repairService = app(\App\Services\JsonRepairService::class);
                 $repairedData = $repairService->repairAndDecode($trimmedResponse);
 
                 if (! isset($repairedData['parse_error'])) {

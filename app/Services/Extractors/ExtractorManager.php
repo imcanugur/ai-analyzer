@@ -14,16 +14,17 @@ class ExtractorManager
     protected array $extractors = [];
 
     public function __construct(
-        PlainTextExtractor $plainTextExtractor,
-        PdfExtractor $pdfExtractor,
-        DocxExtractor $docxExtractor,
-        OcrExtractor $ocrExtractor
+        protected PlainTextExtractor $plainTextExtractor,
+        protected PdfExtractor $pdfExtractor,
+        protected DocxExtractor $docxExtractor,
+        protected OcrExtractor $ocrExtractor,
+        protected TextNormalizer $textNormalizer
     ) {
         $this->extractors = [
-            $pdfExtractor,
-            $docxExtractor,
-            $ocrExtractor,
-            $plainTextExtractor,
+            $this->pdfExtractor,
+            $this->docxExtractor,
+            $this->ocrExtractor,
+            $this->plainTextExtractor,
         ];
     }
 
@@ -38,8 +39,7 @@ class ExtractorManager
             }
         }
 
-        // Default to PlainTextExtractor if no specialized extractor matched
-        return new PlainTextExtractor;
+        return $this->plainTextExtractor;
     }
 
     /**
@@ -50,6 +50,6 @@ class ExtractorManager
         $extractor = $this->resolve($mimeType, $extension);
         $rawText = $extractor->extract($fileContents, $extension);
 
-        return app(TextNormalizer::class)->normalize($rawText);
+        return $this->textNormalizer->normalize($rawText);
     }
 }

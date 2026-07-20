@@ -73,17 +73,6 @@
                             foreach ($activeStageRoutes as $sRoute) {
                                 $stagesInfo[$sRoute->stage] = $sRoute->name ?? ucfirst($sRoute->stage);
                             }
-                            if (empty($stagesInfo)) {
-                                $stagesInfo = [
-                                    'summary' => 'Summarizing Manuscript',
-                                    'grammar' => 'Academic Style & Grammar Audit',
-                                    'references' => 'Citation & Reference Verification',
-                                    'similarity' => 'Similarity Analysis',
-                                    'reviewer' => 'Double-Blind Review Referee Scoring',
-                                    'plagiarism' => 'Plagiarism Detection',
-                                    'readability' => 'Readability Scoring',
-                                ];
-                            }
                             $completedStages = $analysis->results->map(fn ($r) => is_object($r->stage) ? $r->stage->value : (string) $r->stage)->toArray();
                             $totalStagesCount = max(count($stagesInfo), 1);
                             $completedCount = 0;
@@ -152,8 +141,14 @@
 
                     @if($analysis->results->isNotEmpty())
                         @php
+                            $stageOrders = \App\Models\StageRoute::active()->pluck('sort_order', 'stage')->toArray();
+                            $stageNames = \App\Models\StageRoute::active()->pluck('name', 'stage')->toArray();
                             $uniqueResults = $analysis->results
-                                ->unique(fn($r) => is_object($r->stage) ? $r->stage->value : (string) $r->stage);
+                                ->unique(fn($r) => is_object($r->stage) ? $r->stage->value : (string) $r->stage)
+                                ->sortBy(function ($res) use ($stageOrders) {
+                                    $sKey = is_object($res->stage) ? $res->stage->value : (string) $res->stage;
+                                    return $stageOrders[$sKey] ?? 999;
+                                });
                         @endphp
 
                         @if($uniqueResults->isNotEmpty())
@@ -162,33 +157,53 @@
                                     @php
                                         $resStageStr = is_object($res->stage) ? $res->stage->value : (string) $res->stage;
                                         $resStatusStr = is_object($res->status) ? $res->status->value : (string) $res->status;
+                                        $displayTitle = $stageNames[$resStageStr] ?? strtoupper($resStageStr);
                                     @endphp
                                     @if($resStageStr === 'extract')
                                         @continue
                                     @endif
-                                    <div style="border: 1px solid {{ $resStatusStr === 'failed' ? '#fee2e2' : '#f3f4f6' }}; border-radius: 8px; padding: 16px; background-color: {{ $resStatusStr === 'failed' ? '#fef2f2' : '#fafafa' }};">
-                                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                                            <h5 style="font-size: 13px; font-weight: 700; color: {{ $resStatusStr === 'failed' ? '#991b1b' : '#1e3a8a' }}; text-transform: uppercase; margin: 0;">
-                                                {{ $resStageStr }}
-                                                @if($resStatusStr === 'failed')
-                                                    <span style="font-size: 10px; background-color: #ef4444; color: #ffffff; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">FAILED</span>
-                                                @endif
-                                            </h5>
-                                            <span style="font-size: 11px; color: #9ca3af;">
-                                                Tokens: {{ $res->tokens ?? 0 }} • {{ $res->execution_time ?? 0 }}ms
-                                                @if($res->node)
-                                                    • Node: {{ $res->node->name }}
-                                                @elseif($res->driver)
-                                                    • Driver: {{ ucfirst($res->driver) }}
-                                                @endif
-                                            </span>
+
+                                    @if($resStatusStr === 'processing')
+                                        <div style="border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; background-color: #eff6ff; display: flex; align-items: center; justify-content: space-between;" class="pipeline-animate-pulse">
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <svg class="pipeline-animate-spin" style="width: 16px; height: 16px; color: #2563eb;" fill="none" viewBox="0 0 24 24">
+                                                    <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span style="font-size: 13px; font-weight: 700; color: #1e40af; text-transform: uppercase;">
+                                                    {{ $displayTitle }} (Processing...)
+                                                </span>
+                                            </div>
+                                            <span style="font-size: 12px; font-weight: 500; color: #3b82f6;">AI Model Generating Output...</span>
                                         </div>
-                                        @if($resStatusStr === 'failed')
+                                    @elseif($resStatusStr === 'failed')
+                                        <div style="border: 1px solid #fee2e2; border-radius: 8px; padding: 16px; background-color: #fef2f2;">
+                                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                                <h5 style="font-size: 13px; font-weight: 700; color: #991b1b; text-transform: uppercase; margin: 0;">
+                                                    {{ $displayTitle }}
+                                                    <span style="font-size: 10px; background-color: #ef4444; color: #ffffff; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">FAILED</span>
+                                                </h5>
+                                            </div>
                                             <p style="font-size: 12px; color: #b91c1c; margin: 4px 0 0 0;">{{ $res->payload['error'] ?? 'Stage execution failed.' }}</p>
-                                        @else
+                                        </div>
+                                    @else
+                                        <div style="border: 1px solid #f3f4f6; border-radius: 8px; padding: 16px; background-color: #fafafa;">
+                                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                                <h5 style="font-size: 13px; font-weight: 700; color: #1e3a8a; text-transform: uppercase; margin: 0;">
+                                                    {{ $displayTitle }}
+                                                </h5>
+                                                <span style="font-size: 11px; color: #9ca3af;">
+                                                    Tokens: {{ $res->tokens ?? 0 }} • {{ $res->execution_time ?? 0 }}ms
+                                                    @if($res->node)
+                                                        • Node: {{ $res->node->name }}
+                                                    @elseif($res->driver)
+                                                        • Driver: {{ ucfirst($res->driver) }}
+                                                    @endif
+                                                </span>
+                                            </div>
                                             <div style="font-size: 13px; color: #374151; white-space: pre-wrap; line-height: 1.6; max-height: 250px; overflow-y: auto; padding-right: 8px;">{{ $res->payload['text'] ?? '' }}</div>
-                                        @endif
-                                    </div>
+                                        </div>
+                                    @endif
                                 @endforeach
                             </div>
                         @endif

@@ -47,7 +47,8 @@ class ExtractTextJob implements ShouldQueue
      */
     public function handle(
         AnalysisResultRepositoryInterface $resultRepository,
-        ExtractorManager $extractorManager
+        ExtractorManager $extractorManager,
+        PipelineService $pipelineService
     ): void {
         $submission = $this->analysis->submission;
         $media = $submission?->media()->first();
@@ -93,6 +94,6 @@ class ExtractTextJob implements ShouldQueue
         ]);
 
         // Continue dynamic DB pipeline
-        app(PipelineService::class)->runNextPendingStage($this->analysis);
+        $pipelineService->runNextPendingStage($this->analysis);
     }
 }
