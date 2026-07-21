@@ -31,7 +31,6 @@ class FakeAIProvider implements AIProviderInterface
             metadata: [
                 'driver' => 'fake_demo_ai',
                 'model' => ($options['model'] ?? 'gemma2').'-demo-simulated',
-                'node_id' => 'demo-node-01',
             ]
         );
     }

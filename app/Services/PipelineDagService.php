@@ -28,7 +28,7 @@ class PipelineDagService
     {
         $lock = Cache::lock("pipeline_dag_eval:{$analysis->id}", 10);
 
-        $lock->block(5, function () use ($analysis) {
+        $callback = function () use ($analysis) {
             $logPrefix = "[DAG-Engine][Analysis:{$analysis->id}]";
 
             // If analysis failed or already completed, do nothing
@@ -106,7 +106,13 @@ class PipelineDagService
                 Log::info("{$logPrefix} All DAG pipeline stages completed successfully. Dispatching report generation.");
                 GenerateReportJob::dispatch($analysis);
             }
-        });
+        };
+
+        if (config('queue.default') === 'sync' || config('demo.enabled', false)) {
+            $callback();
+        } else {
+            $lock->block(5, $callback);
+        }
     }
 
     /**

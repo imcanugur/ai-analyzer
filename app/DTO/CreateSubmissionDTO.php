@@ -10,7 +10,7 @@ class CreateSubmissionDTO
         public readonly string $userId,
         public readonly string $title,
         public readonly ?string $description,
-        public readonly UploadedFile|string $file,
+        public readonly UploadedFile|string|null $file = null,
         public readonly ?array $metadata = null
     ) {}
 
@@ -20,7 +20,7 @@ class CreateSubmissionDTO
             userId: $data['user_id'],
             title: $data['title'],
             description: $data['description'] ?? null,
-            file: $data['file'],
+            file: $data['file'] ?? null,
             metadata: $data['metadata'] ?? null
         );
     }

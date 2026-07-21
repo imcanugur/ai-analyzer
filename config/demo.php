@@ -26,7 +26,7 @@ return [
     | Session Duration (Minutes)
     |--------------------------------------------------------------------------
     */
-    'session_duration_minutes' => (int) env('DEMO_SESSION_DURATION_MINUTES', 60),
+    'session_duration_minutes' => (int) env('DEMO_SESSION_DURATION_MINUTES', 15),
 
     /*
     |--------------------------------------------------------------------------

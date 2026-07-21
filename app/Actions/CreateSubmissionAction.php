@@ -26,11 +26,24 @@ class CreateSubmissionAction
             // 1. Create the submission
             $submission = $this->submissionService->create($dto);
 
+            $file = $dto->file;
+            if (config('demo.enabled', false) && ! $file) {
+                $tempPath = tempnam(sys_get_temp_dir(), 'demo_upload');
+                file_put_contents($tempPath, 'Demo content for analysis.');
+                $file = new \Illuminate\Http\UploadedFile(
+                    $tempPath,
+                    'demo_manuscript.txt',
+                    'text/plain',
+                    null,
+                    true
+                );
+            }
+
             // 2. Upload file and create media polymorphic link
             $disk = config('filesystems.default', 'r2');
             $media = $this->mediaService->createMedia(
                 model: $submission,
-                file: $dto->file,
+                file: $file,
                 disk: $disk,
                 sourceDisk: 'local'
             );

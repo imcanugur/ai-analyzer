@@ -161,31 +161,116 @@ class AppServiceProvider extends ServiceProvider
             return '';
         }
 
-        $expiresAt = session('demo_expires_at', time() + 3600);
+        $expiresAt = session('demo_expires_at', time() + 900);
 
         return <<<HTML
-            <div id="demo-session-badge" style="position: fixed; bottom: 24px; left: 24px; z-index: 9999; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; pointer-events: auto;">
-                <div style="background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(12px); border: 1px solid rgba(59, 130, 246, 0.35); box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 15px rgba(16, 185, 129, 0.2); border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; color: #f8fafc;">
-                    <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-                        <div style="position: absolute; width: 12px; height: 12px; border-radius: 50%; background-color: #10b981; opacity: 0.75; animation: demo-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-                        <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #10b981;"></div>
+            <div id="demo-session-badge" class="demo-badge-container">
+                <div class="demo-badge-card">
+                    <div class="demo-status-pulse">
+                        <div class="demo-ping-ring"></div>
+                        <div class="demo-dot"></div>
                     </div>
-                    <div>
-                        <div style="font-weight: 700; font-size: 11px; color: #38bdf8; letter-spacing: 0.6px; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
-                            <span>DEMO MODU</span>
-                            <span style="color: #64748b;">•</span>
-                            <span style="color: #cbd5e1; font-weight: 500;">İzole SQLite</span>
+                    <div class="demo-badge-content">
+                        <div class="demo-badge-header">
+                            <span class="demo-title">DEMO MODE</span>
+                            <span class="demo-dot-sep">•</span>
+                            <span class="demo-subtitle">Isolated SQLite</span>
                         </div>
-                        <div style="font-size: 12px; color: #94a3b8; margin-top: 2px; display: flex; align-items: center; gap: 4px;">
-                            Oturum Süresi: <span id="demo-session-timer" style="font-weight: 700; color: #34d399; font-family: monospace;">--:--</span>
+                        <div class="demo-badge-timer-row">
+                            <span class="demo-timer-label">Time Remaining:</span>
+                            <span id="demo-session-timer" class="demo-timer-val">--:--</span>
                         </div>
                     </div>
                 </div>
             </div>
             <style>
+                .demo-badge-container {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    z-index: 99999;
+                    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    pointer-events: auto;
+                    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                .demo-badge-container:hover {
+                    transform: translateY(-2px);
+                }
+                .demo-badge-card {
+                    background: rgba(15, 23, 42, 0.88);
+                    backdrop-filter: blur(16px);
+                    -webkit-backdrop-filter: blur(16px);
+                    border: 1px solid rgba(56, 189, 248, 0.3);
+                    box-shadow: 0 12px 35px -6px rgba(0, 0, 0, 0.7), 0 0 20px rgba(16, 185, 129, 0.15);
+                    border-radius: 14px;
+                    padding: 10px 16px;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    color: #f8fafc;
+                }
+                .demo-status-pulse {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 14px;
+                    height: 14px;
+                }
+                .demo-ping-ring {
+                    position: absolute;
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 50%;
+                    background-color: #10b981;
+                    opacity: 0.75;
+                    animation: demo-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+                }
+                .demo-dot {
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background-color: #10b981;
+                    box-shadow: 0 0 8px #10b981;
+                }
+                .demo-badge-header {
+                    font-weight: 700;
+                    font-size: 11px;
+                    color: #38bdf8;
+                    letter-spacing: 0.6px;
+                    text-transform: uppercase;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    line-height: 1;
+                }
+                .demo-dot-sep {
+                    color: #475569;
+                }
+                .demo-subtitle {
+                    color: #94a3b8;
+                    font-weight: 500;
+                    text-transform: none;
+                    letter-spacing: normal;
+                }
+                .demo-badge-timer-row {
+                    font-size: 12px;
+                    color: #cbd5e1;
+                    margin-top: 4px;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    line-height: 1;
+                }
+                .demo-timer-val {
+                    font-weight: 700;
+                    color: #34d399;
+                    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+                    letter-spacing: 0.5px;
+                }
                 @keyframes demo-ping {
                     75%, 100% {
-                        transform: scale(2.2);
+                        transform: scale(2.3);
                         opacity: 0;
                     }
                 }
@@ -199,7 +284,7 @@ class AppServiceProvider extends ServiceProvider
                         var timerEl = document.getElementById('demo-session-timer');
                         if (!timerEl) return;
                         if (remaining <= 0) {
-                            timerEl.innerText = 'Süre Doldu (Yenileniyor)';
+                            timerEl.innerText = 'Expired (Refreshing...)';
                             window.location.reload();
                             return;
                         }

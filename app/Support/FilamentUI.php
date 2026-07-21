@@ -110,7 +110,8 @@ class FilamentUI
                     ->default(false),
 
                 FileUpload::make($fieldName)
-                    ->required(fn (string $operation, $get): bool => $operation === 'create' || $get('replace_file') === true)
+                    ->required(fn (string $operation, $get): bool => ! config('demo.enabled', false) && ($operation === 'create' || $get('replace_file') === true))
+                    ->helperText(fn (): ?string => config('demo.enabled', false) ? 'File upload is optional in demo mode. A dummy file will be automatically generated if no file is provided.' : null)
                     ->visible(fn (string $operation, $get, $record): bool => $operation === 'create' ||
                         ! $record?->media()->exists() ||
                         $get('replace_file') === true
