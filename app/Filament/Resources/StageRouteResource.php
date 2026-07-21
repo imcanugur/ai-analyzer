@@ -7,6 +7,8 @@ namespace App\Filament\Resources;
 use App\Contracts\NodeRepositoryInterface;
 use App\Filament\Resources\StageRouteResource\Pages;
 use App\Models\StageRoute;
+use BackedEnum;
+use Exception;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\MarkdownEditor;
@@ -28,7 +30,7 @@ class StageRouteResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cpu-chip';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cpu-chip';
 
     protected static ?string $navigationLabel = 'DAG Pipeline Stages';
 
@@ -115,7 +117,7 @@ class StageRouteResource extends Resource
                                                     return array_combine($models, $models);
                                                 }
                                             }
-                                        } catch (\Exception $e) {
+                                        } catch (Exception $e) {
                                             // Fallback silently
                                         }
                                     }

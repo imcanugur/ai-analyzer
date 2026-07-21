@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Enums\SubmissionStatus;
 use Carbon\Carbon;
+use Exception;
 use Filament\Actions\Action as FormAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -41,7 +42,7 @@ class FilamentUI
 
                 return 'data:'.$mime.';base64,'.base64_encode($content);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Fallback
         }
 
@@ -65,7 +66,7 @@ class FilamentUI
 
                 return 'data:text/html;charset=utf-8;base64,'.base64_encode($content);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Fallback
         }
 

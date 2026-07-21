@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Smalot\PdfParser\Config as PdfConfig;
 use Smalot\PdfParser\Parser;
+use Throwable;
 
 class PdfExtractor implements TextExtractorInterface
 {
@@ -58,7 +59,7 @@ class PdfExtractor implements TextExtractorInterface
             if ($result->successful()) {
                 return trim($result->output());
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::debug('[PdfExtractor] pdftotext command execution failed.', ['error' => $e->getMessage()]);
         } finally {
             if (file_exists($tempFile)) {
@@ -87,7 +88,7 @@ class PdfExtractor implements TextExtractorInterface
             $pdf = $parser->parseContent($fileContents);
 
             return $pdf->getText();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('[PdfExtractor] Smalot PdfParser extraction failed.', ['error' => $e->getMessage()]);
             return '';
         }
@@ -124,7 +125,7 @@ class PdfExtractor implements TextExtractorInterface
 
                 return trim($ocrText);
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::warning('[PdfExtractor] OCR PPM conversion failed.', ['error' => $e->getMessage()]);
         } finally {
             if (file_exists($tempPdf)) {

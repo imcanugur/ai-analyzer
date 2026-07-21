@@ -1,3 +1,6 @@
+@php use Composer\InstalledVersions; @endphp
+@php use Filament\Support\Icons\Heroicon; @endphp
+@php use Filament\View\PanelsIconAlias; @endphp
 <x-filament-widgets::widget class="fi-filament-info-widget">
     <x-filament::section>
         <div class="fi-filament-info-widget-main">
@@ -17,7 +20,7 @@
                     <path
                         d="M115.85,138.9v-20.22c0-31.15,10.38-54.64,41.53-54.64h27.87V.1h-27.87C85.79.1,48.64,44.36,48.64,118.68v20.22H0v53.55h48.64v201.63h67.21v-201.63h82.19v-53.55h-82.19Z"
                     />
-                    <rect x="382.68" y=".11" width="66.67" height="393.98" />
+                    <rect x="382.68" y=".11" width="66.67" height="393.98"/>
                     <path
                         d="M628.22,335.07c-36.62,0-70.49-27.87-70.49-68.85s33.88-68.86,70.49-68.86,69.94,24.59,69.94,68.86-33.88,68.85-69.94,68.85M698.16,170.59c-18.57-28.42-56.28-37.16-79.23-37.16-67.21,0-130.06,50.82-130.06,132.79s62.84,132.79,130.06,132.79c25.14,0,62.84-11.48,79.23-37.71v32.79h66.67v-255.2h-66.67v31.7Z"
                     />
@@ -46,7 +49,7 @@
             </a>
 
             <p class="fi-filament-info-widget-version">
-                {{ \Composer\InstalledVersions::getPrettyVersion('filament/filament') }}
+                {{ InstalledVersions::getPrettyVersion('filament/filament') }}
             </p>
         </div>
 
@@ -54,8 +57,8 @@
             <x-filament::link
                 color="gray"
                 href="https://filamentphp.com/docs"
-                :icon="\Filament\Support\Icons\Heroicon::BookOpen"
-                :icon-alias="\Filament\View\PanelsIconAlias::WIDGETS_FILAMENT_INFO_OPEN_DOCUMENTATION_BUTTON"
+                :icon="Heroicon::BookOpen"
+                :icon-alias="PanelsIconAlias::WIDGETS_FILAMENT_INFO_OPEN_DOCUMENTATION_BUTTON"
                 rel="noopener noreferrer"
                 target="_blank"
             >
@@ -65,7 +68,7 @@
             <x-filament::link
                 color="gray"
                 href="https://github.com/filamentphp/filament"
-                :icon-alias="\Filament\View\PanelsIconAlias::WIDGETS_FILAMENT_INFO_OPEN_GITHUB_BUTTON"
+                :icon-alias="PanelsIconAlias::WIDGETS_FILAMENT_INFO_OPEN_GITHUB_BUTTON"
                 rel="noopener noreferrer"
                 target="_blank"
             >

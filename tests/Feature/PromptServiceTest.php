@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Services\PromptService;
+use InvalidArgumentException;
 use Tests\TestCase;
 
 class PromptServiceTest extends TestCase
@@ -41,7 +42,7 @@ class PromptServiceTest extends TestCase
         /** @var PromptService $service */
         $service = app(PromptService::class);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $service->load('non_existent_template_xyz');
     }

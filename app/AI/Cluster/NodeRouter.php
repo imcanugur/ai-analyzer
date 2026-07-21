@@ -12,6 +12,7 @@ use App\Contracts\NodeRepositoryInterface;
 use App\Models\Node;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class NodeRouter
 {
@@ -58,7 +59,7 @@ class NodeRouter
     public function selectNode(Collection $candidates, string $capability): Node
     {
         if ($candidates->isEmpty()) {
-            throw new \RuntimeException("No online candidate nodes available to route capability: {$capability}");
+            throw new RuntimeException("No online candidate nodes available to route capability: {$capability}");
         }
 
         if ($candidates->count() === 1) {

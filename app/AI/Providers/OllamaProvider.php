@@ -6,8 +6,10 @@ namespace App\AI\Providers;
 
 use App\AI\Contracts\AIProviderInterface;
 use App\AI\DTO\AIResponse;
+use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class OllamaProvider implements AIProviderInterface
 {
@@ -93,7 +95,7 @@ class OllamaProvider implements AIProviderInterface
             $response = $http->post($url, $body);
 
             if ($response->failed()) {
-                throw new \RuntimeException('Ollama request failed: '.$response->body());
+                throw new RuntimeException('Ollama request failed: '.$response->body());
             }
 
             $data = $response->json();
@@ -116,7 +118,7 @@ class OllamaProvider implements AIProviderInterface
                 rawResponse: $data
             );
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('[OllamaProvider] API request failed.', [
                 'error' => $e->getMessage(),
                 'model' => $model,

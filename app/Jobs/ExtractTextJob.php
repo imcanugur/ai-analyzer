@@ -9,6 +9,7 @@ use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
 use App\Services\Extractors\ExtractorManager;
 use App\Services\PipelineService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -65,7 +66,7 @@ class ExtractTextJob implements ShouldQueue
                     // Extract & normalize text using ExtractorManager strategy
                     $extractedText = $extractorManager->extractAndNormalize($fileContents, $mime, $extension);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->analysis->update([
                     'status' => AnalysisStatus::FAILED,
                     'error' => '[extract] '.$e->getMessage(),

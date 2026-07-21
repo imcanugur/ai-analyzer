@@ -4,8 +4,10 @@ namespace App\AI\Providers;
 
 use App\AI\Contracts\AIProviderInterface;
 use App\AI\DTO\AIResponse;
+use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class ClaudeProvider implements AIProviderInterface
 {
@@ -63,7 +65,7 @@ class ClaudeProvider implements AIProviderInterface
                 ->post('https://api.anthropic.com/v1/messages', $requestBody);
 
             if ($response->failed()) {
-                throw new \RuntimeException('Claude request failed: '.$response->body());
+                throw new RuntimeException('Claude request failed: '.$response->body());
             }
 
             $data = $response->json();
@@ -88,7 +90,7 @@ class ClaudeProvider implements AIProviderInterface
                 rawResponse: $data
             );
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Claude API Error: '.$e->getMessage());
             throw $e;
         }

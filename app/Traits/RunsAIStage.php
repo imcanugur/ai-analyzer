@@ -11,7 +11,9 @@ use App\Contracts\StageRouteRepositoryInterface;
 use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
 use App\Services\PromptService;
+use Exception;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 trait RunsAIStage
 {
@@ -85,14 +87,14 @@ trait RunsAIStage
                     'extract_result_exists' => $extractResult !== null,
                     'payload_keys' => $extractResult ? array_keys($extractResult->payload ?? []) : [],
                 ]);
-                throw new \RuntimeException("No extracted text found for analysis: {$analysis->id}");
+                throw new RuntimeException("No extracted text found for analysis: {$analysis->id}");
             }
 
             if (str_starts_with($text, '[Stubbed Extracted Content')) {
                 Log::error("{$logPrefix} Text extraction pending or failed. Stub content detected.", [
                     'text' => $text,
                 ]);
-                throw new \RuntimeException('Text extraction is not yet implemented or failed for this file type (Stub detected). Please make sure PDF text extraction is active.');
+                throw new RuntimeException('Text extraction is not yet implemented or failed for this file type (Stub detected). Please make sure PDF text extraction is active.');
             }
 
             Log::info("{$logPrefix} Manuscript text retrieved successfully.", [
@@ -218,7 +220,7 @@ trait RunsAIStage
                 'total_tokens' => $aiResponse->tokens,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error("{$logPrefix} Stage FAILED!", [
                 'error_message' => $e->getMessage(),
                 'error_class' => get_class($e),

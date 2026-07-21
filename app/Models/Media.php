@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MediaType;
 use Carbon\Carbon;
+use Eloquent;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,7 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read Model|\Eloquent $mediable
+ * @property-read Model|Eloquent $mediable
  */
 class Media extends Model
 {

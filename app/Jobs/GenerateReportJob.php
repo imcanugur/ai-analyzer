@@ -9,6 +9,7 @@ use App\Models\Analysis;
 use App\Models\AnalysisResult;
 use App\Services\PipelineService;
 use App\Services\ReportService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -52,7 +53,7 @@ class GenerateReportJob implements ShouldQueue
 
             $pipelineService->runNextPendingStage($this->analysis);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->analysis->update([
                 'status' => AnalysisStatus::FAILED,
                 'error' => '[report] '.$e->getMessage(),

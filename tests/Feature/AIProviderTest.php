@@ -7,6 +7,7 @@ use App\AI\DTO\AIResponse;
 use App\AI\Providers\ClaudeProvider;
 use App\AI\Providers\OllamaProvider;
 use Illuminate\Support\Facades\Http;
+use RuntimeException;
 use Tests\TestCase;
 
 class AIProviderTest extends TestCase
@@ -67,7 +68,7 @@ class AIProviderTest extends TestCase
         /** @var AIProviderInterface $provider */
         $provider = app(AIProviderInterface::class);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
 
         $provider->generate('Hello');
     }
@@ -158,7 +159,7 @@ class AIProviderTest extends TestCase
         /** @var AIProviderInterface $provider */
         $provider = app(AIProviderInterface::class);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
 
         $provider->generate('Hello');
     }

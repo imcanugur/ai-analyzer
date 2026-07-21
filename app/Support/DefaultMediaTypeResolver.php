@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Contracts\MediaTypeResolver;
 use App\Enums\MediaType;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 class DefaultMediaTypeResolver implements MediaTypeResolver
 {
@@ -17,7 +18,7 @@ class DefaultMediaTypeResolver implements MediaTypeResolver
 
         $restrictedExtensions = ['exe', 'dll', 'msi', 'dmg', 'iso', 'so', 'bin', 'jar'];
         if (in_array($extension, $restrictedExtensions)) {
-            throw new \InvalidArgumentException("Security Alert: Executable files and binary installers are not allowed: .{$extension}");
+            throw new InvalidArgumentException("Security Alert: Executable files and binary installers are not allowed: .{$extension}");
         }
 
         $sourceCodeExtensions = [

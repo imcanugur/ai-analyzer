@@ -8,6 +8,8 @@ use App\Filament\Resources\NodeResource\Pages;
 use App\Models\Node;
 use App\Services\AIClusterService;
 use App\Support\FilamentUI;
+use BackedEnum;
+use Exception;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -35,7 +37,7 @@ class NodeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-server-stack';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-server-stack';
 
     protected static ?string $navigationLabel = 'AI Cluster Nodes';
 
@@ -112,7 +114,7 @@ class NodeResource extends Resource
                                                     ->danger()
                                                     ->send();
                                             }
-                                        } catch (\Exception $e) {
+                                        } catch (Exception $e) {
                                             Notification::make()
                                                 ->title('Connection failed')
                                                 ->body($e->getMessage())

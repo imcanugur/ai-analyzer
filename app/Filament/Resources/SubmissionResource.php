@@ -6,6 +6,7 @@ use App\Enums\MediaType;
 use App\Filament\Resources\SubmissionResource\Pages;
 use App\Models\Submission;
 use App\Support\FilamentUI;
+use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -30,7 +31,7 @@ class SubmissionResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-duplicate';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-duplicate';
 
     public static function getEloquentQuery(): Builder
     {

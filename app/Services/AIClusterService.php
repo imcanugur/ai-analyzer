@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Contracts\NodeRepositoryInterface;
 use App\Contracts\UserRepositoryInterface;
 use App\Models\Node;
+use Exception;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -76,7 +77,7 @@ class AIClusterService
 
                 return true;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $errorMessage = $e->getMessage();
             Log::error("[AI Cluster Service] Node '{$node->name}' check failed: {$errorMessage}");
 

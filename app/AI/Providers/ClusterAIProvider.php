@@ -8,7 +8,10 @@ use App\AI\DTO\AIResponse;
 use App\Contracts\NodeRepositoryInterface;
 use App\Contracts\StageRouteRepositoryInterface;
 use App\Models\Node;
+use Exception;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
+use RuntimeException;
 
 class ClusterAIProvider implements AIProviderInterface
 {
@@ -81,7 +84,7 @@ class ClusterAIProvider implements AIProviderInterface
                 if ($candidates->isEmpty()) {
                     $errorMsg = "No active cluster nodes support capability: '{$capability}'. Please configure active nodes in the database/Filament.";
                     Log::error("[ClusterAIProvider] {$errorMsg}");
-                    throw new \RuntimeException($errorMsg);
+                    throw new RuntimeException($errorMsg);
                 }
 
                 $node = $this->router->selectNode($candidates, $capability);
@@ -116,7 +119,7 @@ class ClusterAIProvider implements AIProviderInterface
                     ]
                 );
 
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error("[ClusterAIProvider] Node '{$node->name}' execution failed.", [
                     'node' => $node->name,
                     'error' => $e->getMessage(),
@@ -129,7 +132,7 @@ class ClusterAIProvider implements AIProviderInterface
                 ]);
 
                 if (! $failover || $attempt === $retries) {
-                    throw new \RuntimeException(
+                    throw new RuntimeException(
                         "AI execution failed on node '{$node->name}' and failover is exhausted: ".$e->getMessage(),
                         0,
                         $e
@@ -143,7 +146,7 @@ class ClusterAIProvider implements AIProviderInterface
             }
         }
 
-        throw new \RuntimeException("AI execution failed. Retries exhausted for capability: {$capability}");
+        throw new RuntimeException("AI execution failed. Retries exhausted for capability: {$capability}");
     }
 
     /**
@@ -161,7 +164,7 @@ class ClusterAIProvider implements AIProviderInterface
                 apiKey: $node->api_key
             ),
             'claude' => new ClaudeProvider,
-            default => throw new \InvalidArgumentException("Unsupported node driver: {$node->driver}"),
+            default => throw new InvalidArgumentException("Unsupported node driver: {$node->driver}"),
         };
     }
 }

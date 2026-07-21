@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
+use InvalidArgumentException;
+use RuntimeException;
+use Throwable;
 
 class MediaService
 {
@@ -65,7 +68,7 @@ class MediaService
         bool $optimize = false
     ): Media {
         if (! $file->isValid()) {
-            throw new \RuntimeException('Invalid file upload attempt.');
+            throw new RuntimeException('Invalid file upload attempt.');
         }
 
         $contents = $optimize
@@ -167,7 +170,7 @@ class MediaService
                     ->toJpeg(75);
 
                 return (string) $image;
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // Degrade gracefully
             }
         }
@@ -198,7 +201,7 @@ class MediaService
                         return $optContents;
                     }
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // gs not found or failed, ignore optimization
             }
         }
@@ -225,7 +228,7 @@ class MediaService
                         return $optContents;
                     }
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // ffmpeg not found or failed, ignore optimization
             }
         }
@@ -297,7 +300,7 @@ class MediaService
         $sourceStorage = Storage::disk($sourceDisk);
 
         if (! $sourceStorage->exists($path)) {
-            throw new \InvalidArgumentException("File does not exist at path: {$path} on source disk: {$sourceDisk}");
+            throw new InvalidArgumentException("File does not exist at path: {$path} on source disk: {$sourceDisk}");
         }
 
         $size = $sourceStorage->size($path);

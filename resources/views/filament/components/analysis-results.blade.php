@@ -1,3 +1,4 @@
+@php use App\Models\StageRoute; @endphp
 @props(['record'])
 
 @if(!$record)
@@ -8,7 +9,9 @@
     @endphp
 
     @if($analyses->isEmpty())
-        <div style="font-size: 14px; color: #6b7280; font-style: italic;">No analysis runs found for this submission. Once you save or upload a file, the background queue will process it automatically.</div>
+        <div style="font-size: 14px; color: #6b7280; font-style: italic;">No analysis runs found for this submission.
+            Once you save or upload a file, the background queue will process it automatically.
+        </div>
     @else
         @php
             $hasActiveRuns = $analyses->contains(function ($a) {
@@ -16,7 +19,8 @@
                 return in_array($statusVal, ['pending', 'queued', 'processing']);
             });
         @endphp
-        <div @if($hasActiveRuns) wire:poll.3s @endif style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+        <div @if($hasActiveRuns) wire:poll.3s
+             @endif style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
             @foreach($analyses as $analysis)
                 @php
                     $analysisStatusVal = is_object($analysis->status) ? $analysis->status->value : (string) $analysis->status;
@@ -25,7 +29,8 @@
                     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f3f4f6; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
                         <div style="text-align: left;">
                             <span style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">Analysis Run</span>
-                            <h4 style="font-size: 14px; font-weight: 700; color: #111827; margin: 2px 0 0 0;">ID: {{ $analysis->id }}</h4>
+                            <h4 style="font-size: 14px; font-weight: 700; color: #111827; margin: 2px 0 0 0;">
+                                ID: {{ $analysis->id }}</h4>
                         </div>
                         <div style="display: flex; align-items: center; gap: 12px;">
                             @include('filament.components.status-badge', ['status' => $analysis->status])
@@ -50,16 +55,27 @@
                     <!-- Style definitions for loaders -->
                     <style>
                         @keyframes pipeline-spin {
-                            0% { transform: rotate(0deg); }
-                            100% { transform: rotate(360deg); }
+                            0% {
+                                transform: rotate(0deg);
+                            }
+                            100% {
+                                transform: rotate(360deg);
+                            }
                         }
+
                         @keyframes pipeline-pulse {
-                            0%, 100% { opacity: 1; }
-                            50% { opacity: 0.5; }
+                            0%, 100% {
+                                opacity: 1;
+                            }
+                            50% {
+                                opacity: 0.5;
+                            }
                         }
+
                         .pipeline-animate-spin {
                             animation: pipeline-spin 1.2s linear infinite;
                         }
+
                         .pipeline-animate-pulse {
                             animation: pipeline-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
                         }
@@ -68,7 +84,7 @@
                     <!-- Realtime Progress Timeline -->
                     @if(in_array($analysisStatusVal, ['pending', 'queued', 'processing']))
                         @php
-                            $activeStageRoutes = \App\Models\StageRoute::active()->ordered()->get();
+                            $activeStageRoutes = StageRoute::active()->ordered()->get();
                             $stagesInfo = [];
                             foreach ($activeStageRoutes as $sRoute) {
                                 $stagesInfo[$sRoute->stage] = $sRoute->name ?? ucfirst($sRoute->stage);
@@ -86,15 +102,19 @@
                         <div style="margin-top: 20px; border: 1px dashed #3b82f6; border-radius: 8px; padding: 16px; background-color: #eff6ff; text-align: left;">
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                                 <span style="font-size: 13px; font-weight: 700; color: #1e40af; display: flex; align-items: center; gap: 8px;">
-                                    <svg class="pipeline-animate-spin" style="width: 16px; height: 16px; color: #3b82f6;" fill="none" viewBox="0 0 24 24">
-                                        <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    <svg class="pipeline-animate-spin"
+                                         style="width: 16px; height: 16px; color: #3b82f6;" fill="none"
+                                         viewBox="0 0 24 24">
+                                        <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor"
+                                                stroke-width="4"></circle>
+                                        <path style="opacity: 0.75;" fill="currentColor"
+                                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                     AI Pipeline Processing...
                                 </span>
                                 <span style="font-size: 12px; font-weight: 600; color: #1e40af;">{{ round($progressPercent) }}%</span>
                             </div>
-                            
+
                             <!-- Progress Bar -->
                             <div style="width: 100%; height: 6px; background-color: #dbeafe; border-radius: 9999px; overflow: hidden; margin-bottom: 16px;">
                                 <div style="width: {{ $progressPercent }}%; height: 100%; background-color: #3b82f6; border-radius: 9999px; transition: width 0.5s ease-in-out;"></div>
@@ -113,21 +133,25 @@
                                             $foundActive = true;
                                         }
                                     @endphp
-                                    
+
                                     <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
                                         <div style="display: flex; align-items: center; gap: 10px;">
                                             @if($isCompleted)
                                                 <div style="display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 9999px; background-color: #10b981; color: #ffffff;">
-                                                    <svg style="width: 12px; height: 12px;" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
+                                                    <svg style="width: 12px; height: 12px;" fill="none"
+                                                         stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                              d="M4.5 12.75l6 6 9-13.5"></path>
                                                     </svg>
                                                 </div>
                                                 <span style="color: #059669; font-weight: 500;">{{ $stageLabel }}</span>
                                             @elseif($isActive)
-                                                <div style="display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 9999px; background-color: #3b82f6; color: #ffffff;" class="pipeline-animate-pulse">
+                                                <div style="display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 9999px; background-color: #3b82f6; color: #ffffff;"
+                                                     class="pipeline-animate-pulse">
                                                     <span style="width: 6px; height: 6px; border-radius: 9999px; background-color: #ffffff;"></span>
                                                 </div>
-                                                <span style="color: #2563eb; font-weight: 700;" class="pipeline-animate-pulse">{{ $stageLabel }} (Processing...)</span>
+                                                <span style="color: #2563eb; font-weight: 700;"
+                                                      class="pipeline-animate-pulse">{{ $stageLabel }} (Processing...)</span>
                                             @else
                                                 <div style="display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 9999px; border: 2px solid #d1d5db; background-color: #ffffff;"></div>
                                                 <span style="color: #9ca3af;">{{ $stageLabel }} (Pending)</span>
@@ -141,8 +165,8 @@
 
                     @if($analysis->results->isNotEmpty())
                         @php
-                            $stageOrders = \App\Models\StageRoute::active()->pluck('sort_order', 'stage')->toArray();
-                            $stageNames = \App\Models\StageRoute::active()->pluck('name', 'stage')->toArray();
+                            $stageOrders = StageRoute::active()->pluck('sort_order', 'stage')->toArray();
+                            $stageNames = StageRoute::active()->pluck('name', 'stage')->toArray();
                             $uniqueResults = $analysis->results
                                 ->unique(fn($r) => is_object($r->stage) ? $r->stage->value : (string) $r->stage)
                                 ->sortBy(function ($res) use ($stageOrders) {
@@ -164,11 +188,16 @@
                                     @endif
 
                                     @if($resStatusStr === 'processing')
-                                        <div style="border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; background-color: #eff6ff; display: flex; align-items: center; justify-content: space-between;" class="pipeline-animate-pulse">
+                                        <div style="border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; background-color: #eff6ff; display: flex; align-items: center; justify-content: space-between;"
+                                             class="pipeline-animate-pulse">
                                             <div style="display: flex; align-items: center; gap: 10px;">
-                                                <svg class="pipeline-animate-spin" style="width: 16px; height: 16px; color: #2563eb;" fill="none" viewBox="0 0 24 24">
-                                                    <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                <svg class="pipeline-animate-spin"
+                                                     style="width: 16px; height: 16px; color: #2563eb;" fill="none"
+                                                     viewBox="0 0 24 24">
+                                                    <circle style="opacity: 0.25;" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                    <path style="opacity: 0.75;" fill="currentColor"
+                                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                 </svg>
                                                 <span style="font-size: 13px; font-weight: 700; color: #1e40af; text-transform: uppercase;">
                                                     {{ $displayTitle }} (Processing...)

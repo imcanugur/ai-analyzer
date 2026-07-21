@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Extractors;
 
 use App\Contracts\TextExtractorInterface;
+use DOMDocument;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 use ZipArchive;
 
 class DocxExtractor implements TextExtractorInterface
@@ -37,7 +39,7 @@ class DocxExtractor implements TextExtractorInterface
                     return $this->parseDocxXml($xmlContent);
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('[DocxExtractor] Failed to extract text from DOCX document.', ['error' => $e->getMessage()]);
         } finally {
             if (file_exists($tempFile)) {
@@ -53,7 +55,7 @@ class DocxExtractor implements TextExtractorInterface
      */
     protected function parseDocxXml(string $xmlContent): string
     {
-        $dom = new \DOMDocument;
+        $dom = new DOMDocument;
         // Suppress XML warnings for custom Word tags
         libxml_use_internal_errors(true);
         $dom->loadXML($xmlContent);

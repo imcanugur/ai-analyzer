@@ -7,6 +7,7 @@ namespace App\Services\Extractors;
 use App\Contracts\TextExtractorInterface;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
+use Throwable;
 
 class OcrExtractor implements TextExtractorInterface
 {
@@ -37,7 +38,7 @@ class OcrExtractor implements TextExtractorInterface
                 Log::info('[OcrExtractor] OCR extraction successful via Tesseract.');
                 return trim($result->output());
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::warning('[OcrExtractor] Tesseract OCR execution failed or not installed.', ['error' => $e->getMessage()]);
         } finally {
             if (file_exists($tempFile)) {

@@ -12,12 +12,14 @@ use App\Models\Analysis;
 use App\Models\AnalysisResult;
 use App\Services\PipelineService;
 use App\Services\PromptService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class ExecutePipelineStageJob implements ShouldQueue
 {
@@ -94,7 +96,7 @@ class ExecutePipelineStageJob implements ShouldQueue
 
             // 4. Resolve user prompt template directly from Database (throw exception if NULL)
             if (empty($stageRoute->prompt_template)) {
-                throw new \RuntimeException("Prompt template is missing in database for stage '{$this->stageKey}'. Please configure the prompt template in the admin panel.");
+                throw new RuntimeException("Prompt template is missing in database for stage '{$this->stageKey}'. Please configure the prompt template in the admin panel.");
             }
 
             $userPrompt = str_replace(['{{ text }}', '{{text}}'], $text, $stageRoute->prompt_template);
@@ -123,7 +125,7 @@ class ExecutePipelineStageJob implements ShouldQueue
             $cleanPayloadText = preg_replace('/\s+/', '', $trimmedResponse);
 
             if (empty($trimmedResponse) || $cleanPayloadText === '{}' || $cleanPayloadText === '[]') {
-                throw new \RuntimeException("AI provider returned empty response payload for stage [{$this->stageKey}].");
+                throw new RuntimeException("AI provider returned empty response payload for stage [{$this->stageKey}].");
             }
 
             // Auto-repair malformed JSON output from LLM if format is JSON
@@ -168,7 +170,7 @@ class ExecutePipelineStageJob implements ShouldQueue
             // 8. Trigger next stage
             $pipelineService->runNextPendingStage($this->analysis);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error("{$logPrefix} Stage failed: ".$e->getMessage());
 
             if ($resultRecord) {

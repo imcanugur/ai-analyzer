@@ -6,6 +6,7 @@ namespace App\Filament\Pages;
 
 use App\Models\Role;
 use App\Models\User;
+use BackedEnum;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
@@ -24,7 +25,7 @@ class RoleAssignment extends Page implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
     protected static ?string $navigationLabel = 'Role Assignment';
 
