@@ -10,6 +10,7 @@ use App\Contracts\StageRouteRepositoryInterface;
 use App\Enums\AnalysisStatus;
 use App\Models\Analysis;
 use App\Models\AnalysisResult;
+use App\Services\JsonRepairService;
 use App\Services\PipelineService;
 use App\Services\PromptService;
 use Exception;
@@ -29,7 +30,8 @@ class ExecutePipelineStageJob implements ShouldQueue
 
     public function __construct(
         public readonly Analysis $analysis,
-        public readonly string $stageKey
+        public readonly string $stageKey,
+        public readonly ?string $demoDbPath = null
     ) {}
 
     public function tags(): array
@@ -48,6 +50,18 @@ class ExecutePipelineStageJob implements ShouldQueue
         PipelineService $pipelineService,
         JsonRepairService $repairService
     ): void {
+        if (config('demo.enabled', false)) {
+            $dbPath = $this->demoDbPath ?? session('demo_db_path');
+            if ($dbPath && file_exists($dbPath)) {
+                config([
+                    'database.default' => 'sqlite',
+                    'database.connections.sqlite.database' => $dbPath,
+                ]);
+                \Illuminate\Support\Facades\DB::purge('sqlite');
+                \Illuminate\Support\Facades\DB::reconnect('sqlite');
+            }
+        }
+
         $logPrefix = "[PipelineJob:{$this->stageKey}][Analysis:{$this->analysis->id}]";
         $stageRoute = $routeRepository->findByStage($this->stageKey);
 

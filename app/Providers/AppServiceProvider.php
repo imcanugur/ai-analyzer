@@ -83,6 +83,15 @@ class AppServiceProvider extends ServiceProvider
     {
         config(['livewire.temporary_file_upload.disk' => 'local']);
 
+        if (config('demo.enabled', false)) {
+            config([
+                'queue.default' => env('DEMO_QUEUE_CONNECTION', 'sync'),
+                'cache.default' => env('DEMO_CACHE_DRIVER', 'file'),
+                'session.driver' => env('DEMO_SESSION_DRIVER', 'file'),
+                'filesystems.default' => 'local',
+            ]);
+        }
+
         Event::listen(
             'eloquent.created: '.DatabaseNotification::class,
             SendWebPushOnDatabaseNotification::class
@@ -96,7 +105,7 @@ class AppServiceProvider extends ServiceProvider
 
         FilamentView::registerRenderHook(
             'panels::body.end',
-            fn (): string => $this->getFilamentCustomStyles()
+            fn (): string => $this->getFilamentCustomStyles().$this->getDemoModeBadge()
         );
     }
 
@@ -140,6 +149,68 @@ class AppServiceProvider extends ServiceProvider
                 }
                 {$hideHorizonCss}
             </style>
+        HTML;
+    }
+
+    /**
+     * Get Floating Session Badge HTML & JS for Demo Mode.
+     */
+    private function getDemoModeBadge(): string
+    {
+        if (! config('demo.enabled', false)) {
+            return '';
+        }
+
+        $expiresAt = session('demo_expires_at', time() + 3600);
+
+        return <<<HTML
+            <div id="demo-session-badge" style="position: fixed; bottom: 24px; left: 24px; z-index: 9999; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; pointer-events: auto;">
+                <div style="background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(12px); border: 1px solid rgba(59, 130, 246, 0.35); box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 15px rgba(16, 185, 129, 0.2); border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; color: #f8fafc;">
+                    <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+                        <div style="position: absolute; width: 12px; height: 12px; border-radius: 50%; background-color: #10b981; opacity: 0.75; animation: demo-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+                        <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #10b981;"></div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 11px; color: #38bdf8; letter-spacing: 0.6px; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+                            <span>DEMO MODU</span>
+                            <span style="color: #64748b;">•</span>
+                            <span style="color: #cbd5e1; font-weight: 500;">İzole SQLite</span>
+                        </div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 2px; display: flex; align-items: center; gap: 4px;">
+                            Oturum Süresi: <span id="demo-session-timer" style="font-weight: 700; color: #34d399; font-family: monospace;">--:--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <style>
+                @keyframes demo-ping {
+                    75%, 100% {
+                        transform: scale(2.2);
+                        opacity: 0;
+                    }
+                }
+            </style>
+            <script>
+                (function() {
+                    var expiresAt = {$expiresAt};
+                    function updateDemoTimer() {
+                        var now = Math.floor(Date.now() / 1000);
+                        var remaining = expiresAt - now;
+                        var timerEl = document.getElementById('demo-session-timer');
+                        if (!timerEl) return;
+                        if (remaining <= 0) {
+                            timerEl.innerText = 'Süre Doldu (Yenileniyor)';
+                            window.location.reload();
+                            return;
+                        }
+                        var mins = Math.floor(remaining / 60);
+                        var secs = remaining % 60;
+                        timerEl.innerText = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+                    }
+                    updateDemoTimer();
+                    setInterval(updateDemoTimer, 1000);
+                })();
+            </script>
         HTML;
     }
 }

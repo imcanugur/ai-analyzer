@@ -61,6 +61,7 @@ class PipelineService
 
             // If a pending stage is found, dispatch it dynamically based on stage key
             if ($nextStageRoute) {
+                $demoDbPath = config('demo.enabled', false) ? session('demo_db_path') : null;
                 Log::info("{$logPrefix} Starting dynamic stage '{$nextStageRoute->stage}' ({$nextStageRoute->name})");
 
                 if ($nextStageRoute->stage === 'extract') {
@@ -100,7 +101,7 @@ class PipelineService
                     ],
                 ]);
 
-                ExecutePipelineStageJob::dispatch($analysis, $nextStageRoute->stage);
+                ExecutePipelineStageJob::dispatch($analysis, $nextStageRoute->stage, $demoDbPath);
 
                 return;
             }

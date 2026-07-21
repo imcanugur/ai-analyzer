@@ -29,7 +29,8 @@ class MediaService
         protected MediaRepositoryInterface $mediaRepository,
         ?string $disk = null
     ) {
-        $this->disk = $disk ?? config('filesystems.default', 'r2');
+        $defaultDisk = config('demo.enabled', false) ? 'local' : config('filesystems.default', 'r2');
+        $this->disk = $disk ?? $defaultDisk;
     }
 
     /**
@@ -37,7 +38,7 @@ class MediaService
      */
     public function setDisk(string $disk): self
     {
-        $this->disk = $disk;
+        $this->disk = config('demo.enabled', false) ? 'local' : $disk;
 
         return $this;
     }
@@ -48,6 +49,11 @@ class MediaService
      */
     public function createMedia(Model $model, UploadedFile|string $file, string $disk = 'r2', ?string $sourceDisk = null, ?string $originalName = null): Media
     {
+        if (config('demo.enabled', false)) {
+            $disk = 'local';
+            $sourceDisk = 'local';
+        }
+
         $this->setDisk($disk);
 
         if ($file instanceof UploadedFile) {
@@ -295,6 +301,11 @@ class MediaService
      */
     public function createFromStoredPath(Model $model, string $path, string $disk = 'r2', ?string $sourceDisk = null, ?string $originalName = null): Media
     {
+        if (config('demo.enabled', false)) {
+            $disk = 'local';
+            $sourceDisk = 'local';
+        }
+
         $targetStorage = Storage::disk($disk);
         $sourceDisk = $sourceDisk ?? config('filesystems.default', 'local');
         $sourceStorage = Storage::disk($sourceDisk);

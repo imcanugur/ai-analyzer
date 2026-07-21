@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\AI\Contracts\AIProviderInterface;
 use App\AI\Providers\ClusterAIProvider;
+use App\AI\Providers\FakeAIProvider;
 use Illuminate\Support\ServiceProvider;
 
 class AIServiceProvider extends ServiceProvider
@@ -16,6 +17,10 @@ class AIServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(AIProviderInterface::class, function ($app) {
+            if (config('demo.enabled', false)) {
+                return $app->make(FakeAIProvider::class);
+            }
+
             return $app->make(ClusterAIProvider::class);
         });
     }
