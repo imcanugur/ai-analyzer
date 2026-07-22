@@ -29,7 +29,7 @@ class PipelineService
         $lockKey = "pipeline_lock:{$analysis->id}";
         $lock = Cache::lock($lockKey, 15);
 
-        $lock->block(5, function () use ($analysis) {
+        $callback = function () use ($analysis) {
             $analysis->refresh();
 
             // Stop execution if analysis is marked failed or completed
@@ -87,10 +87,15 @@ class PipelineService
                     return;
                 }
 
+                $nodeId = $nextStageRoute->node_id;
+                if ($nodeId && ! \App\Models\Node::where('id', $nodeId)->exists()) {
+                    $nodeId = null;
+                }
+
                 // Create PROCESSING result entry for AI stage to prevent race conditions
                 AnalysisResult::create([
                     'analysis_id' => $analysis->id,
-                    'node_id' => $nextStageRoute->node_id,
+                    'node_id' => $nodeId,
                     'model' => $nextStageRoute->model ?? 'gemma2',
                     'driver' => 'ollama',
                     'stage' => $nextStageRoute->stage,
@@ -112,6 +117,12 @@ class PipelineService
             if (! $hasProcessingStage) {
                 Log::info("{$logPrefix} All DB pipeline stages completed.");
             }
-        });
+        };
+
+        if (config('queue.default') === 'sync' || config('demo.enabled', false)) {
+            $callback();
+        } else {
+            $lock->block(5, $callback);
+        }
     }
 }
